@@ -18,3 +18,23 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Added by Agent
+# Node.js/TypeScript
+dist/
+*.log
+.env*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Universal
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/

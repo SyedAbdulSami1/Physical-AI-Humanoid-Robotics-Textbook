@@ -208,3 +208,55 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+---
+# Physical AI & Humanoid Robotics Textbook Content
+
+## Course Overview
+The course is titled **Physical AI & Humanoid Robotics** with the central focus and theme being **AI Systems in the Physical World and Embodied Intelligence**. The primary goal is bridging the gap between the digital brain and the physical body so that students can apply their existing AI knowledge to control humanoid robots in both simulated and real-world environments. This is a capstone quarter that introduces Physical AI — AI systems that operate in reality and understand physical laws — using ROS 2, Gazebo, and NVIDIA Isaac to design, simulate, and deploy humanoid robots capable of natural human interactions.
+
+## Core Modules
+The textbook must contain the following four core modules:
+
+-   **Module 1: The Robotic Nervous System (ROS 2)**: Focuses on middleware for robot control, covering ROS 2 nodes, topics, services, bridging Python agents to ROS controllers using rclpy, and understanding URDF (Unified Robot Description Format) for humanoid robots.
+-   **Module 2: The Digital Twin (Gazebo & Unity)**: Focuses on physics simulation and environment building, including simulating physics, gravity, and collisions in Gazebo, high-fidelity rendering and human-robot interaction in Unity, and simulating sensors such as LiDAR, depth cameras, and IMUs.
+-   **Module 3: The AI-Robot Brain (NVIDIA Isaac™)**: Focuses on advanced perception and training, covering NVIDIA Isaac Sim for photorealistic simulation and synthetic data generation, Isaac ROS for hardware-accelerated VSLAM and navigation, and Nav2 for path planning in bipedal humanoid movement.
+-   **Module 4: Vision-Language-Action (VLA)**: Focuses on the convergence of LLMs and robotics, including voice-to-action using OpenAI Whisper for voice commands, cognitive planning where LLMs translate natural language commands such as “Clean the room” into sequences of ROS 2 actions, and a final capstone project called **The Autonomous Humanoid** in which a simulated robot receives a voice command, plans a path, navigates obstacles, identifies an object using computer vision, and manipulates it.
+
+## Why Physical AI Matters
+The textbook must also explain why Physical AI matters: humanoid robots are poised to excel in our human-centered world because they share our physical form and can be trained with abundant data from human environments, marking the transition from digital-only AI to true embodied intelligence that operates in physical space.
+
+## Learning Outcomes
+The learning outcomes that must be clearly stated are:
+-   Understand Physical AI principles and embodied intelligence.
+-   Master ROS 2 for robotic control.
+-   Simulate robots with Gazebo and Unity.
+-   Develop with the NVIDIA Isaac AI robot platform.
+-   Design humanoid robots for natural interactions.
+-   Integrate GPT models for conversational robotics.
+
+## Weekly Breakdown (Weeks 1–13)
+-   **Weeks 1–2: Introduction to Physical AI**: including foundations of embodied intelligence, the shift from digital AI to robots that understand physical laws, the humanoid robotics landscape, and sensor systems such as LiDAR, cameras, IMUs, and force/torque sensors.
+-   **Weeks 3–5: ROS 2 Fundamentals**: including architecture, core concepts, nodes, topics, services, actions, building ROS 2 packages with Python, launch files, and parameter management.
+-   **Weeks 6–7: Robot Simulation with Gazebo**: including environment setup, URDF and SDF formats, physics and sensor simulation, and an introduction to Unity for robot visualization.
+-   **Weeks 8–10: The NVIDIA Isaac Platform**: including Isaac SDK and Isaac Sim, AI-powered perception and manipulation, reinforcement learning for robot control, and sim-to-real transfer techniques.
+-   **Weeks 11–12: Humanoid Robot Development**: including kinematics, dynamics, bipedal locomotion, balance control, manipulation, grasping, and natural human-robot interaction design.
+-   **Week 13: Conversational Robotics**: including integrating GPT models, speech recognition, natural language understanding, and multi-modal interaction using speech, gesture, and vision.
+
+## Assessments
+Assessments must be listed as:
+-   ROS 2 package development project.
+-   Gazebo simulation implementation.
+-   Isaac-based perception pipeline.
+-   Final Capstone of a simulated humanoid robot with conversational AI.
+
+## Hardware Requirements
+The entire Hardware Requirements section must be included without omitting anything: the course is technically demanding because it combines physics simulation, visual perception, and generative AI.
+
+-   **“Digital Twin” Workstation**: Needs an NVIDIA RTX 4070 Ti (12 GB VRAM) or higher (ideally RTX 3090/4090 with 24 GB), Intel Core i7 13th Gen+ or AMD Ryzen 9, 64 GB DDR5 RAM (32 GB minimum), and Ubuntu 22.04 LTS.
+-   **“Physical AI” Edge Kit**: Consists of NVIDIA Jetson Orin Nano or NX as the brain, Intel RealSense D435i/D455 for vision, a USB IMU, and a USB microphone/speaker array such as ReSpeaker.
+-   **Three robot lab options are described**:
+    -   Budget/proxy approach using Unitree Go2 Edu.
+    -   Miniature humanoid approach using Unitree G1, Robotis OP3 or budget Hiwonder TonyPi Pro.
+    -   Premium approach using Unitree G1 humanoid.
+-   **Additional Information**: The architecture summary table, cloud-native “Ether” lab option with AWS g5/g6 instances, cost calculations, and the **Economy Jetson Student Kit** (Jetson Orin Nano Super Dev Kit $249 + RealSense D435i $349 + ReSpeaker $69 + misc $30 = ~$700 total) must all be present along with the latency trap explanation and the final solution of training in the cloud and flashing to local Jetson.
