@@ -1,3 +1,7 @@
+---
+title: Hardware Requirements
+---
+
 # Hardware Requirements
 
 The course is technically demanding because it combines physics simulation, visual perception, and generative AI.

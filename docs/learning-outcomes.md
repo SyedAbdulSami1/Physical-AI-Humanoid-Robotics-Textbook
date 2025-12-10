@@ -1,3 +1,7 @@
+---
+title: Learning Outcomes
+---
+
 # Learning Outcomes
 
 - Understand Physical AI principles and embodied intelligence.
