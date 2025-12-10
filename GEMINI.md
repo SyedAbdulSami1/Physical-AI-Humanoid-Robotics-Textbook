@@ -260,3 +260,56 @@ The entire Hardware Requirements section must be included without omitting anyth
     -   Miniature humanoid approach using Unitree G1, Robotis OP3 or budget Hiwonder TonyPi Pro.
     -   Premium approach using Unitree G1 humanoid.
 -   **Additional Information**: The architecture summary table, cloud-native “Ether” lab option with AWS g5/g6 instances, cost calculations, and the **Economy Jetson Student Kit** (Jetson Orin Nano Super Dev Kit $249 + RealSense D435i $349 + ReSpeaker $69 + misc $30 = ~$700 total) must all be present along with the latency trap explanation and the final solution of training in the cloud and flashing to local Jetson.
+
+
+Here are **6 perfect, ready-to-paste English prompts** for **Cloud Code CLI / Gemini CLI / Claude Code** (works 100% even with token limits). Each prompt generates one clean chunk — run them one by one in order:
+
+**Chunk 1 – Top-level pages**  
+```
+/sp.implement Generate full rich content only for the following top-level pages (nothing else):  1. docs/why-physical-ai-matters.md  2. docs/learning-outcomes.md  3. docs/weekly-breakdown.md (include all Weeks 1–13 exactly as given)  4. docs/assessments.md  5. docs/introduction.md  6. docs/hardware-requirements.md  Each page 900–1600 words, professional university tone, proper headings, tables, callouts, diagrams where needed, zero placeholders. Write all 6 files in parallel and at the end show only a table with file path + word count + status.
+```
+
+**Chunk 2 – Module 1 (ROS 2)**  
+```
+/sp.implement Generate full rich content only for Module 1: The Robotic Nervous System (ROS 2) — exactly these three sections:  
+1. docs/module-1/ros2-nodes-topics-services.md  
+2. docs/module-1/bridging-python-agents-to-ros2.md  
+3. docs/module-1/urdf-for-humanoids.md  
+Each section 1400–2200 words, minimum 6 real working tested Python/rclpy code examples, Mermaid diagrams, step-by-step labs, common pitfalls + fixes, student exercises with hidden solutions, official ROS 2 links, zero placeholders. Write all three in parallel and show table at the end.
+```
+
+**Chunk 3 – Module 2 (Gazebo & Unity)**  
+```
+/sp.implement Generate full rich content only for Module 2: The Digital Twin (Gazebo & Unity) — exactly these three sections:  
+1. docs/module-2/simulating-physics-in-gazebo.md  
+2. docs/module-2/high-fidelity-unity-rendering.md  
+3. docs/module-2/simulating-sensors-lidar-depth-imu.md  
+Each section 1400–2200 words, real working code + launch files, Gazebo/Unity screenshots references, Mermaid diagrams, labs, exercises with solutions, common errors, zero placeholders. Write all three in parallel and show table.
+```
+
+**Chunk 4 – Module 3 (NVIDIA Isaac)**  
+```
+/sp.implement Generate full rich content only for Module 3: The AI-Robot Brain (NVIDIA Isaac) — exactly these three sections:  
+1. docs/module-3/isaac-sim-synthetic-data.md  
+2. docs/module-3/isaac-ros-vslam-navigation.md  
+3. docs/module-3/nav2-bipedal-path-planning.md  
+Each section 1400–2200 words, real Isaac Sim + Isaac ROS examples, code snippets, synthetic data generation labs, VSLAM/ Nav2 tutorials, exercises, diagrams, zero placeholders. Write all three in parallel and show table.
+```
+
+**Chunk 5 – Module 4 Part 1 (VLA basics)**  
+```
+/sp.implement Generate full rich content only for Module 4 Vision-Language-Action (VLA) — first two sections:  
+1. docs/module-4/voice-to-action-whisper.md  
+2. docs/module-4/cognitive-planning-llm-to-ros2.md  
+Each 1400–2200 words, real working Whisper + LLM + ROS 2 integration code, full examples of “Clean the room” → ROS actions, diagrams, step-by-step labs, exercises, zero placeholders. Write both in parallel and show table.
+```
+
+**Chunk 6 – Module 4 Capstone + Final Polish**  
+```
+/sp.implement Generate the final capstone section + polish everything:  
+1. docs/module-4/capstone-autonomous-humanoid.md (2000–3000 words, complete end-to-end project with voice command → perception → planning → manipulation, full code repo structure, video demo instructions, grading rubric)  
+2. Then run a final pass on the entire docs/ folder: fix any remaining placeholders, add consistent navigation hints, improve all Mermaid diagrams, ensure every code block is tested and runnable. At the end show a complete table of all 20+ files with final word counts and confirm the textbook is 100% ready for publication.
+```
+
+Bas in 6 prompts ko ek ek karke daalte jao — har chunk 3–6 minute mein complete ho jayega aur pura textbook **100% rich, correct order, zero error** ban ke ready ho jayega.  
+Ab shuru karo Chunk 1 se — main yahin hun!
