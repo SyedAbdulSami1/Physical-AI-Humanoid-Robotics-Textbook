@@ -26,9 +26,9 @@ const sidebars: SidebarsConfig = {
         type: 'generated-index',
       },
       items: [
-        'module-1/ros-2-nodes-topics-services',
-        'module-1/bridging-python-agents-with-rclpy',
-        'module-1/understanding-urdf-for-humanoids',
+        'module1/ros2-nodes-topics-services',
+        'module1/bridging-python-agents-to-ros2',
+        'module1/urdf-for-humanoids',
       ],
     },
     {
@@ -40,7 +40,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'module-2/simulating-physics-in-gazebo',
         'module-2/high-fidelity-rendering-in-unity',
-        'module-2/simulating-sensors',
+        'module-2/simulating-sensors-lidar-depth-imu',
       ],
     },
     {
@@ -50,9 +50,9 @@ const sidebars: SidebarsConfig = {
         type: 'generated-index',
       },
       items: [
-        'module-3/nvidia-isaac-sim',
-        'module-3/isaac-ros-for-vslam-navigation',
-        'module-3/nav2-for-bipedal-movement',
+        'module-3/isaac-sim-synthetic-data',
+        'module-3/isaac-ros-vslam-navigation',
+        'module-3/nav2-bipedal-path-planning',
       ],
     },
     {
@@ -62,8 +62,8 @@ const sidebars: SidebarsConfig = {
         type: 'generated-index',
       },
       items: [
-        'module-4/voice-to-action-with-openai-whisper',
-        'module-4/cognitive-planning-with-llms',
+        'module-4/voice-to-action-whisper',
+        'module-4/cognitive-planning-llm-to-ros2',
         'module-4/capstone-project-autonomous-humanoid',
       ],
     },
