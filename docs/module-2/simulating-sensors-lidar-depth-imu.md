@@ -127,7 +127,12 @@ We'll use XACRO to make this clean. We need to add a new link for the sensor and
 4.  Select the **By topic** tab and find the `/leg_scan` topic. Choose the `LaserScan` display and click OK.
 5.  Set the **Fixed Frame** in the Global Options (top-left) to `pelvis`.
 
-*A screenshot reference showing RViz2. The leg model is visible, and red dots (from the LaserScan display) are shown, accurately mapping the walls and obstacles from the Gazebo world. The caption would read: "Visualizing the simulated LiDAR data in RViz2."*
+<div align="center">
+
+*Image: Visualizing the simulated LiDAR data in RViz2.*
+*A screenshot showing the leg model in RViz2, with red dots from the LaserScan display accurately mapping the walls and obstacles from the Gazebo world.*
+
+</div>
 
 You should now see a plot of red dots in RViz2, corresponding to the distances measured by the simulated LiDAR in Gazebo. If you move an obstacle in front of the robot in Gazebo, you will see the red dots in RViz2 update in real-time.
 
@@ -202,7 +207,12 @@ We'll add another link and plugin to our XACRO file. The process is very similar
 3.  Select the **By topic** tab and find the `/depth_cam/points` topic. Choose the `PointCloud2` display.
 4.  You may need to increase the `Size (Pixels)` in the PointCloud2 display options to see the points clearly.
 
-*A screenshot reference showing RViz2. In addition to the leg and LiDAR scan, a colorful cloud of points is visible, representing the 3D structure of the world as seen by the depth camera. The caption would read: "Visualizing the PointCloud2 data from the simulated depth camera."*
+<div align="center">
+
+*Image: Visualizing the PointCloud2 data from the simulated depth camera.*
+*A screenshot showing RViz2. In addition to the leg and LiDAR scan, a colorful cloud of points is visible, representing the 3D structure of the world as seen by the depth camera.*
+
+</div>
 
 ---
 ## Lab 3: Simulating an IMU
@@ -288,3 +298,7 @@ As the robot falls and hits the ground in Gazebo, you will see the `linear_accel
 - **Gazebo Sensor Plugins Tutorials**: [https://classic.gazebosim.org/tutorials?cat=sensors](https://classic.gazebosim.org/tutorials?cat=sensors)
 - **`gazebo_ros_pkgs` Sensor Plugins**: A list of available sensor plugins can often be found by looking at the source or documentation for packages like `gazebo_plugins`.
 - **`sensor_msgs` documentation**: [http://docs.ros.org/en/humble/API/sensor_msgs/index.html](http://docs.ros.org/en/humble/API/sensor_msgs/index.html)
+
+---
+
+[**← Previous: High-Fidelity Rendering in Unity**](./high-fidelity-rendering-in-unity.md) | [**Next: Module 3: The AI-Robot Brain →**](../module-3/isaac-sim-synthetic-data.md)

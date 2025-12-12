@@ -137,3 +137,7 @@ The course is divided into sequential modules that progressively introduce stude
     *   The project integrates speech recognition, LLM-based cognitive planning, navigation, perception, and manipulation into a single, autonomous system.
 
 This detailed breakdown ensures a thorough exploration of each topic, providing students with a robust foundation and advanced skills in the exciting field of Physical AI and Humanoid Robotics. Each week will involve lectures, lab sessions, and practical assignments to reinforce learning.
+
+---
+
+[**← Previous: Capstone Project**](./module-4/capstone-autonomous-humanoid.md) | [**Next: Assessments →**](./assessments.md)

@@ -742,3 +742,7 @@ Run with: `ros2 run my_robot_pkg robot_status_server` (in one terminal) and `ros
     *   [Navigation2 Documentation](https://navigation.ros.org/)
 
 By effectively utilizing `rclpy`, Python AI agents become powerful components within the ROS 2 ecosystem, transforming complex algorithms into real-world robotic behaviors. This modularity and rich toolset empower developers to design highly capable Physical AI systems. The next chapter will explore the critical role of URDF in defining these robotic systems.
+
+---
+
+[**← Previous: ROS 2 Fundamentals**](./ros2-nodes-topics-services.md) | [**Next: URDF for Humanoids →**](./urdf-for-humanoids.md)

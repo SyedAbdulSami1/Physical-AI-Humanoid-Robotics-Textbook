@@ -87,3 +87,7 @@ The recommended approach to overcome the latency trap for this course is a hybri
 2.  **Flash to Local Jetson**: Once models are trained and validated in simulation, optimize them for inference and deploy (flash) them onto the local NVIDIA Jetson Orin Nano/NX "Physical AI" Edge Kit for real-world testing and deployment on physical robots.
 
 This methodology allows students to benefit from fast iteration cycles during training while ensuring that the developed solutions are practical and performant on target edge hardware, providing a realistic development workflow for real-world Physical AI applications. This course empowers students with the knowledge and tools to navigate these hardware complexities effectively.
+
+---
+
+[**← Previous: Assessments**](./assessments.md)

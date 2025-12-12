@@ -133,7 +133,12 @@ To run this, you don't use a standard Python interpreter. You use the one bundle
 
 You should see the Isaac Sim window appear, showing a ground plane, a red cube, a blue sphere, and your imported leg robot.
 
+<div align="center">
+
+*Image: Isaac Sim viewport showing spawned objects.*
 *A screenshot of the Isaac Sim viewport showing the spawned red cube, blue sphere, and the simple leg robot model on a ground plane.*
+
+</div>
 
 ---
 
@@ -216,7 +221,12 @@ kit.close()
 ```
 Isaac Sim will run for 50 frames. On each frame, it will move the objects to a new random position and save an RGB image and a corresponding `bounding_box_2d_tight.json` file. This JSON file contains the pixel-perfect coordinates and semantic labels for the bounding boxes of each object in the image.
 
+<div align="center">
+
+*Image: Example of generated synthetic data.*
 *A screenshot showing a folder of generated data. On one side, several rendered images of cubes, spheres, and cylinders in random positions. On the other side, a text editor showing the contents of a JSON file with bounding box coordinates and labels.*
+
+</div>
 
 ## Common Pitfalls
 
@@ -266,3 +276,7 @@ Isaac Sim will run for 50 frames. On each frame, it will move the objects to a n
 - **Omniverse Replicator (for Synthetic Data)**: [https://docs.omniverse.nvidia.com/prod_replicator/prod_replicator/overview.html](https://docs.omniverse.nvidia.com/prod_replicator/prod_replicator/overview.html)
 - **Isaac Sim ROS/ROS 2 Bridge**: [https://docs.omniverse.nvidia.com/app_isaacsim/app_isaacsim/ext_omni_isaac_ros_bridge.html](https://docs.omniverse.nvidia.com/app_isaacsim/app_isaacsim/ext_omni_isaac_ros_bridge.html)
 - **Domain Randomization Paper**: [https://arxiv.org/abs/1703.06907](https://arxiv.org/abs/1703.06907)
+
+---
+
+[**← Previous: Simulating Sensors**](../module-2/simulating-sensors-lidar-depth-imu.md) | [**Next: Isaac ROS for VSLAM and Navigation →**](./isaac-ros-vslam-navigation.md)

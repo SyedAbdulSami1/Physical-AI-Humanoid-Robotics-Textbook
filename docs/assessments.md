@@ -51,3 +51,7 @@ Each assessment will be evaluated based on:
 *   **Demonstration**: The ability to clearly present and demonstrate the working system.
 
 These assessments are designed to provide students with invaluable experience in building real-world Physical AI and humanoid robotic systems, preparing them for advanced careers in this exciting and impactful field.
+
+---
+
+[**← Previous: Weekly Breakdown**](./weekly-breakdown.md) | [**Next: Hardware Requirements →**](./hardware-requirements.md)

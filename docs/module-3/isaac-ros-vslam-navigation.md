@@ -65,7 +65,12 @@ First, we need a robot in a scene that can be moved around. Isaac Sim comes with
 4.  This will load a scene with a "Carter" robot, which has a differential drive, a camera, and an IMU.
 5.  Press **Play** in Isaac Sim. The simulation will start, and Isaac Sim will begin publishing sensor data to ROS 2 topics.
 
+<div align="center">
+
+*Image: Carter robot in the Isaac Sim warehouse environment.*
 *A screenshot of the Isaac Sim viewport showing the Carter robot in a warehouse environment.*
+
+</div>
 
 ### Step 2: Launch the Isaac ROS VSLAM Docker Container
 Now, we'll run the VSLAM node inside the official Docker container. This ensures all dependencies are correctly installed.
@@ -102,7 +107,12 @@ This launch file starts the `vslam` node and also configures it to publish data 
 
 As you drive the robot, you will see the map being built in real-time in RViz2! The VSLAM node is consuming the images and IMU data from Isaac Sim, building a map, and publishing it.
 
+<div align="center">
+
+*Image: VSLAM map creation in RViz2.*
 *A screenshot of RViz2 showing a partially built map of the warehouse environment. The robot's current position is visible, along with the path it has taken.*
+
+</div>
 
 ---
 
@@ -125,7 +135,12 @@ Once you set the goal, you will see several things happen in RViz2:
 
 The Nav2 stack is calculating velocity commands based on the planned path and publishing them to the `/cmd_vel` topic. A ROS bridge script in the Isaac Sim scene subscribes to this topic and actuates the robot's joints, making it move. The robot will drive along the path, avoiding any obstacles it detects, until it reaches the goal.
 
+<div align="center">
+
+*Image: Nav2 path planning in RViz2.*
 *A screenshot of RViz2 showing the full map, the robot, a green global path snaking through the environment, and the blue local path immediately in front of the robot. The goal position is marked with an arrow.*
+
+</div>
 
 ## Common Pitfalls
 
@@ -180,3 +195,7 @@ The Nav2 stack is calculating velocity commands based on the planned path and pu
 - **Isaac ROS VSLAM Documentation**: [https://nvidia-isaac-ros.github.io/repositories_and_packages/isaac_ros_vslam/index.html](https://nvidia-isaac-ros.github.io/repositories_and_packages/isaac_ros_vslam/index.html)
 - **ROS 2 Navigation Stack (Nav2)**: [https://navigation.ros.org/](https://navigation.ros.org/)
 - **VSLAM (General Concept)**: [https://en.wikipedia.org/wiki/Simultaneous_localization_and_mapping](https://en.wikipedia.org/wiki/Simultaneous_localization_and_mapping)
+
+---
+
+[**← Previous: Isaac Sim for Synthetic Data**](./isaac-sim-synthetic-data.md) | [**Next: Nav2 for Bipedal Path Planning →**](./nav2-bipedal-path-planning.md)

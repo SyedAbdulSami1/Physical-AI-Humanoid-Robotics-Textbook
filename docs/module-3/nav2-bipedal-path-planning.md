@@ -1,5 +1,5 @@
 ---
-sid ebar_position: 3
+sidebar_position: 3
 ---
 
 # The AI-Robot Brain: Nav2 for Bipedal Path Planning
@@ -128,27 +128,27 @@ class DummyBipedalPlanner(Node):
                 self.last_footstep_pos = current_pos
                 self.is_left_foot = not self.is_left_foot
                 
-def distance(self, p1: Point, p2: Point):
-    return ((p1.x - p2.x)**2 + (p1.y - p2.y)**2)**0.5
+    def distance(self, p1: Point, p2: Point):
+        return ((p1.x - p2.x)**2 + (p1.y - p2.y)**2)**0.5
 
-def publish_footstep_marker(self, position: Point):
-    marker = Marker()
-    marker.header.frame_id = "map"
-    marker.header.stamp = self.get_clock().now().to_msg()
-    marker.ns = "footsteps"
-    marker.id = 0 # In a real app, this should be unique and incrementing
-    marker.type = Marker.CUBE
-    marker.action = Marker.ADD
-    marker.pose.position = position
-    marker.pose.orientation.w = 1.0
-    marker.scale.x = 0.25
-    marker.scale.y = 0.15
-    marker.scale.z = 0.01
-    marker.color.a = 1.0
-    marker.color.r = 0.0 if self.is_left_foot else 1.0
-    marker.color.g = 1.0 if not self.is_left_foot else 0.0
-    marker.color.b = 0.0
-    self.footstep_publisher.publish(marker)
+    def publish_footstep_marker(self, position: Point):
+        marker = Marker()
+        marker.header.frame_id = "map"
+        marker.header.stamp = self.get_clock().now().to_msg()
+        marker.ns = "footsteps"
+        marker.id = 0 # In a real app, this should be unique and incrementing
+        marker.type = Marker.CUBE
+        marker.action = Marker.ADD
+        marker.pose.position = position
+        marker.pose.orientation.w = 1.0
+        marker.scale.x = 0.25
+        marker.scale.y = 0.15
+        marker.scale.z = 0.01
+        marker.color.a = 1.0
+        marker.color.r = 0.0 if self.is_left_foot else 1.0
+        marker.color.g = 1.0 if not self.is_left_foot else 0.0
+        marker.color.b = 0.0
+        self.footstep_publisher.publish(marker)
 
 
 def main(args=None):
@@ -174,7 +174,12 @@ if __name__ == '__main__':
 
 When you set the goal, Nav2 will publish a global plan to the `/plan` topic. Your dummy planner node will receive this, and as it processes the path, it will publish `Marker` messages. You will see a series of green and red rectangles appear in RViz, tracing the path from the robot to the goal. This simulates the output of a bipedal local planner!
 
+<div align="center">
+
+*Image: Visualizing planned footsteps in RViz.*
 *A screenshot of RViz showing the global plan (a green line) and a series of alternating red and green rectangles (the footstep markers) along that path.*
+
+</div>
 
 ## Common Pitfalls for Bipedal Navigation
 
@@ -216,5 +221,9 @@ When you set the goal, Nav2 will publish a global plan to the `/plan` topic. You
 - **Zero Moment Point (ZMP)**: A key concept in walking robot stability. [https://en.wikipedia.org/wiki/Zero_moment_point](https://en.wikipedia.org/wiki/Zero_moment_point)
 - **Model Predictive Control (MPC)**: A popular advanced control technique used for humanoid locomotion. [https://en.wikipedia.org/wiki/Model_predictive_control](https://en.wikipedia.org/wiki/Model_predictive_control)
 - **Boston Dynamics Atlas Papers**: For state-of-the-art research, look at publications from Boston Dynamics on the control of their Atlas robot.
+
+---
+
+[**← Previous: Isaac ROS for VSLAM and Navigation**](./isaac-ros-vslam-navigation.md) | [**Next: Module 4: Vision-Language-Action (VLA) →**](../module-4/voice-to-action-whisper.md)
 
 ```

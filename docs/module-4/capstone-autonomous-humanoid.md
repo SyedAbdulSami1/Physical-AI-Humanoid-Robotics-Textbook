@@ -1,250 +1,308 @@
 ---
-sidebar_position: 3
+title: 'Capstone: The Autonomous Humanoid'
+sidebar_label: 'Capstone Project'
 ---
 
-# Capstone Project: The Autonomous Humanoid
+# Module 4 Capstone: The Autonomous Humanoid
 
-This is it. The culmination of everything we have learned. In this capstone project, you will bring together all four modules—ROS 2, Digital Twins, Isaac Sim, and VLA models—to create a fully autonomous humanoid robot that can understand a spoken command, perceive its environment, plan a complex task, and execute it with physical manipulation.
+Welcome to the final and most exciting part of our journey into Physical AI. This capstone project, "The Autonomous Humanoid," is where you will integrate everything you've learned across all four modules. You will build and program a simulated humanoid robot that can understand a natural language voice command, perceive its environment, plan a complex series of actions, navigate through space, and physically interact with an object.
 
-**The Mission Briefing:**
-Your robot will be in a simulated room containing several objects and a target bin. You will give it a high-level voice command, such as:
+This project represents the culmination of this course, bridging the digital brain (AI) with the physical body (robot) to achieve true embodied intelligence.
 
-> *"Hey robot, please find the red block and put it in the storage bin."
+## Project Overview
 
-The robot must then autonomously perform the entire sequence:
-1.  **Listen & Transcribe**: Use a microphone and the Whisper node to hear and transcribe the command.
-2.  **Perceive & Localize**: Use its sensors (camera, LiDAR) to identify the objects in the room and determine their locations.
-3.  **Plan**: Use an LLM to parse the transcribed command and generate a sequence of actions based on the perceived world state.
-4.  **Execute**: Execute the action plan, which will involve navigation (moving to the object), manipulation (picking it up), further navigation (moving to the bin), and final manipulation (dropping it).
+The goal of this project is to create an autonomous system where a humanoid robot in a simulated environment can execute a high-level task given by a human user via voice.
 
-This project will challenge you to integrate dozens of different nodes, services, and concepts into a single, coherent system.
+**The Scenario:**
 
-## System Architecture
+The robot is in a simulated room containing a few objects (e.g., a table, a chair, and a can of soda on the table). The user gives a voice command like: **"Hey robot, please pick up the soda can."**
 
-The final system is a beautiful, complex dance of distributed ROS 2 nodes. Understanding the architecture is key.
+The robot must then:
+1.  **Listen and Understand**: Transcribe the voice command to text.
+2.  **Think and Plan**: Use a Large Language Model (LLM) to break down the command into a sequence of executable robotic actions.
+3.  **See and Locate**: Visually search the room to find the soda can.
+4.  **Walk and Navigate**: Plan a path to the table where the soda can is located and walk there, avoiding obstacles.
+5.  **Reach and Grasp**: Use its arm to pick up the soda can.
+
+This end-to-end task demonstrates a complete Vision-Language-Action (VLA) pipeline.
+
+## Core Components & Architecture
+
+Your system will be a distributed network of ROS 2 nodes, each responsible for a specific part of the task.
 
 ```mermaid
 graph TD
-    subgraph Human Interaction
-        A[Human Voice] --> B[Microphone];
-    end
-    
-    subgraph ROS 2 VLA Pipeline
-        B -- Audio --> C[Whisper Node<br/>(voice_agent_py)];
-        C -- Text: "/transcribed_text" --> D[LLM Planner Node<br/>(voice_agent_py)];
-    end
-    
-    subgraph ROS 2 Perception & World Model
-        G[Isaac Sim<br/>(Camera, LiDAR)] -- Sensor Data --> H{Perception System};
-        H -- Object Detections --> I[World Model Server];
-    end
-    
-    subgraph ROS 2 Control & Execution
-        J[Action Executor Node] -- Action Status --> D;
-        K[Nav2 Stack] -- Navigation Control --> L[Robot Controller];
-        M[Manipulation Controller<br/>(e.g., MoveIt)] -- Arm Control --> L;
-    end
-    
-    D -- Queries World State --> I;
-    D -- JSON Plan: "/robot_action_plan" --> J;
-    
-    J -- Dispatches Goals --> K;
-    J -- Dispatches Goals --> M;
-    
-    L -- Low-level commands --> F[Simulated Humanoid<br/>(Isaac Sim)];
-
-    style C fill:#f9f,stroke:#333,stroke-width:2px
-    style D fill:#f9f,stroke:#333,stroke-width:2px
-    style J fill:#ccf,stroke:#333,stroke-width:2px
-    style H fill:#cfc,stroke:#333,stroke-width:2px
-    style L fill:#fcf,stroke:#333,stroke-width:2px
-```
-**Key New Components for this Project**:
--   **Perception System**: A node (or set of nodes) that subscribes to camera feeds and uses a trained computer vision model (like YOLO or a model trained on Isaac Sim's synthetic data) to detect objects and their positions.
--   **World Model Server**: A simple ROS 2 service that stores the current state of the world (e.g., `{"red_block": {"position": [x, y, z]}}`). The LLM Planner will query this service to get the necessary context for its prompt.
--   **Action Executor Node**: This node subscribes to the JSON plan from the LLM. It acts as a state machine, parsing the plan and making the appropriate calls to other ROS 2 systems (like Nav2 and MoveIt) one action at a time.
--   **Manipulation Controller (MoveIt)**: For a real humanoid, you would use a motion planning framework like MoveIt to control the arm. MoveIt can take a target pose for the end-effector (the hand) and generate a collision-free trajectory for all the arm joints.
-
----
-## Project Repository Structure
-
-A project of this complexity requires a well-organized repository. Here is a recommended structure for your ROS 2 workspace (`ros2_ws/src`).
-
-```
-ros2_ws/src/
-├── humanoid_description/      # URDF/XACRO for the robot
-│   ├── launch/
-│   ├── urdf/
-│   └── worlds/
-├── voice_agent_py/            # Our Whisper and LLM nodes
-│   ├── package.xml
-│   ├── setup.py
-│   └── voice_agent_py/
-│       ├── whisper_node.py
-│       └── llm_planner_node.py
-├── perception_py/             # New package for object detection
-│   ├── package.xml
-│   ├── setup.py
-│   └── perception_py/
-│       └── yolo_detector_node.py
-├── world_model_py/            # New package for the world state service
-│   ├── package.xml
-│   ├── setup.py
-│   └── world_model_py/
-│       └── world_model_server.py
-└── action_executor_py/        # New package for the executor
-    ├── package.xml
-    ├── setup.py
-    └── action_executor_py/
-        └── executor_node.py
+    A[User Voice Command] --> B(Whisper Node: Speech-to-Text);
+    B --> C{LLM Planner Node};
+    C -- Goal: "Find the soda can" --> D[Perception Node (YOLO)];
+    D -- Object Location --> C;
+    C -- Goal: "Navigate to [location]" --> E[Navigation Stack (Nav2)];
+    E -- Navigation Success --> C;
+    C -- Goal: "Grasp at [location]" --> F[Manipulation Stack (MoveIt2)];
+    F -- Grasp Success --> C;
+    C -- Task Complete --> G(Status Node: Announce Completion);
 ```
 
----
-## Implementation Plan: Step-by-Step
+1.  **Voice-to-Action (Whisper Node)**: A ROS 2 node that uses the OpenAI Whisper API to listen for a voice command from a microphone, transcribe it to text, and publish it to a topic.
+2.  **Cognitive Planning (LLM Planner Node)**: The "brain" of the robot. This node subscribes to the transcribed text. It then queries a powerful LLM (like GPT-4) with a carefully crafted prompt to generate a step-by-step plan of ROS 2 actions. It acts as a state machine, executing each step of the plan in sequence.
+3.  **Perception (Perception Node)**: This node processes images from the robot's head-mounted camera. It uses an object detection model (e.g., YOLOv8) to identify and locate objects in the environment, publishing their 3D coordinates.
+4.  **Navigation (Nav2)**: You will configure and launch the standard ROS 2 Navigation stack (Nav2) to handle bipedal path planning and locomotion, enabling the robot to walk to a specified coordinate.
+5.  **Manipulation (MoveIt2)**: You will configure and launch the ROS 2 Manipulation stack (MoveIt2) to control the robot's arm, enabling it to plan and execute a grasp on the target object.
 
-This is a large project. Tackle it in these discrete, testable steps.
+## Recommended Repository Structure
 
-### Step 1: The Perception and World Model
-Before the robot can plan, it needs to see.
-1.  **Create the `perception_py` package.**
-2.  **Write the `yolo_detector_node.py`**. This node will:
-    -   Subscribe to an image topic from the simulator (e.g., `/camera/image_raw`).
-    -   Use a pre-trained object detection model (YOLO is a great choice) to find objects in the image.
-    -   For each detected object, it will publish a custom message (e.g., `vision_msgs/Detection3D`) containing the object's class name and its position. (For simplicity, you can initially "cheat" and get the 3D position directly from the simulator's ground truth data).
-3.  **Create the `world_model_py` package.**
-4.  **Write the `world_model_server.py`**. This node will:
-    -   Subscribe to the object detection topic from the perception node.
-    -   Store the detected objects and their latest known positions in a Python dictionary.
-    -   Provide a ROS 2 Service (e.g., `srv/GetWorldState`) that, when called, returns the entire dictionary as a JSON string.
+A clean and organized repository is crucial. Use the following structure for your ROS 2 workspace:
 
-### Step 2: Enhancing the LLM Planner
-Modify the `llm_planner_node.py` from the previous chapter.
-1.  Before querying the LLM, it must first call the `/get_world_state` service.
-2.  It will then dynamically construct the system prompt, injecting the real-time world state received from the service.
+```
+autonomous_humanoid_ws/
+├── src/
+│   ├── humanoid_bringup/
+│   │   ├── launch/
+│   │   │   └── capstone_project.launch.py
+│   │   ├── worlds/
+│   │   │   └── aihome.world
+│   │   └── rviz/
+│   │       └── humanoid_config.rviz
+│   ├── humanoid_control/
+│   │   └── ... (Controller configurations)
+│   ├── humanoid_description/
+│   │   └── urdf/
+│   │       └── humanoid_robot.urdf
+│   ├── humanoid_navigation/
+│   │   ├── launch/
+│   │   │   └── nav2.launch.py
+│   │   └── params/
+│   │       └── nav2_params.yaml
+│   ├── humanoid_manipulation/
+│   │   ├── launch/
+│   │   │   └── moveit.launch.py
+│   │   └── config/
+│   │       └── ... (MoveIt2 config files)
+│   └── humanoid_ai/
+│       ├── package.xml
+│       ├── setup.py
+│       └── humanoid_ai/
+│           ├── llm_planner_node.py
+│           ├── perception_node.py
+│           └── voice_to_action_node.py
+└── README.md
+```
 
-**Modified System Prompt Logic**:
+## Step-by-Step Implementation Guide
+
+### 1. Environment Setup
+Ensure you have a working ROS 2 Humble, Gazebo, and all necessary Python libraries installed.
+```bash
+# Install key Python libraries
+pip install openai "openai[whisper]" ultralytics
+```
+
+### 2. Robot URDF & Simulation
+- **URDF**: Finalize the URDF for your humanoid robot from Module 1. Ensure it has proper joint limits, inertia, and collision models. Add a camera sensor plugin.
+- **Gazebo World**: Create a simple Gazebo world (`aihome.world`) with a ground plane, a table, a chair, and a model for the soda can.
+
+### 3. Voice-to-Action Node (`voice_to_action_node.py`)
+This node should:
+- Initialize `rclpy`.
+- Create a publisher for the transcribed text (`/voice_command`).
+- Use a library like `sounddevice` to capture audio.
+- Call the Whisper API to get the transcription.
+- Publish the result.
+
 ```python
-# In llm_planner_node.py
+# humanoid_ai/voice_to_action_node.py (Snippet)
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+import openai
+import sounddevice as sd
+import numpy as np
+import scipy.io.wavfile as wav
 
-# ... call the service to get world_state_json ...
-world_state = json.loads(world_state_json)
+class VoiceToActionNode(Node):
+    def __init__(self):
+        super().__init__('voice_to_action_node')
+        self.publisher_ = self.create_publisher(String, '/voice_command', 10)
+        self.get_logger().info('Voice command node started. Listening...')
+        self.listen_and_transcribe()
 
-# Dynamically build the world description part of the prompt
-world_description = "The current state of the world is:\n"
-for obj, details in world_state.items():
-    world_description += f"- A '{obj}' is at '{details['location']}'.\n"
-
-# The full system prompt is now dynamic!
-self.system_prompt = f"""
-    You are a helpful robot assistant... 
-    (the rest of the prompt)
-    {world_description}
-    Given the user's command...
-"""
-```
-
-### Step 3: The Action Executor
-This is the heart of the robot's execution logic.
-1.  **Create the `action_executor_py` package.**
-2.  **Write the `executor_node.py`**. This node is a state machine.
-    -   It subscribes to `/robot_action_plan`.
-    -   When it receives a plan, it stores it in a queue.
-    -   It processes one action from the queue at a time.
-    -   Based on the action name (`go_to`, `pick_up`, etc.), it makes the appropriate **ROS 2 Action Client** call.
-        -   `go_to`: Call the `/navigate_to_pose` action on the Nav2 stack.
-        -   `pick_up`: Call a `/pickup_object` action on a (simulated) manipulation controller.
-        -   `drop_in`: Call a `/drop_object` action.
-    -   **Crucially**, it must wait for the result of one action to be successful before starting the next one in the sequence. This is the primary use case for ROS 2 Actions over Services.
-
-**Simplified Executor Logic**:
-```python
-# In executor_node.py
-
-class ExecutorNode(Node):
-    def plan_callback(self, msg):
-        self.plan = json.loads(msg.data)["plan"]
-        self.execute_next_action()
-
-    def execute_next_action(self):
-        if not self.plan:
-            self.get_logger().info("Plan complete!")
-            return
+    def listen_and_transcribe(self):
+        # Configuration
+        fs = 16000  # Sample rate
+        duration = 5  # seconds
         
-        action = self.plan.pop(0)
-        action_name = action["action"]
-        params = action["parameters"]
-        
-        self.get_logger().info(f"Executing action: {action_name} with params: {params}")
+        # Record audio
+        myrecording = sd.rec(int(duration * fs), samplerate=fs, channels=1, dtype='int16')
+        sd.wait()  # Wait until recording is finished
 
-        if action_name == "go_to":
-            # ... create a Nav2 goal message ...
-            # ... call self.nav2_action_client.send_goal_async(...) ...
-            # ... add a callback for when the goal is done ...
-            pass # The callback will call execute_next_action()
-        elif action_name == "pick_up":
-            # ... call manipulation action client ...
-            pass # Its callback will call execute_next_action()
+        # Save as a temporary WAV file
+        wav.write('temp_command.wav', fs, myrecording)
+
+        # Transcribe using Whisper
+        with open('temp_command.wav', 'rb') as audio_file:
+            transcript = openai.Audio.transcribe("whisper-1", audio_file)
+            self.get_logger().info(f'Heard: {transcript["text"]}')
+            msg = String()
+            msg.data = transcript["text"]
+            self.publisher_.publish(msg)
+
+# main function and rclpy init/shutdown omitted for brevity
 ```
 
-### Step 4: Putting It All Together
-The final step is to create a master launch file that starts every single node in the correct order with the correct parameters.
+### 4. LLM Planner Node (`llm_planner_node.py`)
+This is the most complex node. It acts as the brain and coordinates the other components.
 
-**File**: `humanoid_description/launch/capstone.launch.py`
 ```python
+# humanoid_ai/llm_planner_node.py (Snippet)
+class LLMPlannerNode(Node):
+    def __init__(self):
+        super().__init__('llm_planner_node')
+        self.subscription = self.create_subscription(
+            String, '/voice_command', self.command_callback, 10)
+        # Add clients for Nav2 and MoveIt2 actions
+        # Add publisher to send goals
+        self.state = "IDLE"
+
+    def command_callback(self, msg):
+        if self.state == "IDLE":
+            self.get_logger().info(f'Received command: "{msg.data}"')
+            self.state = "PLANNING"
+            self.generate_plan(msg.data)
+
+    def generate_plan(self, command):
+        prompt = f"""
+        You are the cognitive core for a humanoid robot.
+        Translate the user's command into a numbered list of robotic actions.
+        Available actions:
+        - find_object(object_name)
+        - go_to(x, y, z)
+        - pick_up(object_name)
+        - done()
+
+        Command: "{command}"
+        Plan:
+        """
+        # Call OpenAI API (GPT-4) with this prompt
+        # response = openai.Completion.create(...)
+        # For this example, let's hardcode the plan
+        plan = [
+            "1. find_object('soda_can')",
+            "2. go_to(2.5, 1.0, 0.8)", # Assume object location is returned
+            "3. pick_up('soda_can')",
+            "4. done()"
+        ]
+        self.execute_plan(plan)
+
+    def execute_plan(self, plan):
+        # A state machine to execute each step of the plan
+        # This involves calling ROS 2 actions and services
+        self.get_logger().info("Executing plan...")
+        # ... implementation of plan execution ...
+```
+
+### 5. Perception Node (`perception_node.py`)
+This node uses a pre-trained YOLO model to find objects.
+
+```python
+# humanoid_ai/perception_node.py (Snippet)
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+from ultralytics import YOLO
+
+class PerceptionNode(Node):
+    def __init__(self):
+        super().__init__('perception_node')
+        self.model = YOLO('yolov8n.pt')  # Load pretrained model
+        self.bridge = CvBridge()
+        self.subscription = self.create_subscription(
+            Image, '/camera/image_raw', self.image_callback, 10)
+        self.object_publisher = self.create_publisher(...) # Custom message for object location
+
+    def image_callback(self, msg):
+        cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+        results = self.model(cv_image)
+
+        for r in results:
+            boxes = r.boxes
+            for box in boxes:
+                # Get class name
+                cls = int(box.cls[0])
+                class_name = self.model.names[cls]
+                if class_name == 'soda can': # Or whatever YOLO calls it
+                    # ... calculate 3D position and publish it
+                    self.get_logger().info(f'Found a soda can!')
+```
+
+### 6. Main Launch File (`capstone_project.launch.py`)
+This file brings everything together: Gazebo, Nav2, MoveIt2, and your custom AI nodes.
+
+```python
+# humanoid_bringup/launch/capstone_project.launch.py
 from launch import LaunchDescription
 from launch_ros.actions import Node
-# ... other launch imports
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from ament_index_python.packages import get_package_share_directory
+import os
 
 def generate_launch_description():
+    humanoid_ai_pkg = get_package_share_directory('humanoid_ai')
+    nav_pkg = get_package_share_directory('humanoid_navigation')
+
     return LaunchDescription([
-        # --- Simulation ---
-        # Launch Isaac Sim with your world and robot
+        # Launch Gazebo, Nav2, MoveIt2...
+        # ...
         
-        # --- Voice & Planning ---
-        Node(package='voice_agent_py', executable='whisper_node', name='whisper_node'),
-        Node(package='voice_agent_py', executable='llm_planner_node', name='llm_planner_node'),
-        
-        # --- Perception & World State ---
-        Node(package='perception_py', executable='yolo_detector_node', name='yolo_detector_node'),
-        Node(package='world_model_py', executable='world_model_server', name='world_model_server'),
-        
-        # --- Execution ---
-        Node(package='action_executor_py', executable='executor_node', name='executor_node'),
-        
-        # --- Robot Control ---
-        # Include the launch file for Nav2
-        # Include the launch file for MoveIt (or your dummy manipulation controller)
+        # Launch AI Nodes
+        Node(
+            package='humanoid_ai',
+            executable='voice_to_action_node',
+            name='voice_to_action_node',
+            output='screen'),
+        Node(
+            package='humanoid_ai',
+            executable='llm_planner_node',
+            name='llm_planner_node',
+            output='screen'),
+        Node(
+            package='humanoid_ai',
+            executable='perception_node',
+            name='perception_node',
+            output='screen'),
     ])
 ```
 
----
 ## Video Demo Instructions
 
-Creating a compelling video demo is as important as the project itself.
-1.  **The "One-Shot" Take**: Start by recording your screen showing the Isaac Sim viewport and the RViz window side-by-side.
-2.  **Start all systems**: Run your master launch file.
-3.  **Speak the Command**: Clearly speak the full command to your microphone (e.g., "Hey robot, get the red block and place it in the bin").
-4.  **Show the Pipeline**: In your recording, use your mouse to point to the different terminal windows, showing:
-    -   The Whisper node transcribing the text.
-    -   The LLM planner node logging the query and the JSON plan it received.
-    -   The action executor logging that it's starting the first action.
-5.  **Focus on the Simulation**: Maximize the Isaac Sim and RViz windows. Show the robot navigating to the first location. Show the path being drawn in RViz.
-6.  **Show Manipulation**: Show the robot's arm moving to grasp the object. (In a simplified simulation, the object might just snap to the hand).
-7.  **Show the Second Navigation**: Show the robot navigating to the bin.
-8.  **Show the Final Action**: Show the robot dropping the object into the bin.
-9.  **The Victory Pose**: End the video with the robot returning to its home base or waving.
+You must create a 3-5 minute video demonstrating your final project. The video should include:
+1.  **Introduction (15s)**: Briefly introduce yourself and the project.
+2.  **Code Walkthrough (60s)**: Briefly show your repository structure and highlight a key section of your `llm_planner_node.py`.
+3.  **Live Demo (2-3 mins)**:
+    -   Show the simulation environment.
+    -   Start all the nodes.
+    -   Clearly record yourself giving the voice command.
+    -   Show the robot executing the full sequence: looking for the object, walking to it, and grasping it.
+    -   Show the terminal output of your key nodes to illustrate what the robot is "thinking."
+4.  **Conclusion (15s)**: Briefly summarize your success and what you learned.
 
 ## Grading Rubric
 
-This project will be evaluated on the successful integration and functionality of the complete pipeline.
+Your project will be evaluated based on the following criteria.
 
-| Criteria (Total 100 points) | Incomplete (0-9 pts) | Partial (10-17 pts) | Complete (18-25 pts) |
-| :--- | :--- | :--- | :--- |
-| **1. Voice Recognition** | Node crashes or fails to transcribe. | Transcribes inaccurately or unreliably. | Whisper node accurately and reliably transcribes spoken commands into text and publishes them. |
-| **2. Perception & World Model** | Perception node fails to run or objects are not detected. | World model is hardcoded and not based on perception data. | Perception node detects objects and the world model service is updated and serves the world state correctly. |
-| **3. LLM Task Planning** | Planner node fails to query the LLM or crashes on response. | LLM plan is not valid JSON or hallucinates invalid actions. | LLM node successfully queries the LLM with a dynamic prompt and publishes a valid, executable JSON plan. |
-| **4. Action Execution & Navigation** | Executor node fails to parse the plan. Robot does not move. | Executor runs only the first action or robot gets stuck during navigation. | The robot successfully executes the full sequence of actions from the plan, navigating correctly via Nav2 calls. |
+| Category               | Weight | Description                                                                                                  |
+| ---------------------- | ------ | ------------------------------------------------------------------------------------------------------------ |
+| **Functionality**      | 40%    | The robot successfully completes the entire task from voice command to grasp. The system is robust.          |
+| **Code Quality**       | 20%    | Code is clean, well-commented, and follows ROS 2 best practices. The repository is properly structured.        |
+| **VLA Implementation** | 20%    | The integration of Whisper, LLM, Perception, Navigation, and Manipulation is seamless and well-architected.  |
+| **Video Demo**         | 15%    | The demo video is clear, concise, and effectively showcases the project's functionality and your understanding. |
+| **Documentation**      | 5%     | The `README.md` file in your workspace clearly explains how to set up and run your project.                    |
 
 ---
-This capstone is your grand finale. It is difficult, and it will require significant debugging. But successfully completing it means you have mastered the foundational principles of modern, AI-driven humanoid robotics. Good luck.
 
+## Conclusion
+
+Completing this capstone project is a significant achievement. You have not only mastered the individual components of robotics and AI but have successfully woven them together into a coherent, intelligent system capable of operating in a physical (simulated) world. This project is a microcosm of the future of humanoid robotics and serves as a launching pad for your future explorations in the exciting field of Physical AI. Good luck!
+
+---
+
+[**← Previous: Cognitive Planning with LLMs**](./cognitive-planning-llm-to-ros2.md) | [**Next: Weekly Breakdown →**](../weekly-breakdown.md)

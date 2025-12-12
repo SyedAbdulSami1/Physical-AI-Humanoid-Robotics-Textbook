@@ -874,3 +874,7 @@ Remember to rebuild and relaunch the display.
     *   [Gazebo Tutorials](http://classic.gazebosim.org/tutorials)
 
 Understanding and effectively utilizing URDF is a critical skill for any roboticist, especially those working with complex humanoid platforms. It forms the digital foundation upon which all simulation, control, and interaction capabilities are built. With Xacro, this foundation becomes robust, flexible, and scalable, ready to accommodate the intricate designs of advanced Physical AI systems. The next module will delve into simulating these digital twins in high-fidelity environments.
+
+---
+
+[**← Previous: Bridging Python Agents to ROS 2**](./bridging-python-agents-to-ros2.md) | [**Next: Module 2: The Digital Twin →**](../module-2/simulating-physics-in-gazebo.md)

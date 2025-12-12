@@ -26,9 +26,9 @@ const sidebars: SidebarsConfig = {
         type: 'generated-index',
       },
       items: [
-        'module1/ros2-nodes-topics-services',
-        'module1/bridging-python-agents-to-ros2',
-        'module1/urdf-for-humanoids',
+        'module-1/ros2-nodes-topics-services',
+        'module-1/bridging-python-agents-to-ros2',
+        'module-1/urdf-for-humanoids',
       ],
     },
     {
@@ -64,7 +64,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'module-4/voice-to-action-whisper',
         'module-4/cognitive-planning-llm-to-ros2',
-        'module-4/capstone-project-autonomous-humanoid',
+        'module-4/capstone-autonomous-humanoid',
       ],
     },
     'weekly-breakdown',

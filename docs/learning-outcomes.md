@@ -57,3 +57,7 @@ This course, "Physical AI & Humanoid Robotics: AI Systems in the Physical World 
 *   **Multi-Modal Interaction**: The ultimate goal is to integrate multi-modal interaction capabilities, combining speech, gesture, and vision to create truly intelligent and responsive conversational robots that can engage in rich, context-aware dialogues.
 
 These learning outcomes collectively prepare students for advanced roles in research and development, contributing to the next generation of intelligent, embodied AI systems.
+
+---
+
+[**← Previous: Why Physical AI Matters**](./why-physical-ai-matters.md) | [**Next: Module 1: The Robotic Nervous System (ROS 2) →**](./module-1/ros2-nodes-topics-services.md)

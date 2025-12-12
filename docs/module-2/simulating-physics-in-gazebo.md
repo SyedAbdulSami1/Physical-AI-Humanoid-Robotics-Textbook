@@ -132,7 +132,12 @@ In your `humanoid_description` package, create a `worlds` directory. Inside, cre
   </world>
 </sdf>
 ```
-*A screenshot reference for Gazebo showing a ground plane with a box and a cylinder obstacle would go here. The caption would read: "A simple Gazebo world with two obstacles."*
+<div align="center">
+
+*Image: A simple Gazebo world with two obstacles.*
+*A screenshot showing a ground plane with a box and a cylinder obstacle.*
+
+</div>
 
 ### Step 2: Create a Launch File for the World
 
@@ -259,7 +264,12 @@ colcon build --packages-select humanoid_description
 source install/setup.bash
 ros2 launch humanoid_description spawn_leg.launch.py
 ```
-*A screenshot reference for Gazebo showing the simple leg robot spawned in the obstacle course world would go here. The caption would read: "Our humanoid leg model spawned and interacting with the physics simulation in Gazebo."*
+<div align="center">
+
+*Image: Our humanoid leg model spawned and interacting with the physics simulation in Gazebo.*
+*A screenshot showing the simple leg robot spawned in the obstacle course world.*
+
+</div>
 
 You should now see your leg robot appear in the Gazebo world. Because it has mass and is subject to gravity, it will immediately fall to the ground plane. Congratulations, you have a working physics simulation!
 
@@ -315,3 +325,7 @@ You should now see your leg robot appear in the Gazebo world. Because it has mas
 - **SDF Specification**: [http://sdformat.org/spec](http://sdformat.org/spec)
 - **`gazebo_ros_pkgs` Documentation**: [http://wiki.ros.org/gazebo_ros_pkgs](http://wiki.ros.org/gazebo_ros_pkgs)
 - **Gazebo Tutorials**: [https://classic.gazebosim.org/tutorials](https://classic.gazebosim.org/tutorials)
+
+---
+
+[**← Previous: URDF for Humanoids**](../module-1/urdf-for-humanoids.md) | [**Next: High-Fidelity Rendering in Unity →**](./high-fidelity-rendering-in-unity.md)

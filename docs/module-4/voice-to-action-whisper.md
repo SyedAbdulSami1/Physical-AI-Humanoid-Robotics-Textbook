@@ -159,7 +159,12 @@ Add the `whisper_node` to your `setup.py` and build your workspace with `colcon 
 4.  Speak a command into your microphone, like "Hello robot, please clean the room."
 5.  After you stop speaking, you should see the node log that it's processing, and then the transcribed text will appear in the `ros2 topic echo` terminal.
 
+<div align="center">
+
+*Image: Terminal outputs of the Whisper node and ROS 2 topic echo.*
 *A screenshot showing two terminals. The left terminal shows the output of the `whisper_node`, with logs like "Whisper transcribed: 'Hello robot, please clean the room.'". The right terminal shows the output of `ros2 topic echo`, displaying the same text as a ROS message.*
+
+</div>
 
 ## Common Pitfalls and Best Practices
 
@@ -206,3 +211,7 @@ Add the `whisper_node` to your `setup.py` and build your workspace with `colcon 
 - **`speech_recognition` Library PyPI**: [https://pypi.org/project/SpeechRecognition/](https://pypi.org/project/SpeechRecognition/)
 - **ROS 2 `std_msgs/String`**: [http://docs.ros.org/en/humble/API/std_msgs/msg/String.html](http://docs.ros.org/en/humble/API/std_msgs/msg/String.html)
 - **Picovoice for Wake Word/Keyword Spotting**: A popular library for creating custom wake words. [https://picovoice.ai/](https://picovoice.ai/)
+
+---
+
+[**← Previous: Nav2 for Bipedal Path Planning**](../module-3/nav2-bipedal-path-planning.md) | [**Next: Cognitive Planning with LLMs →**](./cognitive-planning-llm-to-ros2.md)

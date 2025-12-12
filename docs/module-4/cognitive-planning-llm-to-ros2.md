@@ -231,3 +231,7 @@ data: '{"plan": [{"action": "go_to", "parameters": {"location": "table_a"}}, {"a
 - **OpenAI API Documentation**: [https://platform.openai.com/docs/api-reference](https://platform.openai.com/docs/api-reference)
 - **JSON as a data interchange format**: [https://www.json.org/json-en.html](https://www.json.org/json-en.html)
 - **Prompt Engineering Guide**: [https://www.promptingguide.ai/](https://www.promptingguide.ai/)
+
+---
+
+[**← Previous: Voice-to-Action with Whisper**](./voice-to-action-whisper.md) | [**Next: Capstone Project →**](./capstone-autonomous-humanoid.md)

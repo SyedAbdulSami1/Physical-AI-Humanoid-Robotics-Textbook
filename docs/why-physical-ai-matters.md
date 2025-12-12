@@ -43,3 +43,7 @@ The drive towards Physical AI is fueled by several critical factors:
 *   **Personalization and Accessibility**: Future humanoid robots could offer highly personalized assistance, learning individual preferences and adapting to specific needs, thereby enhancing accessibility for people with disabilities.
 
 The societal impact will be transformative, ushering in an era of enhanced productivity, safety, and quality of life. As these intelligent machines become more integrated into our daily lives, ethical considerations, regulatory frameworks, and public perception will also evolve, requiring careful consideration and interdisciplinary dialogue. This course provides the foundational understanding to not only develop these technologies but also to contribute to the responsible shaping of their future.
+
+---
+
+[**← Previous: Introduction**](./intro.md) | [**Next: Learning Outcomes →**](./learning-outcomes.md)

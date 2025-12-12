@@ -41,3 +41,7 @@ This course emphasizes hands-on learning, problem-solving, and critical thinking
 This course is ideally suited for graduate students and advanced undergraduates with a strong background in artificial intelligence, computer science, or robotics who are eager to apply their knowledge to the challenges of physical embodiment. It is particularly relevant for those interested in careers in robotics research, autonomous systems development, human-robot interaction, or advanced AI engineering.
 
 Join us on this exciting journey to unlock the potential of Physical AI and shape the future of embodied intelligence, where robots move beyond the digital screen and seamlessly integrate into the fabric of our physical world. This course is not just about learning; it's about building the future.
+
+---
+
+[**Next: Why Physical AI Matters →**](./why-physical-ai-matters.md)

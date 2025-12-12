@@ -877,3 +877,7 @@ Observe the client sending cancellation and the server responding to it.
     *   [Creating Custom ROS 2 Msg and Srv (Python)](https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Custom-ROS2-Interfaces.html)
 
 Mastering ROS 2 nodes, topics, services, and actions provides the foundational building blocks for complex, modular, and robust robotic applications. This understanding is critical for humanoid robotics, where intricate control and feedback loops are paramount for natural and intelligent behaviors in the physical world.
+
+---
+
+[**← Previous: Learning Outcomes**](../learning-outcomes.md) | [**Next: Bridging Python Agents to ROS 2 →**](./bridging-python-agents-to-ros2.md)
