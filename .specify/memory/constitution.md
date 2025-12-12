@@ -1,3 +1,14 @@
+<!--
+Sync Impact Report
+- Version: 1.0.0 -> 1.1.0
+- Added Sections:
+  - Blog Author Roles
+- Modified Principles: None
+- Removed Sections: None
+- Templates Requiring Updates:
+  - None
+- Follow-up TODOs: None
+-->
 # Physical-AI-Humanoid-Robotics-Textbook Constitution
 
 ## Core Principles
@@ -29,7 +40,14 @@ The project must be built within the following technical constraints:
 - **Data & Search:** Utilizes Qdrant Cloud (free tier) for vector search and Neon Serverless Postgres (free tier) for data storage.
 - **Budget:** All services must use free tiers wherever possible.
 
+## Blog Author Roles
+
+The following roles are defined for blog authors, as specified in `blog/authors.yml`:
+
+-   **Ex-Meta Staff Engineer, Co-founder GreatFrontEnd**: Associated with Yangshun Tay.
+-   **Docusaurus maintainer**: Associated with Sébastien Lorber.
+
 ## Governance
 This Constitution supersedes all other practices. All development work, pull requests, and reviews must verify compliance with these principles and constraints. Amendments require documentation, team approval, and a clear migration plan.
 
-**Version**: 1.0.0 | **Ratified**: 2025-12-08 | **Last Amended**: 2025-12-08
+**Version**: 1.1.0 | **Ratified**: 2025-12-08 | **Last Amended**: 2025-12-12
