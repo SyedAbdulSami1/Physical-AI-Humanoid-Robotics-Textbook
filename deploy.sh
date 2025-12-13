@@ -26,6 +26,10 @@ case $DEPLOYMENT_TYPE in
             npm install -g vercel
         fi
 
+        # Install dependencies
+        echo "Installing dependencies..."
+        npm install
+
         # Build the Docusaurus site
         echo "Building Docusaurus site..."
         npm run build
@@ -47,6 +51,10 @@ case $DEPLOYMENT_TYPE in
             echo "  git config --global user.email 'your.email@example.com'"
             exit 1
         fi
+
+        # Install dependencies
+        echo "Installing dependencies..."
+        npm install
 
         # Build the Docusaurus site
         echo "Building Docusaurus site..."

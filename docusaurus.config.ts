@@ -9,7 +9,7 @@ const config: Config = {
   tagline: 'An AI-Native Textbook for Embodied Intelligence',
   favicon: 'img/favicon.ico',
 
-  // This is required for building static files for github pages
+  // This is required for building static files for github pages and vercel
   future: {
     v4: true,
   },
