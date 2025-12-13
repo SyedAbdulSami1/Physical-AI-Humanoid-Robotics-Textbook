@@ -1,53 +1,137 @@
-<!--
-Sync Impact Report
-- Version: 1.0.0 -> 1.1.0
-- Added Sections:
-  - Blog Author Roles
-- Modified Principles: None
-- Removed Sections: None
-- Templates Requiring Updates:
-  - None
-- Follow-up TODOs: None
--->
-# Physical-AI-Humanoid-Robotics-Textbook Constitution
+---
+title: Project Constitution for the Physical AI & Humanoid Robotics Textbook
+version: 1.0
+date: 2025-12-13
+author: Gemini Agent
+---
 
-## Core Principles
+# Project Constitution: The Physical AI & Humanoid Robotics Textbook
 
-### I. Core Functionality: RAG Chatbot
-The RAG (Retrieval-Augmented Generation) chatbot is the central feature. It must provide accurate answers based exclusively on the content of the book.
+## Preamble
 
-### II. User-Centric Bonus Features
-All bonus features, including personalization, Urdu translation, and authentication, must be fully functional and designed with a user-friendly experience as a priority.
+This document defines the non-negotiable principles, standards, and quality gates for the AI-native textbook project, "Physical AI & Humanoid Robotics." All specifications, plans, tasks, and implementations must adhere to this constitution without exception. Its purpose is to ensure the final product is of the highest quality, technically robust, and educationally effective.
 
-### III. Design: Mobile-Responsive
-The entire application, including the chatbot, must feature a mobile-responsive design to ensure usability across all device types.
+---
 
-### IV. Methodology: Spec-Kit Plus
-The project will strictly adhere to the Spec-Kit Plus development methodology, ensuring proper creation and maintenance of Architectural Decision Records (ADRs) and Prompt History Records (PHRs).
+## Article 1: Core Principles
 
-### V. AI-Assisted Development
-This project will be developed with the assistance of an AI agent. The AI will be guided by the project's constitution and will be responsible for tasks such as code generation, documentation, and testing.
+### 1.1. Educational Mission
+The primary goal is to create a university-level educational resource that is comprehensive, engaging, and accessible. The tone shall be professional, encouraging, and authoritative, fostering a deep understanding of Physical AI.
 
-### VI. Human-in-the-Loop (HITL)
-For any complex or ambiguous tasks, the AI agent will require human confirmation before proceeding. The agent will present its plan and await explicit approval.
+### 1.2. Quality First
+There will be no compromise on quality. All content, code, and features must be polished, fully functional, and free of placeholders. The user experience shall be seamless and intuitive.
 
-## Constraints & Technology Stack
+### 1.3. AI-Native Integration
+The project must transcend being a static textbook. It will be an interactive learning platform, leveraging AI to create a personalized and responsive educational experience. This includes the RAG chatbot and content personalization features.
 
-The project must be built within the following technical constraints:
-- **Frontend:** Built using the latest version of Docusaurus.
-- **Deployment:** Deployed on either GitHub Pages or Vercel.
-- **Backend:** The RAG backend will be built with FastAPI.
-- **Data & Search:** Utilizes Qdrant Cloud (free tier) for vector search and Neon Serverless Postgres (free tier) for data storage.
-- **Budget:** All services must use free tiers wherever possible.
+### 1.4. Accessibility and Inclusivity
+The platform must be accessible to all users, complying with WCAG 2.1 AA standards. It must be fully responsive for desktop, tablet, and mobile devices. Content will be made available in multiple languages, starting with English and Urdu, to broaden its reach.
 
-## Blog Author Roles
+---
 
-The following roles are defined for blog authors, as specified in `blog/authors.yml`:
+## Article 2: Content Standards
 
--   **Ex-Meta Staff Engineer, Co-founder GreatFrontEnd**: Associated with Yangshun Tay.
--   **Docusaurus maintainer**: Associated with Sébastien Lorber.
+### 2.1. Technical Depth and Accuracy
+All content must be of university-level technical depth, factually accurate, and up-to-date. Concepts shall be explained with clarity and rigor.
 
-## Governance
-This Constitution supersedes all other practices. All development work, pull requests, and reviews must verify compliance with these principles and constraints. Amendments require documentation, team approval, and a clear migration plan.
+### 2.2. Runnable Code Examples
+Every code snippet, example, or lab exercise provided must be correct, tested, and runnable. Each example must include a clear explanation of its function and expected output.
 
-**Version**: 1.1.0 | **Ratified**: 2025-12-08 | **Last Amended**: 2025-12-12
+### 2.3. Rich Media and Diagrams
+Complex concepts and architectures must be illustrated using Mermaid diagrams. Where appropriate, other visual aids should be used to enhance understanding.
+
+### 2.4. Interactive Learning Components
+- **Step-by-Step Labs**: Each module should include practical, hands-on labs with clear terminal commands and instructions.
+- **Student Exercises**: Each chapter must contain exercises to test understanding. Solutions must be provided but hidden by default (e.g., in a collapsible section).
+
+### 2.5. Formatting and Citation
+- **Markdown Quality**: All content will be written in high-quality Markdown, using proper headings, tables, callouts (e.g., `> **Note:**`), and frontmatter for metadata.
+- **APA Style**: Any external sources, research papers, or significant references must be cited using APA 7th edition style.
+
+---
+
+## Article 3: Technical Architecture & Stack
+
+### 3.1. Frontend
+- **Framework**: Docusaurus for the main textbook site.
+- **Deployment**: Static site generated by Docusaurus, deployed to GitHub Pages.
+- **Styling**: Custom CSS and/or a framework that ensures a clean, modern, and responsive design.
+
+### 3.2. Backend
+- **Framework**: FastAPI (Python). All endpoints must be asynchronous (`async def`).
+- **Database (User Data)**: Neon Serverless Postgres. Used for storing user profiles, authentication data, and personalization preferences.
+- **Vector Store (RAG)**: Qdrant Cloud (Free Tier). Used for storing and querying vector embeddings of the textbook content.
+
+### 3.3. AI & ML Services
+- **LLM/Chat**: OpenAI SDK or compatible APIs (e.g., ChatKit) for the RAG chatbot's generative component.
+- **Translation**: A reliable, high-quality translation service API must be used for the "Translate to Urdu" feature.
+
+### 3.4. Authentication
+- **Service**: Better-Auth for handling user signup, login, and session management.
+- **User Profile**: A mandatory background questionnaire upon signup will collect information on the user's software/hardware experience to enable content personalization. This data will be stored securely in the Postgres database.
+
+---
+
+## Article 4: Feature Requirements
+
+### 4.1. RAG Chatbot
+- **Functionality**: The chatbot must be able to answer questions based on the entire content of the textbook.
+- **Contextual Querying**: It must support two modes: (1) querying the full book content, and (2) querying only a user-highlighted text selection.
+- **Ingestion Pipeline**: A robust, automated pipeline must be created to read all Markdown files from the `docs/` directory, chunk them appropriately, generate embeddings, and ingest them into the Qdrant vector database during the build/deploy process.
+- **Accuracy**: The RAG system must achieve >90% accuracy in retrieving relevant context and providing correct answers. This must be verifiable with a test suite.
+
+### 4.2. Personalization
+- **Trigger**: A "Personalize" button must be present on every chapter page.
+- **Logic**: When clicked, the content of the chapter should be dynamically adapted based on the user's profile (e.g., stored questionnaire responses). For example, it might show more foundational explanations for beginners or more advanced code examples for experts.
+- **Implementation**: This will be achieved via a backend endpoint that re-processes or filters the content based on the user's profile and returns the personalized version.
+
+### 4.3. Urdu Translation
+- **Trigger**: A "Translate to Urdu" button must be present on every chapter page.
+- **Functionality**: Clicking this button will translate the entire chapter's content into Urdu.
+- **User Experience**: The button must show a clear loading state while the translation is in progress. The translated content should replace the English content in-place or be displayed in a clearly designated area.
+
+### 4.4. Frontend Components
+All interactive features (chatbot, auth forms, personalize button, translate button) must be implemented as modular Docusaurus/React components and seamlessly integrated into the site.
+
+---
+
+## Article 5: Development & Quality Assurance
+
+### 5.1. Modularity and Reusability
+- **Backend**: The FastAPI application must be structured logically (e.g., `routers`, `models`, `services`).
+- **Skills/Subagents**: For bonus points and to promote reusability, complex logic (e.g., for RAG, personalization) should be encapsulated into reusable "skills" or "subagents" that can be orchestrated by the main application.
+
+### 5.2. Testing
+- **Backend**: The FastAPI backend must have a high degree of test coverage. This includes unit tests for individual functions and integration tests for API endpoints. A dedicated test suite for RAG accuracy is mandatory.
+- **Frontend**: Critical frontend components (especially those involving user interaction and API calls) must be tested.
+
+### 5.3. Performance
+The website and all backend services must be optimized for fast loading and response times. Asynchronous operations are mandatory for all I/O-bound tasks.
+
+### 5.4. Security
+- **Authentication**: All backend endpoints that provide personalized data or require a user context must be protected by authentication middleware.
+- **Secrets Management**: No secrets (API keys, database credentials) shall be hardcoded. They must be managed through environment variables (e.g., via a `.env` file that is not committed to version control).
+
+---
+
+## Article 6: Deployment & Operations
+
+### 6.1. Deployment
+- **Frontend**: The Docusaurus site will be deployed to GitHub Pages.
+- **Backend**: The FastAPI application will be deployed to a suitable cloud provider capable of running it (e.g., Render, Vercel, AWS). Deployment scripts must be provided.
+
+### 6.2. Ingestion
+The content ingestion pipeline for the RAG chatbot must be automated and run as part of the main deployment workflow to ensure the chatbot's knowledge is always in sync with the textbook content.
+
+### 6.3. Documentation
+Clear, step-by-step instructions for local setup, testing, and deployment must be provided in the project's `README.md` or a similar top-level documentation file.
+
+---
+
+## Article 7: Governance
+
+### 7.1. Adherence
+This constitution is the single source of truth for project standards. All development work must conform to the principles and requirements laid out herein.
+
+### 7.2. Amendments
+Any proposed changes to this constitution must be formally documented, reviewed, and approved via an Architectural Decision Record (ADR) before they can be adopted.

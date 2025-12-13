@@ -1,154 +1,91 @@
-from sqlalchemy.orm import Session
-from typing import Optional
-from app.models import UserPreference, PersonalizedContent, BookChapter
-from app.database import get_db
-import logging
+# app/personalization.py
 
-logger = logging.getLogger(__name__)
+import os
+from fastapi import APIRouter, Depends, HTTPException
+from langchain_openai import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
 
-class PersonalizationService:
-    """
-    Service for handling content personalization based on user preferences
-    """
-    
-    def __init__(self, db: Session):
-        self.db = db
-    
-    def get_user_background(self, user_id: str) -> Optional[UserPreference]:
-        """
-        Retrieve user's background preferences
-        """
-        try:
-            user_pref = self.db.query(UserPreference).filter(
-                UserPreference.user_id == user_id
-            ).first()
-            return user_pref
-        except Exception as e:
-            logger.error(f"Error retrieving user preferences: {str(e)}")
-            return None
-    
-    def adapt_content(self, content: str, user_id: str) -> str:
-        """
-        Adapt content based on user's background level
-        """
-        try:
-            user_pref = self.get_user_background(user_id)
-            if not user_pref:
-                # Return original content if no preferences found
-                return content
-            
-            background_level = user_pref.background_level.lower()
-            
-            # Apply different transformations based on background level
-            if background_level == "novice":
-                return self._adapt_for_novice(content)
-            elif background_level == "intermediate":
-                return self._adapt_for_intermediate(content)
-            elif background_level == "advanced":
-                return self._adapt_for_advanced(content)
-            else:
-                # Default to original content
-                return content
-        except Exception as e:
-            logger.error(f"Error adapting content: {str(e)}")
-            return content  # Return original content on error
-    
-    def _adapt_for_novice(self, content: str) -> str:
-        """
-        Adapt content for novice users by adding explanations and simpler language
-        """
-        # Add more detailed explanations, examples, and simpler language
-        adapted_content = content
-        
-        # Replace complex terminology with explanations
-        replacements = {
-            "RAG": "Retrieval-Augmented Generation (RAG) - a technique that combines information retrieval with language models to improve accuracy",
-            "kinematics": "kinematics - the study of motion without considering the forces that cause it",
-            "dynamics": "dynamics - the study of motion and the forces that cause it",
-            "PID controller": "PID controller (Proportional-Integral-Derivative controller) - a control loop mechanism that continuously calculates an error value as the difference between desired and measured values",
-            "state estimation": "state estimation - the process of estimating the internal state of a system from sensor measurements",
-            "sensor fusion": "sensor fusion - the process of combining data from multiple sensors to get more accurate and reliable information"
-        }
-        
-        for term, explanation in replacements.items():
-            adapted_content = adapted_content.replace(term, explanation)
-        
-        # Add encouraging notes for beginners
-        adapted_content += "\n\n💡 **Beginner's Note**: Don't worry if some concepts seem complex at first. Take your time to understand each term and concept step by step."
-        
-        return adapted_content
-    
-    def _adapt_for_intermediate(self, content: str) -> str:
-        """
-        Adapt content for intermediate users by providing balanced explanations
-        """
-        # Return content with moderate level of detail
-        adapted_content = content
-        
-        # Add some technical depth but keep explanations
-        adapted_content += "\n\n🔧 **Implementation Tip**: As an intermediate learner, try implementing the concepts in small projects to reinforce your understanding."
-        
-        return adapted_content
-    
-    def _adapt_for_advanced(self, content: str) -> str:
-        """
-        Adapt content for advanced users by adding technical depth
-        """
-        # Return content with more technical depth and advanced concepts
-        adapted_content = content
-        
-        # Add advanced insights
-        adapted_content += "\n\n🔬 **Advanced Note**: For production implementations, consider additional factors like computational efficiency, security, and system robustness."
-        
-        return adapted_content
-    
-    def get_personalized_content(self, chapter_id: str, user_id: str) -> Optional[str]:
-        """
-        Retrieve existing personalized content or generate new one
-        """
-        try:
-            # Try to find existing personalized content
-            existing_content = self.db.query(PersonalizedContent).filter(
-                PersonalizedContent.chapter_id == chapter_id,
-                PersonalizedContent.user_id == user_id
-            ).first()
-            
-            if existing_content:
-                return existing_content.content_version
-            
-            # If no existing content, get user preferences to generate new content
-            user_pref = self.get_user_background(user_id)
-            if not user_pref:
-                return None
-            
-            # Get original chapter content
-            chapter = self.db.query(BookChapter).filter(
-                BookChapter.id == chapter_id
-            ).first()
-            
-            if not chapter:
-                return None
-            
-            # Generate personalized content
-            personalized_content = self.adapt_content(chapter.content, user_id)
-            
-            # Save personalized content for future use
-            new_personalized = PersonalizedContent(
-                chapter_id=chapter_id,
-                user_preference_id=user_pref.id,
-                content_version=personalized_content,
-                personalization_level=user_pref.background_level
-            )
-            self.db.add(new_personalized)
-            self.db.commit()
-            
-            return personalized_content
-        except Exception as e:
-            logger.error(f"Error retrieving personalized content: {str(e)}")
-            return None
+from app import schemas, models
 
-def create_personalization_service(db: Session) -> PersonalizationService:
+router = APIRouter(
+    prefix="/personalize",
+    tags=["Personalization"],
+)
+
+# --- LLM Setup ---
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+llm = ChatOpenAI(model="gpt-4-turbo", temperature=0.1, api_key=OPENAI_API_KEY)
+
+# --- Prompt Template ---
+PERSONALIZE_PROMPT_TEMPLATE = """
+You are an expert educator adapting a textbook chapter for a specific user.
+Your task is to rewrite the given chapter content to match the user's background and learning style.
+
+USER PROFILE:
+- Role: {role}
+- Technical Expertise: {expertise}
+- Primary Interest: {interest}
+- Preferred Style: {style}
+
+INSTRUCTIONS:
+1.  Read the original chapter content carefully.
+2.  Subtly rewrite the content to better suit the user.
+    - For a 'BEGINNER', simplify complex terms, add more foundational explanations, and use analogies.
+    - For an 'ADVANCED' or 'EXPERT', use more technical jargon, focus on deeper implications, and perhaps add more complex code examples or theoretical notes.
+    - Try to connect the content to the user's 'Primary Interest' where it feels natural.
+3.  Do NOT add or remove major topics. The core structure must remain the same.
+4.  The output MUST be valid Markdown. Preserve the original Markdown formatting (headings, lists, code blocks, etc.).
+5.  Do NOT add any commentary like "Here is the personalized version". Output only the rewritten Markdown.
+
+ORIGINAL CHAPTER CONTENT:
+{chapter_content}
+
+REWRITTEN AND PERSONALIZED MARKDOWN:
+"""
+
+personalize_prompt = ChatPromptTemplate.from_template(PERSONALIZE_PROMPT_TEMPLATE)
+
+def get_chapter_content(chapter_id: str) -> str:
     """
-    Factory function to create a personalization service
+    Reads the content of a chapter's Markdown file from the `docs` directory.
+    `chapter_id` should be the relative path of the file, e.g., 'module-1/ros2-nodes-topics-services.md'.
     """
-    return PersonalizationService(db)
+    # Basic security to prevent directory traversal
+    safe_path = os.path.normpath(os.path.join("docs", chapter_id))
+    if not safe_path.startswith("docs"):
+        raise HTTPException(status_code=400, detail="Invalid chapter ID")
+    
+    if not os.path.exists(safe_path) or not safe_path.endswith(".md"):
+        raise HTTPException(status_code=404, detail="Chapter not found")
+        
+    with open(safe_path, "r", encoding="utf-8") as f:
+        return f.read()
+
+@router.post("/", response_model=schemas.PersonalizeResponse)
+async def personalize_chapter_content(
+    request: schemas.PersonalizeRequest,
+    current_user: models.User = Depends(schemas.get_current_active_user)
+):
+    """
+    Personalizes a chapter's content based on the authenticated user's profile.
+    """
+    if not current_user.profile:
+        raise HTTPException(status_code=404, detail="User profile not found.")
+
+    # 1. Get original chapter content
+    chapter_content = get_chapter_content(request.chapter_id)
+
+    # 2. Construct the chain and invoke the LLM
+    chain = personalize_prompt | llm
+    
+    response = await chain.ainvoke({
+        "role": current_user.profile.role.value if current_user.profile.role else 'Not specified',
+        "expertise": current_user.profile.technical_expertise.value if current_user.profile.technical_expertise else 'Not specified',
+        "interest": current_user.profile.primary_interest or 'Not specified',
+        "style": current_user.profile.preferred_explanation_style.value if current_user.profile.preferred_explanation_style else 'beginner',
+        "chapter_content": chapter_content,
+    })
+
+    personalized_content = response.content
+
+    return schemas.PersonalizeResponse(personalized_content=personalized_content)

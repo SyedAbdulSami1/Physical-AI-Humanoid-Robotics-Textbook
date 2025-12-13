@@ -1,184 +1,83 @@
+# app/routers/auth.py
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from pydantic import BaseModel
-import os
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
+from app import models, schemas
 from app.database import get_db
-from app.auth import (
-    UserRegistrationRequest, 
-    UserLoginRequest, 
-    UserQuestionnaireRequest,
-    create_user,
-    authenticate_user,
-    create_access_token,
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-    get_current_user,
-    store_user_questionnaire,
-    get_user_preferences
+from app.auth import get_password_hash, verify_password, create_access_token
+
+router = APIRouter(
+    prefix="/auth",
+    tags=["Authentication"],
 )
-from app.models import User
-from datetime import timedelta
-from typing import Optional
 
-router = APIRouter()
-
-class UserResponse(BaseModel):
-    id: str
-    email: str
-    name: str
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class AuthResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    user: UserResponse
-
-@router.post("/register", response_model=AuthResponse)
-def register_user(request: UserRegistrationRequest, db: Session = Depends(get_db)):
+@router.post("/signup", response_model=schemas.User)
+async def signup(user_data: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
     """
-    Register a new user
+    Register a new user and their profile information.
     """
-    try:
-        user = create_user(
-            db=db,
-            email=request.email,
-            name=request.name,
-            password=request.password
-        )
-        
-        # Create access token
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(
-            data={"sub": str(user.id)}, expires_delta=access_token_expires
-        )
-        
-        return AuthResponse(
-            access_token=access_token,
-            token_type="bearer",
-            user=UserResponse(
-                id=str(user.id),
-                email=user.email,
-                name=user.name
-            )
-        )
-    except ValueError as e:
+    # Check if user already exists
+    result = await db.execute(select(models.User).where(models.User.email == user_data.email))
+    db_user = result.scalar_one_or_none()
+    if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Registration failed: {str(e)}"
+            detail="Email already registered",
         )
 
-@router.post("/login", response_model=AuthResponse)
-def login_user(request: UserLoginRequest, db: Session = Depends(get_db)):
-    """
-    Authenticate user and return access token
-    """
-    try:
-        user = authenticate_user(
-            db=db,
-            email=request.email,
-            password=request.password
-        )
-        
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect email or password",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        
-        # Create access token
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(
-            data={"sub": str(user.id)}, expires_delta=access_token_expires
-        )
-        
-        return AuthResponse(
-            access_token=access_token,
-            token_type="bearer",
-            user=UserResponse(
-                id=str(user.id),
-                email=user.email,
-                name=user.name
-            )
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Login failed: {str(e)}"
-        )
+    # Hash the password
+    hashed_password = get_password_hash(user_data.password)
 
-@router.post("/questionnaire")
-def store_questionnaire(
-    request: UserQuestionnaireRequest,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Store user questionnaire response for personalization
-    """
-    try:
-        user_preference = store_user_questionnaire(
-            db=db,
-            user_id=str(current_user.id),
-            questionnaire_data=request
-        )
-        
-        return {
-            "message": "Questionnaire submitted successfully",
-            "preference_id": str(user_preference.id)
-        }
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to store questionnaire: {str(e)}"
-        )
-
-@router.get("/me", response_model=UserResponse)
-def get_user_profile(current_user: User = Depends(get_current_user)):
-    """
-    Get current user's profile
-    """
-    return UserResponse(
-        id=str(current_user.id),
-        email=current_user.email,
-        name=current_user.name
+    # Create new user and profile
+    new_user = models.User(
+        email=user_data.email,
+        hashed_password=hashed_password,
+    )
+    
+    new_profile = models.UserProfile(
+        user=new_user,
+        role=user_data.profile.role,
+        technical_expertise=user_data.profile.technical_expertise,
+        primary_interest=user_data.profile.primary_interest,
+        has_nvidia_gpu=user_data.profile.has_nvidia_gpu,
+        gpu_model=user_data.profile.gpu_model,
+        has_jetson_device=user_data.profile.has_jetson_device,
+        jetson_model=user_data.profile.jetson_model,
     )
 
-@router.get("/questionnaire")
-def get_user_questionnaire(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
+    db.add(new_user)
+    db.add(new_profile)
+    await db.commit()
+    await db.refresh(new_user)
+
+    return new_user
+
+@router.post("/login", response_model=schemas.Token)
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     """
-    Get user's questionnaire responses
+    Log in a user and return an access token.
     """
-    try:
-        user_prefs = get_user_preferences(db=db, user_id=str(current_user.id))
-        if not user_prefs:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No questionnaire found for this user"
-            )
-        
-        return {
-            "background_level": user_prefs.background_level,
-            "programming_language": user_prefs.programming_language,
-            "hardware_interest": user_prefs.hardware_interest,
-            "learning_goal": user_prefs.learning_goal
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
+    result = await db.execute(select(models.User).where(models.User.email == form_data.username))
+    user = result.scalar_one_or_none()
+
+    if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve questionnaire: {str(e)}"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
         )
+
+    # Create access token
+    access_token = create_access_token(data={"sub": user.email})
+
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@router.get("/me", response_model=schemas.User)
+async def read_users_me(current_user: models.User = Depends(schemas.get_current_active_user)):
+    """
+    Get the profile of the currently authenticated user.
+    """
+    return current_user

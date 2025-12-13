@@ -1,178 +1,116 @@
+// src/components/ChatbotComponent.jsx
+
 import React, { useState, useEffect, useRef } from 'react';
-import { useUser } from '@auth0/nextjs-auth0/client';
+import axios from 'axios';
+import styles from './styles.css'; // We'll create this CSS file
 
-const ChatbotComponent = ({ chapterSlug }) => {
-  const [messages, setMessages] = useState([]);
-  const [inputText, setInputText] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedText, setSelectedText] = useState('');
-  const messagesEndRef = useRef(null);
-  const textareaRef = useRef(null);
-  
-  const { user, isLoading: userLoading } = useUser();
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
-  // Function to get selected text
-  useEffect(() => {
-    const handleSelection = () => {
-      const selectedText = window.getSelection().toString().trim();
-      if (selectedText.length > 0) {
-        setSelectedText(selectedText);
-      }
+const ChatbotComponent = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState('');
+    const [loading, setLoading] = useState(false);
+    const messagesEndRef = useRef(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
-    document.addEventListener('mouseup', handleSelection);
-    return () => {
-      document.removeEventListener('mouseup', handleSelection);
+    useEffect(scrollToBottom, [messages]);
+
+    const toggleChat = () => {
+        setIsOpen(!isOpen);
+        if (!isOpen && messages.length === 0) {
+            setMessages([
+                { sender: 'bot', text: 'Hello! Ask me anything about Physical AI and Humanoid Robotics.' }
+            ]);
+        }
     };
-  }, []);
 
-  // Scroll to bottom of messages
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    const handleSend = async () => {
+        if (input.trim() === '') return;
 
-  const handleSendMessage = async () => {
-    if (!inputText.trim() || isLoading) return;
+        const userMessage = { sender: 'user', text: input };
+        setMessages(prev => [...prev, userMessage]);
+        setInput('');
+        setLoading(true);
 
-    // Add user message to chat
-    const userMessage = { id: Date.now(), text: inputText, sender: 'user', timestamp: new Date() };
-    setMessages(prev => [...prev, userMessage]);
-    const currentInput = inputText;
-    setInputText('');
-    setIsLoading(true);
+        try {
+            // Assume token is stored in localStorage after login
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                setMessages(prev => [...prev, { sender: 'bot', text: 'You must be logged in to use the chat.' }]);
+                setLoading(false);
+                return;
+            }
 
-    try {
-      // Prepare request body
-      const requestBody = {
-        message: currentInput,
-        chapter_slug: chapterSlug,
-        selected_text: selectedText || null
-      };
+            const response = await axios.post(
+                `${API_URL}/chat/`,
+                { query: input },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            
+            const botMessage = { 
+                sender: 'bot', 
+                text: response.data.answer,
+                sources: response.data.sources 
+            };
+            setMessages(prev => [...prev, botMessage]);
 
-      // Add user ID if available
-      if (user) {
-        requestBody.user_id = user.sub;
-      }
+        } catch (error) {
+            const errorMessage = { sender: 'bot', text: 'Sorry, I encountered an error. Please try again.' };
+            setMessages(prev => [...prev, errorMessage]);
+            console.error("Chat API error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      // Call backend API
-      const response = await fetch('/api/v1/chat/message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
-        },
-        body: JSON.stringify(requestBody)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      
-      // Add bot response to chat
-      const botMessage = {
-        id: Date.now() + 1,
-        text: data.response,
-        sender: 'bot',
-        sources: data.sources || [],
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, botMessage]);
-    } catch (error) {
-      console.error('Chat error:', error);
-      const errorMessage = {
-        id: Date.now() + 1,
-        text: 'Sorry, I encountered an error processing your request. Please try again.',
-        sender: 'bot',
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-      setSelectedText(''); // Clear selected text after sending
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  return (
-    <div className="chatbot-container">
-      <div className="chatbot-header">
-        <h3>Physical AI & Humanoid Robotics Assistant</h3>
-        {selectedText && (
-          <div className="selected-text-indicator">
-            Using selected text: "{selectedText.substring(0, 60)}{selectedText.length > 60 ? '...' : ''}"
-          </div>
-        )}
-      </div>
-      
-      <div className="chat-messages">
-        {messages.length === 0 ? (
-          <div className="welcome-message">
-            <p>Hello! I'm your Physical AI & Humanoid Robotics textbook assistant.</p>
-            <p>Ask me anything about the content, or select text and ask specific questions about it.</p>
-          </div>
-        ) : (
-          messages.map((message) => (
-            <div 
-              key={message.id} 
-              className={`message ${message.sender === 'user' ? 'user-message' : 'bot-message'}`}
-            >
-              <div className="message-content">
-                {message.sender === 'bot' && message.sources && message.sources.length > 0 && (
-                  <div className="sources">
-                    <strong>Sources:</strong> {message.sources.slice(0, 2).join(', ')}
-                  </div>
-                )}
-                {message.text}
-              </div>
-              <div className="timestamp">
-                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </div>
-            </div>
-          ))
-        )}
-        {isLoading && (
-          <div className="message bot-message">
-            <div className="message-content">
-              <div className="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-      
-      <div className="chat-input-area">
-        <textarea
-          ref={textareaRef}
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask a question about the content..."
-          disabled={isLoading}
-          rows="3"
-        />
-        <button 
-          onClick={handleSendMessage} 
-          disabled={!inputText.trim() || isLoading}
-          className="send-button"
-        >
-          {isLoading ? 'Sending...' : 'Send'}
-        </button>
-      </div>
-    </div>
-  );
+    return (
+        <div className="chatbot-container">
+            <button className="chatbot-toggle-button" onClick={toggleChat}>
+                {isOpen ? 'Close' : 'Chat'}
+            </button>
+            {isOpen && (
+                <div className="chatbot-window">
+                    <div className="chatbot-header">
+                        <h2>AI Assistant</h2>
+                        <button onClick={toggleChat} className="chatbot-close-button">X</button>
+                    </div>
+                    <div className="chatbot-messages">
+                        {messages.map((msg, index) => (
+                            <div key={index} className={`message ${msg.sender}`}>
+                                <p>{msg.text}</p>
+                                {msg.sources && (
+                                    <div className="sources">
+                                        <strong>Sources:</strong>
+                                        <ul>
+                                            {msg.sources.map((source, i) => (
+                                                <li key={i}>{source}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                        {loading && <div className="message bot typing-indicator"><span>.</span><span>.</span><span>.</span></div>}
+                        <div ref={messagesEndRef} />
+                    </div>
+                    <div className="chatbot-input-form">
+                        <input
+                            type="text"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                            placeholder="Ask a question..."
+                        />
+                        <button onClick={handleSend} disabled={loading}>Send</button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default ChatbotComponent;

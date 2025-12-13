@@ -1,56 +1,71 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
+# app/main.py
+
+import sys
 import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-# Load environment variables
+# This allows the app to be run from the 'app' directory, making 'app' a discoverable package
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from app.database import init_db
+from app.routers import auth, ingest, chat
+from app.personalization import router as personalize_router
+from app.translation import router as translate_router
+
+# Load environment variables from .env file
 load_dotenv()
 
-# Import routers
-from app.routers import chat, ingest, auth
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup logic can go here
-    yield
-    # Shutdown logic can go here
-
-# Initialize FastAPI app
 app = FastAPI(
-    title="Physical AI & Humanoid Robotics Textbook RAG Chatbot",
-    description="RAG-powered chatbot for the Physical AI & Humanoid Robotics textbook with personalized content adaptation",
+    title="Physical AI & Humanoid Robotics Textbook API",
+    description="API for the interactive, AI-powered textbook.",
     version="1.0.0",
-    lifespan=lifespan
 )
 
-# Add CORS middleware
+# --- Middleware ---
+
+# Set up CORS (Cross-Origin Resource Sharing)
+# This allows the Docusaurus frontend to communicate with the backend.
+origins = [
+    "http://localhost:3000",  # Docusaurus local dev server
+    # Add the production frontend URL here once deployed
+    # "https://your-docusaurus-site.com",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, configure this properly
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
-app.include_router(ingest.router, prefix="/api/v1/ingest", tags=["ingest"])
-app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
+# --- Event Handlers ---
 
-@app.get("/")
-def read_root():
-    return {"message": "Physical AI & Humanoid Robotics Textbook RAG Chatbot API"}
+@app.on_event("startup")
+async def on_startup():
+    """
+    This event handler runs when the application starts up.
+    It initializes the database connection and creates tables.
+    """
+    print("Initializing database...")
+    await init_db()
+    print("Database initialization complete.")
 
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "app.main:app",
-        host=os.getenv("HOST", "0.0.0.0"),
-        port=int(os.getenv("PORT", 8000)),
-        reload=True
-    )
+# --- API Routers ---
+
+app.include_router(auth.router)
+app.include_router(ingest.router)
+app.include_router(chat.router)
+app.include_router(personalize_router)
+app.include_router(translate_router)
+
+
+@app.get("/", tags=["Root"])
+async def read_root():
+    """
+    A simple endpoint to confirm the API is running.
+    """
+    return {"message": "Welcome to the Physical AI Textbook API!"}

@@ -1,304 +1,127 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from pydantic import BaseModel
+# app/routers/ingest.py
+
 import os
-from qdrant_client import QdrantClient
-from qdrant_client.http import models
-import openai
-from typing import List
-from app.database import get_db
-from app.models import BookChapter
-import logging
+import re
+from fastapi import APIRouter, Depends, HTTPException, status
+from qdrant_client import QdrantClient, models as qdrant_models
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+from langchain.docstore.document import Document
+import markdown
+from bs4 import BeautifulSoup
 
-router = APIRouter()
+from app import schemas, models
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+router = APIRouter(
+    prefix="/ingest",
+    tags=["Ingestion"],
+)
 
-# Initialize Qdrant client
-QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
+# --- Qdrant and Embeddings Setup ---
+
 QDRANT_URL = os.getenv("QDRANT_URL")
-QDRANT_COLLECTION_NAME = os.getenv("QDRANT_COLLECTION_NAME", "textbook_content")
-
-qdrant_client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
-
-# Initialize OpenAI client
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai.api_key = OPENAI_API_KEY
+QDRANT_COLLECTION_NAME = "textbook_content"
 
-class IngestChapterRequest(BaseModel):
-    title: str
-    slug: str
-    content: str
+# Initialize clients
+qdrant_client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
+embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
 
-class BulkIngestRequest(BaseModel):
-    chapters: List[IngestChapterRequest]
+# Text splitter configuration
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,
+    chunk_overlap=200,
+    length_function=len,
+)
 
-def create_collection():
+def md_to_text(md_content: str) -> str:
+    """Convert Markdown content to plain text."""
+    html = markdown.markdown(md_content)
+    soup = BeautifulSoup(html, "html.parser")
+    # Remove code blocks to avoid cluttering the text with code
+    for code in soup.find_all("code"):
+        code.decompose()
+    return soup.get_text()
+
+def get_documents_from_docs(docs_path: str = "docs") -> list[Document]:
     """
-    Create Qdrant collection if it doesn't exist
+    Walks through the docs directory, reads all .md files, and returns a list of LangChain Documents.
     """
-    try:
-        # Check if collection exists
-        collections = qdrant_client.get_collections()
-        collection_names = [c.name for c in collections.collections]
-        
-        if QDRANT_COLLECTION_NAME not in collection_names:
-            # Create collection with vector configuration
-            qdrant_client.create_collection(
-                collection_name=QDRANT_COLLECTION_NAME,
-                vectors_config=models.VectorParams(size=1536, distance=models.Distance.COSINE)  # OpenAI embedding size
+    documents = []
+    for root, _, files in os.walk(docs_path):
+        for file in files:
+            if file.endswith(".md"):
+                file_path = os.path.join(root, file)
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    text_content = md_to_text(content)
+                    
+                    # Create a document with metadata
+                    doc = Document(
+                        page_content=text_content,
+                        metadata={"source": file_path.replace("\\", "/")},
+                    )
+                    documents.append(doc)
+    return documents
+
+
+@router.post("/run", status_code=status.HTTP_202_ACCEPTED)
+async def run_ingestion(current_user: models.User = Depends(schemas.get_current_active_user)):
+    """
+    Protected endpoint to trigger the content ingestion process.
+    This should be called only when the textbook content is updated.
+    
+    1. Deletes the existing Qdrant collection to ensure freshness.
+    2. Creates a new collection.
+    3. Reads all Markdown files from the `docs` directory.
+    4. Chunks the documents.
+    5. Generates embeddings for each chunk.
+    6. Upserts the vectors into the Qdrant collection.
+    """
+    # For simplicity, only active users can trigger this. Add more granular permissions if needed.
+    if not current_user.is_active:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    # 1. Delete and Recreate Collection
+    qdrant_client.recreate_collection(
+        collection_name=QDRANT_COLLECTION_NAME,
+        vectors_config=qdrant_models.VectorParams(
+            size=1536,  # OpenAI embeddings dimension
+            distance=qdrant_models.Distance.COSINE,
+        ),
+    )
+
+    # 2. Load documents
+    documents = get_documents_from_docs()
+    if not documents:
+        return {"message": "No documents found to ingest."}
+
+    # 3. Chunk documents
+    chunked_docs = text_splitter.split_documents(documents)
+
+    # 4. Generate embeddings and prepare for upsert
+    points_to_upsert = []
+    for i, doc in enumerate(chunked_docs):
+        embedding = embeddings.embed_query(doc.page_content)
+        points_to_upsert.append(
+            qdrant_models.PointStruct(
+                id=i,
+                vector=embedding,
+                payload=doc.metadata,
             )
-            
-            # Create payload index for chapter_slug
-            qdrant_client.create_payload_index(
-                collection_name=QDRANT_COLLECTION_NAME,
-                field_name="chapter_slug",
-                field_schema=models.PayloadSchemaType.KEYWORD
-            )
-    except Exception as e:
-        logger.error(f"Error creating collection: {str(e)}")
-        raise
-
-def chunk_text(text: str, chunk_size: int = 1000) -> List[str]:
-    """
-    Split text into chunks of specified size
-    """
-    chunks = []
-    for i in range(0, len(text), chunk_size):
-        chunk = text[i:i+chunk_size]
-        chunks.append(chunk)
-    return chunks
-
-def embed_text(text: str) -> List[float]:
-    """
-    Generate embedding for text using OpenAI
-    """
-    try:
-        response = openai.embeddings.create(
-            input=text,
-            model="text-embedding-ada-002"
         )
-        return response.data[0].embedding
-    except Exception as e:
-        logger.error(f"Error generating embedding: {str(e)}")
-        raise
 
-@router.post("/ingest-chapter")
-def ingest_chapter(request: IngestChapterRequest, db: Session = Depends(get_db)):
-    """
-    Ingest a single chapter into the vector database
-    """
-    try:
-        # Check if chapter already exists
-        existing_chapter = db.query(BookChapter).filter(BookChapter.slug == request.slug).first()
-        if existing_chapter:
-            raise HTTPException(status_code=400, detail="Chapter with this slug already exists")
-        
-        # Create collection if it doesn't exist
-        create_collection()
-        
-        # Chunk the content
-        text_chunks = chunk_text(request.content)
-        
-        # Prepare points for Qdrant
-        points = []
-        for i, chunk in enumerate(text_chunks):
-            # Generate embedding for the chunk
-            vector = embed_text(chunk)
-            
-            # Create a point for Qdrant
-            point = models.PointStruct(
-                id=f"{request.slug}_{i}",
-                vector=vector,
-                payload={
-                    "text": chunk,
-                    "chapter_title": request.title,
-                    "chapter_slug": request.slug,
-                    "chunk_index": i
-                }
-            )
-            points.append(point)
-        
-        # Upload points to Qdrant
-        qdrant_client.upsert(
-            collection_name=QDRANT_COLLECTION_NAME,
-            points=points
-        )
-        
-        # Save chapter metadata to PostgreSQL
-        chapter = BookChapter(
-            title=request.title,
-            slug=request.slug,
-            content=request.content
-        )
-        db.add(chapter)
-        db.commit()
-        db.refresh(chapter)
-        
-        return {
-            "message": f"Successfully ingested chapter '{request.title}' with {len(text_chunks)} chunks",
-            "chapter_id": chapter.id,
-            "chunks_ingested": len(text_chunks)
-        }
-    except Exception as e:
-        logger.error(f"Ingestion error: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to ingest chapter: {str(e)}")
+    # 5. Upsert to Qdrant in batches
+    qdrant_client.upsert(
+        collection_name=QDRANT_COLLECTION_NAME,
+        points=points_to_upsert,
+        wait=True,
+    )
 
-@router.post("/bulk-ingest")
-def bulk_ingest(request: BulkIngestRequest, db: Session = Depends(get_db)):
-    """
-    Ingest multiple chapters at once
-    """
-    try:
-        create_collection()
-        results = []
-        
-        for chapter_request in request.chapters:
-            # Check if chapter already exists
-            existing_chapter = db.query(BookChapter).filter(
-                BookChapter.slug == chapter_request.slug
-            ).first()
-            
-            if existing_chapter:
-                results.append({
-                    "title": chapter_request.title,
-                    "status": "skipped",
-                    "message": "Chapter already exists"
-                })
-                continue
-            
-            # Chunk the content
-            text_chunks = chunk_text(chapter_request.content)
-            
-            # Prepare points for Qdrant
-            points = []
-            for i, chunk in enumerate(text_chunks):
-                # Generate embedding for the chunk
-                vector = embed_text(chunk)
-                
-                # Create a point for Qdrant
-                point = models.PointStruct(
-                    id=f"{chapter_request.slug}_{len(points)}",
-                    vector=vector,
-                    payload={
-                        "text": chunk,
-                        "chapter_title": chapter_request.title,
-                        "chapter_slug": chapter_request.slug,
-                        "chunk_index": i
-                    }
-                )
-                points.append(point)
-            
-            # Upload points to Qdrant
-            qdrant_client.upsert(
-                collection_name=QDRANT_COLLECTION_NAME,
-                points=points
-            )
-            
-            # Save chapter metadata to PostgreSQL
-            chapter = BookChapter(
-                title=chapter_request.title,
-                slug=chapter_request.slug,
-                content=chapter_request.content
-            )
-            db.add(chapter)
-            
-            results.append({
-                "title": chapter_request.title,
-                "status": "success",
-                "chunks_ingested": len(text_chunks)
-            })
-        
-        # Commit all chapters to the database
-        db.commit()
-        
-        return {
-            "message": "Bulk ingestion completed",
-            "results": results
-        }
-    except Exception as e:
-        logger.error(f"Bulk ingestion error: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to bulk ingest chapters: {str(e)}")
-
-@router.post("/rebuild-index")
-def rebuild_index(db: Session = Depends(get_db)):
-    """
-    Rebuild the entire vector index from database content
-    """
-    try:
-        # Delete existing collection
-        try:
-            qdrant_client.delete_collection(QDRANT_COLLECTION_NAME)
-        except:
-            pass  # Collection might not exist yet
-        
-        # Create new collection
-        create_collection()
-        
-        # Get all chapters from database
-        chapters = db.query(BookChapter).all()
-        
-        total_chunks = 0
-        for chapter in chapters:
-            # Chunk the content
-            text_chunks = chunk_text(chapter.content)
-            
-            # Prepare points for Qdrant
-            points = []
-            for i, chunk in enumerate(text_chunks):
-                # Generate embedding for the chunk
-                vector = embed_text(chunk)
-                
-                # Create a point for Qdrant
-                point = models.PointStruct(
-                    id=f"{chapter.slug}_{len(points)}",
-                    vector=vector,
-                    payload={
-                        "text": chunk,
-                        "chapter_title": chapter.title,
-                        "chapter_slug": chapter.slug,
-                        "chunk_index": i
-                    }
-                )
-                points.append(point)
-            
-            # Upload points to Qdrant
-            qdrant_client.upsert(
-                collection_name=QDRANT_COLLECTION_NAME,
-                points=points
-            )
-            
-            total_chunks += len(text_chunks)
-        
-        return {
-            "message": f"Successfully rebuilt index with {len(chapters)} chapters and {total_chunks} chunks",
-            "chapters_processed": len(chapters),
-            "chunks_processed": total_chunks
-        }
-    except Exception as e:
-        logger.error(f"Index rebuild error: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to rebuild index: {str(e)}")
-
-@router.get("/status")
-def ingestion_status():
-    """
-    Get the status of the ingestion pipeline
-    """
-    try:
-        # Get collection info
-        collection_info = qdrant_client.get_collection(QDRANT_COLLECTION_NAME)
-        
-        return {
-            "status": "ready",
-            "collection_name": QDRANT_COLLECTION_NAME,
-            "vectors_count": collection_info.points_count,
-            "indexed_chapters": "Count requires manual tracking"
-        }
-    except Exception as e:
-        logger.error(f"Status check error: {str(e)}")
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+    return {
+        "message": "Ingestion process started successfully.",
+        "documents_found": len(documents),
+        "chunks_created": len(chunked_docs),
+        "vectors_upserted": len(points_to_upsert),
+    }

@@ -1,163 +1,102 @@
-from qdrant_client import QdrantClient
-from qdrant_client.http import models
-import openai
-from sqlalchemy.orm import Session
-from typing import List, Dict, Any, Optional
-import logging
-import asyncio
-from app.models import User, UserPreference
+# app/skills/rag_agent.py
 
-logger = logging.getLogger(__name__)
+import os
+from typing import List, Tuple
+from qdrant_client import QdrantClient, models as qdrant_models
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
 
-class RAGAgent:
+# --- Client and Model Setup ---
+
+QDRANT_URL = os.getenv("QDRANT_URL")
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+QDRANT_COLLECTION_NAME = "textbook_content"
+
+# Initialize clients and models
+qdrant_client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
+embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
+llm = ChatOpenAI(model="gpt-4-turbo", temperature=0.1, api_key=OPENAI_API_KEY)
+
+# --- Prompt Template ---
+
+RAG_PROMPT_TEMPLATE = """
+You are a helpful assistant for the "Physical AI & Humanoid Robotics" textbook.
+Your task is to answer the user's question based *only* on the provided context.
+If the context does not contain the answer, state that you cannot answer the question with the information provided.
+Be concise and clear. Cite the sources you used by listing their file paths at the end of your answer under a "Sources:" heading.
+
+CONTEXT:
+{context}
+
+QUESTION:
+{question}
+
+ANSWER:
+"""
+
+rag_prompt = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
+
+async def search_qdrant(query: str, top_k: int = 5) -> List[dict]:
     """
-    Reusable RAG agent subagent for handling retrieval-augmented generation
+    Searches the Qdrant collection for the most relevant document chunks.
+
+    Args:
+        query: The user's query.
+        top_k: The number of results to retrieve.
+
+    Returns:
+        A list of search results.
     """
+    vector = embeddings.embed_query(query)
+    search_results = qdrant_client.search(
+        collection_name=QDRANT_COLLECTION_NAME,
+        query_vector=vector,
+        limit=top_k,
+        with_payload=True,
+    )
+    return [result.model_dump() for result in search_results]
+
+async def process_query(query: str, selected_text: str = None) -> Tuple[str, List[str]]:
+    """
+    Processes a user query through the RAG pipeline.
+
+    Args:
+        query: The user's question.
+        selected_text: Optional text selected by the user to narrow the search.
+
+    Returns:
+        A tuple containing the generated answer and a list of source documents.
+    """
+    # If user selected text, combine it with the query for a more focused search
+    search_query = f"{selected_text}\n\n{query}" if selected_text else query
+
+    # 1. Retrieve context from Qdrant
+    search_results = await search_qdrant(search_query)
+
+    if not search_results:
+        return "I could not find any relevant information to answer your question.", []
+
+    # 2. Format the context and collect sources
+    context_str = ""
+    sources = set()
+    for result in search_results:
+        context_str += f"Source: {result['payload']['source']}\n"
+        context_str += f"Content: {result['payload'].get('page_content', 'N/A')}\n---\n"
+        sources.add(result['payload']['source'])
+
+    # 3. Generate the answer using the LLM
+    chain = rag_prompt | llm
     
-    def __init__(self, qdrant_client: QdrantClient, collection_name: str, openai_api_key: str, db: Session):
-        self.qdrant_client = qdrant_client
-        self.collection_name = collection_name
-        self.openai_client = openai.OpenAI(api_key=openai_api_key)
-        self.db = db
+    response = await chain.ainvoke({
+        "context": context_str,
+        "question": query,
+    })
+
+    answer = response.content
     
-    def search_content(self, query: str, top_k: int = 5, chapter_slug: Optional[str] = None) -> List[Any]:
-        """
-        Search the vector database for relevant content
-        """
-        try:
-            # Embed the query using OpenAI's embedding model
-            response = self.openai_client.embeddings.create(
-                input=query,
-                model="text-embedding-ada-002"
-            )
-            query_vector = response.data[0].embedding
-            
-            # Prepare search filters
-            search_filter = None
-            if chapter_slug:
-                search_filter = models.Filter(
-                    must=[
-                        models.FieldCondition(
-                            key="chapter_slug",
-                            match=models.MatchValue(value=chapter_slug)
-                        )
-                    ]
-                )
-            
-            # Perform similarity search
-            results = self.qdrant_client.search(
-                collection_name=self.collection_name,
-                query_vector=query_vector,
-                query_filter=search_filter,
-                limit=top_k
-            )
-            
-            return results
-        except Exception as e:
-            logger.error(f"Error during content search: {str(e)}")
-            return []
-    
-    async def generate_response(self, query: str, search_results: List[Any], user: Optional[User] = None) -> str:
-        """
-        Generate a response using retrieved content and LLM
-        """
-        try:
-            # Format context from search results
-            context_texts = []
-            for result in search_results:
-                payload = result.payload
-                text = payload.get("text", "")
-                context_texts.append(text)
-            
-            # Get user preferences for personalization
-            user_context = ""
-            if user:
-                user_prefs = self.db.query(UserPreference).filter(
-                    UserPreference.user_id == user.id
-                ).first()
-                
-                if user_prefs:
-                    user_context = f"\n\nUser Background: {user_prefs.background_level} level in robotics/AI. "
-                    if user_prefs.programming_language:
-                        user_context += f"Prefers {user_prefs.programming_language}. "
-                    if user_prefs.hardware_interest:
-                        user_context += f"Interested in {user_prefs.hardware_interest}. "
-            
-            # Combine context
-            context = "\n\n".join(context_texts[:3])  # Use top 3 results
-            full_context = f"{context}\n\n{user_context}" if user_context else context
-            
-            # Prepare the prompt for OpenAI
-            system_prompt = (
-                "You are an expert assistant for the Physical AI & Humanoid Robotics textbook. "
-                "Answer questions about humanoid robotics, physical AI, machine learning, control systems, "
-                "sensor fusion, kinematics, dynamics, and related topics based on the provided context. "
-                "Provide accurate, helpful, and technically sound explanations. "
-                "If a question requires content not in the context, politely explain that you can only answer "
-                "based on the textbook content provided."
-            )
-            
-            user_prompt = f"Context:\n{full_context}\n\nQuestion: {query}\n\nAnswer:"
-            
-            # Call OpenAI API asynchronously
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                max_tokens=1000,
-                temperature=0.7
-            )
-            
-            return response.choices[0].message.content
-        except Exception as e:
-            logger.error(f"Error generating response: {str(e)}")
-            return "I apologize, but I encountered an error while processing your request. Please try again."
-    
-    async def get_selected_text_response(self, query: str, selected_text: str, user: Optional[User] = None) -> str:
-        """
-        Generate a response using only the selected text
-        """
-        try:
-            # Get user preferences for personalization
-            user_context = ""
-            if user:
-                user_prefs = self.db.query(UserPreference).filter(
-                    UserPreference.user_id == user.id
-                ).first()
-                
-                if user_prefs:
-                    user_context = f"\n\nUser Background: {user_prefs.background_level} level in robotics/AI. "
-                    if user_prefs.programming_language:
-                        user_context += f"Prefers {user_prefs.programming_language}. "
-                    if user_prefs.hardware_interest:
-                        user_context += f"Interested in {user_prefs.hardware_interest}. "
-            
-            # Prepare the prompt for OpenAI
-            system_prompt = (
-                "You are an expert assistant for the Physical AI & Humanoid Robotics textbook. "
-                "Answer the following question based ONLY on the provided selected text. "
-                "Do not use any external knowledge. "
-                "Provide accurate, helpful, and technically sound explanations based only on the information provided. "
-                "If the selected text does not contain information to answer the question, state that clearly."
-            )
-            
-            full_context = f"{selected_text}\n\n{user_context}" if user_context else selected_text
-            user_prompt = f"Selected Text:\n{full_context}\n\nQuestion: {query}\n\nAnswer:"
-            
-            # Call OpenAI API asynchronously
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                max_tokens=1000,
-                temperature=0.7
-            )
-            
-            return response.choices[0].message.content
-        except Exception as e:
-            logger.error(f"Error generating selected text response: {str(e)}")
-            return "I apologize, but I encountered an error while processing your request. Please try again."
+    # Append sources to the answer if not already there (belt-and-suspenders)
+    if "Sources:" not in answer:
+        answer += "\n\n**Sources:**\n" + "\n".join(f"- {s}" for s in sorted(list(sources)))
+
+    return answer, sorted(list(sources))

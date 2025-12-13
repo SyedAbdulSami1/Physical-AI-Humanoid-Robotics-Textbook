@@ -1,135 +1,57 @@
+// src/components/UrduTranslationButton.jsx
+
 import React, { useState } from 'react';
+import axios from 'axios';
+import styles from './styles.css';
 
-const UrduTranslationButton = ({ chapterContent, chapterTitle }) => {
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [translatedContent, setTranslatedContent] = useState(null);
-  const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('english'); // 'english', 'urdu', 'bilingual'
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
-  const translateContent = async () => {
-    setIsTranslating(true);
-    setError(null);
-    
-    try {
-      // In a real implementation, this would call our backend translation API
-      // Here we'll simulate the API call
-      const response = await fetch('/api/v1/translation/urdu', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          text: chapterContent,
-          target_lang: 'ur'
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Translation API error: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      setTranslatedContent(data.translated_text);
-      setViewMode('urdu');
-    } catch (err) {
-      console.error('Translation error:', err);
-      setError('Translation failed. Please try again later.');
-    } finally {
-      setIsTranslating(false);
-    }
-  };
+const UrduTranslationButton = ({ chapterId, onContentTranslated }) => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
-  const toggleViewMode = (mode) => {
-    setViewMode(mode);
-  };
+    const handleTranslate = async () => {
+        setLoading(true);
+        setError('');
 
-  return (
-    <div className="urdu-translation-container">
-      <div className="translation-controls">
-        <button 
-          onClick={translateContent}
-          disabled={isTranslating || viewMode === 'urdu'}
-          className={`translate-button ${viewMode === 'urdu' ? 'active' : ''}`}
-        >
-          {isTranslating ? 'Translating...' : 
-           viewMode === 'urdu' ? ' Urdu ✓' : 
-           'Translate to Urdu'}
-        </button>
-        
-        {translatedContent && (
-          <div className="view-mode-selector">
+        try {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                setError('You must be logged in to translate content.');
+                setLoading(false);
+                return;
+            }
+
+            const response = await axios.post(
+                `${API_URL}/translate/urdu`,
+                { chapter_id: chapterId },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            
+            if (onContentTranslated) {
+                onContentTranslated(response.data.translated_content);
+            }
+
+        } catch (err) {
+            setError(err.response?.data?.detail || 'Failed to translate content.');
+            console.error("Translation API error:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="feature-button-container">
             <button 
-              onClick={() => toggleViewMode('english')}
-              className={viewMode === 'english' ? 'active' : ''}
+                onClick={handleTranslate} 
+                disabled={loading}
+                className="feature-button"
             >
-              English
+                {loading ? 'Translating...' : '🌐 Translate to Urdu'}
             </button>
-            <button 
-              onClick={() => toggleViewMode('urdu')}
-              className={viewMode === 'urdu' ? 'active' : ''}
-            >
-              Urdu
-            </button>
-            <button 
-              onClick={() => toggleViewMode('bilingual')}
-              className={viewMode === 'bilingual' ? 'active' : ''}
-            >
-              Bilingual
-            </button>
-          </div>
-        )}
-      </div>
-      
-      {error && (
-        <div className="translation-error">
-          {error}
+            {error && <p className="error-message">{error}</p>}
         </div>
-      )}
-      
-      <div className="translation-content">
-        {viewMode === 'english' && (
-          <div className="english-content">
-            {chapterContent}
-          </div>
-        )}
-        
-        {viewMode === 'urdu' && (
-          <div className="urdu-content" dir="rtl">
-            {translatedContent ? (
-              <div>{translatedContent}</div>
-            ) : (
-              <div className="translation-placeholder">
-                {isTranslating 
-                  ? 'Translating content to Urdu...' 
-                  : 'Click "Translate to Urdu" to see content in Urdu'}
-              </div>
-            )}
-          </div>
-        )}
-        
-        {viewMode === 'bilingual' && (
-          <div className="bilingual-content">
-            <div className="english-section">
-              <h4>English</h4>
-              <div>{chapterContent}</div>
-            </div>
-            <div className="urdu-section" dir="rtl">
-              <h4>اردو</h4>
-              {translatedContent ? (
-                <div>{translatedContent}</div>
-              ) : (
-                <div className="translation-placeholder">
-                  {isTranslating 
-                    ? 'Translating content to Urdu...' 
-                    : 'Translation in progress...'}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+    );
 };
 
 export default UrduTranslationButton;
