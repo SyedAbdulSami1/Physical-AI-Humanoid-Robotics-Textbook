@@ -1,149 +1,218 @@
-# RAG Chatbot Backend Setup
+# Backend Setup Instructions
 
-This document provides step-by-step instructions to set up the RAG (Retrieval-Augmented Generation) chatbot backend for the Physical AI & Humanoid Robotics Textbook.
+This document provides instructions for setting up the backend services for the Physical AI & Humanoid Robotics Textbook, including Better-Auth, Neon Postgres, and translation services.
 
 ## Prerequisites
 
-- Python 3.9 or higher
-- Access to Neon Serverless Postgres (free tier)
-- Access to Qdrant Cloud (free tier)
-- OpenAI API key
-- Node.js (for the frontend, if running locally)
+Before setting up the backend, ensure you have the following:
 
-## Setup Instructions
+- Node.js (v18 or higher)
+- Python (v3.9 or higher)
+- PostgreSQL client or access to a Neon Postgres database
+- Git
 
-### 1. Environment Setup
+## Setup Steps
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd Physical-AI-Humanoid-Robotics-Textbook
-   ```
+### 1. Clone the Repository
 
-2. Create a virtual environment and install dependencies:
-   ```bash
-   cd app
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
+```bash
+git clone <your-repo-url>
+cd Physical-AI-Humanoid-Robotics-Textbook
+```
 
-3. Copy the environment variables template:
-   ```bash
-   cp .env.example .env
-   ```
+### 2. Backend Setup
 
-### 2. Neon Serverless Postgres Setup
+#### 2.1. Navigate to Backend Directory
+
+```bash
+cd backend
+```
+
+#### 2.2. Create and Activate Virtual Environment
+
+```bash
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+```
+
+#### 2.3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+#### 2.4. Environment Configuration
+
+Create a `.env` file in the `backend` directory with the following content:
+
+```env
+# Database Configuration
+DATABASE_URL="postgresql://username:password@localhost:5432/textbook"
+
+# Better-Auth Configuration
+AUTH_SECRET="your-super-secret-key-change-this-in-production"
+
+# Translation Configuration (if using external API)
+# For Google Translate API:
+GOOGLE_TRANSLATE_API_KEY="your-api-key"
+
+# For LibreTranslate (if using self-hosted instance):
+LIBRETRANSLATE_URL="http://localhost:5000"
+```
+
+> **Important**: For production use, always use strong, randomly generated secrets and store them securely using environment variables or a secrets management system.
+
+### 3. Database Setup with Neon Postgres
+
+#### 3.1. Create a Neon Account
 
 1. Go to [Neon Console](https://console.neon.tech/)
-2. Create a new project
-3. Copy the connection string in the format: `postgresql+asyncpg://username:password@ep-xxx.us-east-1.aws.neon.tech/dbname?sslmode=require`
-4. Add this to your `.env` file as `NEON_DATABASE_URL`
+2. Sign up or log in to your account
+3. Create a new project
 
-### 3. Qdrant Cloud Setup
+#### 3.2. Get Connection Details
 
-1. Go to [Qdrant Cloud](https://cloud.qdrant.io/)
-2. Create a new cluster
-3. Get your cluster URL and API key
-4. Add these to your `.env` file as `QDRANT_URL` and `QDRANT_API_KEY`
+1. In your Neon project dashboard, go to the "Connection Details" section
+2. Copy the connection string and update your `.env` file:
 
-### 4. OpenAI API Setup
+```env
+DATABASE_URL="postgresql://username:password@ep-xxx.us-east-1.aws.neon.tech/textbook?sslmode=require"
+```
 
-1. Go to [OpenAI Platform](https://platform.openai.com/)
+#### 3.3. Run Database Migrations
+
+The backend will create necessary tables automatically on startup. Just start the server as described below.
+
+### 4. Better-Auth Configuration
+
+Better-Auth is configured in `backend/main.py`. The configuration uses the `DATABASE_URL` from your environment. The authentication endpoints are:
+
+- `POST /api/auth/signin` - User login
+- `POST /api/auth/signup` - User registration
+- `GET /api/auth/session` - Get current user session (requires authentication)
+
+### 5. Translation Service Setup
+
+We support multiple translation options:
+
+#### 5.1. Option A: Using NLLB (Recommended for Free Tier)
+
+This implementation uses the NLLB model from Facebook for local translation. It doesn't require an external API key but requires more computational resources.
+
+To use this option, uncomment the transformer-based translation code in `backend/app/services/translation_service.py` and install the required dependencies:
+
+```bash
+pip install torch transformers sentence-transformers
+```
+
+You'll also need to download the NLLB model. The first request will be slow as the model downloads.
+
+#### 5.2. Option B: Using Google Translate API
+
+1. Enable the Google Translation API in your Google Cloud Console
 2. Create an API key
-3. Add this to your `.env` file as `OPENAI_API_KEY`
+3. Set the `GOOGLE_TRANSLATE_API_KEY` in your `.env` file
 
-### 5. Run the Backend
+#### 5.3. Option C: Using LibreTranslate
 
-1. Start the FastAPI server:
-   ```bash
-   cd app
-   uvicorn main:app --reload --port 8000
-   ```
+1. You can self-host LibreTranslate or use a public instance
+2. Set the `LIBRETRANSLATE_URL` in your `.env` file
 
-2. The API will be available at `http://localhost:8000`
+### 6. Running the Backend Server
 
-### 6. Run Ingestion Pipeline
+#### 6.1. Start the Backend Server
 
-1. First ensure your textbook content is in the `docs/` directory as Markdown files
-2. To run the ingestion pipeline, make an authenticated request to the `/ingest/run` endpoint:
-   ```bash
-   curl -X POST "http://localhost:8000/ingest/run" \
-     -H "Authorization: Bearer <your-jwt-token>" \
-     -H "Content-Type: application/json"
-   ```
-
-### 7. Test the API Endpoints
-
-#### Authentication
 ```bash
-# Register a new user
-curl -X POST "http://localhost:8000/auth/signup" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "password123",
-    "profile": {
-      "role": "student",
-      "technical_expertise": "beginner",
-      "primary_interest": "Bipedal Locomotion"
-    }
-  }'
-
-# Login
-curl -X POST "http://localhost:8000/auth/login" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d 'username=user@example.com&password=password123'
+cd backend
+# Make sure your virtual environment is activated
+python main.py
 ```
 
-#### Chat with Full Book Context
+Alternatively, use uvicorn directly:
+
 ```bash
-curl -X POST "http://localhost:8000/chat/" \
-  -H "Authorization: Bearer <your-jwt-token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "What is Physical AI?"
-  }'
+cd backend
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-#### Chat with Selected Text Only
+The backend will be available at `http://localhost:8000`.
+
+### 7. Frontend Setup
+
+#### 7.1. Install Node.js Dependencies
+
 ```bash
-curl -X POST "http://localhost:8000/chat/" \
-  -H "Authorization: Bearer <your-jwt-token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "Explain this concept",
-    "selected_text": "Physical AI is a field that combines artificial intelligence with physical systems like robots..."
-  }'
+# From the project root
+npm install
 ```
+
+#### 7.2. Run the Docusaurus Frontend
+
+```bash
+# From the project root
+npm start
+```
+
+The frontend will be available at `http://localhost:3000`.
 
 ## API Endpoints
 
-- `GET /` - Root endpoint to confirm the API is running
-- `POST /auth/signup` - Register a new user
-- `POST /auth/login` - Login and get JWT token
-- `GET /auth/me` - Get current user profile
-- `POST /ingest/run` - Trigger content ingestion (requires authentication)
-- `POST /chat/` - Chat with the RAG system (requires authentication)
-- `POST /personalize/` - Get personalized content (requires authentication)
-- `POST /translate/` - Get translated content (requires authentication)
+### Authentication Endpoints
 
-## Architecture
+- `POST /api/auth/signin` - User login
+- `POST /api/auth/signup` - User registration
+- `GET /api/auth/session` - Get current user session
 
-The backend is built with:
-- FastAPI for the web framework with async support
-- SQLAlchemy with asyncpg for Neon Postgres database interactions
-- Qdrant for vector storage and similarity search
-- OpenAI for text generation
-- JWT for authentication
-- LangChain for RAG operations
+### User Profile Endpoints
 
-The RAG pipeline:
-1. Chunks the textbook Markdown content
-2. Creates vector embeddings using OpenAI
-3. Stores embeddings in Qdrant
-4. On query, embeds the user's question
-5. Finds relevant content from the vector store
-6. Combines the context with the question using a prompt
-7. Generates a response using OpenAI
-8. Returns the answer with source citations
+- `GET /api/user/profile/{user_id}` - Get user profile
+- `POST /api/user/profile` - Update user profile
+- `GET /api/user/me` - Get current user info
+
+### Personalization Endpoints
+
+- `POST /api/personalize` - Personalize content based on user profile
+
+### Translation Endpoints
+
+- `POST /api/translate` - Translate content to specified language
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Database Connection Issues**: 
+   - Ensure your Neon Postgres connection string is correct
+   - Check that your IP address is allowed in Neon settings
+   - Verify SSL settings
+
+2. **Better-Auth Issues**:
+   - Ensure `AUTH_SECRET` has sufficient entropy (at least 32 characters)
+   - Check that the database is correctly configured
+
+3. **Translation Issues**:
+   - If using NLLB, the first request will be slow as the model downloads
+   - Check your translation API keys if using external services
+
+4. **Frontend-Backend Connection**:
+   - By default, the frontend expects the backend at `http://localhost:8000`
+   - If running on a different port, update the API calls accordingly
+
+### Development Tips
+
+1. **Hot Reload**: Backend server supports hot reload with `--reload` flag
+2. **CORS**: The backend allows all origins by default; restrict this in production
+3. **Logging**: Check backend logs for detailed error information
+4. **Frontend**: Use the browser's developer tools to inspect API requests
+
+## Security Considerations
+
+- Never commit secrets to the repository
+- Use strong, randomly generated secrets for `AUTH_SECRET`
+- Restrict database access to only necessary IPs
+- Enable SSL/TLS for all connections
+- Use environment variables for all configuration
+- Implement rate limiting for API endpoints in production

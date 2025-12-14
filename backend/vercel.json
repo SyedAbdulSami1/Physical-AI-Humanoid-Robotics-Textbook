@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "name": "physical-ai-humanoid-robotics-backend",
+  "builds": [
+    {
+      "src": "main.py",
+      "use": "@vercel/python",
+      "config": { "runtime": "python3.11" }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "main.py"
+    }
+  ]
+}
