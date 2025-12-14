@@ -1,32 +1,73 @@
-# Demo Video Script: Physical AI & Humanoid Robotics Textbook
+# Demo Script: Physical AI & Humanoid Robotics Textbook (90 Seconds)
 
-## Duration: ~85 seconds
+**Objective:** Showcase the key features of the AI-powered textbook: content, chatbot, auth, personalization, and Urdu translation.
 
-### Opening (0-8 seconds)
-**Visual**: Docusaurus site homepage with title "Physical AI & Humanoid Robotics"
-**Voiceover**: "Welcome to our AI-Native Textbook on Physical AI and Humanoid Robotics, built for the Panaversity Hackathon."
+**Total Time:** ~90 seconds
 
-### Book Content Overview (8-20 seconds)
-**Visual**: Navigate through various textbook chapters
-**Voiceover**: "Our comprehensive textbook features 13+ chapters covering everything from robot kinematics to humanoid architectures, with code examples and exercises."
+---
 
-### RAG Chatbot Demo (20-40 seconds)
-**Visual**: Interact with the chatbot, ask a question, show response
-**Voiceover**: "Our RAG chatbot understands the entire textbook content. It can answer complex questions and even respond based on selected text." 
-**Action**: Highlight a paragraph and ask the chatbot about it specifically.
+### Scene 1: Introduction (15 seconds)
 
-### Authentication & Personalization (40-55 seconds)
-**Visual**: Sign up process, profile questionnaire, click personalize button
-**Voiceover**: "Users can sign up, fill a background questionnaire, and use the personalization button to adapt content to their experience level."
+**(0-5s) Visual:** Title screen with the textbook name and a dynamic animation of a humanoid robot.
 
-### Urdu Translation (55-70 seconds)
-**Visual**: Click the Urdu translation button, show translated content
-**Voiceover**: "Our unique feature allows on-demand Urdu translation of any chapter with sub-3-second latency."
+**Narration:** "Welcome to the future of learning: the Physical AI & Humanoid Robotics textbook."
 
-### Closing & Deployment (70-85 seconds)
-**Visual**: Show responsive design, mention deployment
-**Voiceover**: "The site is fully responsive, deployed on GitHub Pages with the backend on Vercel. Try it out at our deployed URL!"
+**(5-15s) Visual:** Scroll through the main page, showing the different modules and chapters.
 
-### End Screen
-**Visual**: Show deployed URL and GitHub repo
-**Text Overlay**: "Available at [deployment-url] | GitHub: [repo-url]"
+**Narration:** "An interactive, AI-powered guide to building intelligent robots. We'll explore ROS 2, Gazebo, NVIDIA Isaac, and more."
+
+---
+
+### Scene 2: RAG Chatbot (25 seconds)
+
+**(15-25s) Visual:** Open the chatbot and type a question: "What is the difference between URDF and SDF?"
+
+**Narration:** "Have a question? Our AI assistant has the answer. It's powered by a retrieval-augmented generation model..."
+
+**(25-35s) Visual:** The chatbot provides a concise answer with sources. Highlight the "selected text" feature by selecting a paragraph and asking a follow-up question.
+
+**Narration:** "...that instantly finds the most relevant information from the textbook. You can even ask questions about a specific paragraph."
+
+**(35-40s) Visual:** A quick shot of the chatbot response.
+
+**Narration:** "Getting the exact information you need has never been easier."
+
+---
+
+### Scene 3: Authentication & Personalization (25 seconds)
+
+**(40-50s) Visual:** Show the login screen. A user logs in.
+
+**Narration:** "Create an account to unlock personalized features. Our system uses secure, modern authentication."
+
+**(50-55s) Visual:** After login, the user is presented with a short questionnaire about their background (e.g., "Beginner," "Intermediate," "Expert"). The user selects "Beginner."
+
+**Narration:** "Tell us about your background..."
+
+**(55-65s) Visual:** The user clicks the "Personalize" button on a chapter page. The content adapts, showing more foundational explanations and code examples with extra comments.
+
+**Narration:** "...and the content adapts to you. The 'Personalize' button simplifies complex topics for beginners or provides deeper insights for experts."
+
+---
+
+### Scene 4: Urdu Translation (15 seconds)
+
+**(65-75s) Visual:** Click the "Translate to Urdu" button. The page content instantly translates.
+
+**Narration:** "We believe in accessibility. With a single click, the entire chapter is translated into Urdu, making it accessible to a wider audience."
+
+**(75-80s) Visual:** Scroll through the translated content.
+
+**Narration:** "Bridging language barriers in technical education."
+
+---
+
+### Scene 5: Conclusion (10 seconds)
+
+**(80-85s) Visual:** A final shot of the textbook homepage, with all the features visible.
+
+**Narration:** "Interactive, personalized, and accessible. This is more than a textbook; it's a learning ecosystem."
+
+**(85-90s) Visual:** End screen with a call to action: "Start learning today at [Your-URL.com]"
+
+**Narration:** "Join us, and start building the future of physical AI."

@@ -1,48 +1,57 @@
 import asyncio
 import json
-from typing import List, Dict, Tuple
-from app.skills.rag_agent import RAGAgent
-from qdrant_client import QdrantClient
-import openai
 import os
-from sqlalchemy.orm import Session
+from typing import List, Dict
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+from app.skills.rag_agent import rag_agent_instance
 
 class RAGAccuracyTester:
     """
-    Tests the accuracy of the RAG system to ensure >90% accuracy
+    Tests the accuracy of the RAG system to ensure >90% accuracy by running it against a predefined set of test cases.
     """
     
-    def __init__(self, rag_agent: RAGAgent, db: Session):
+    def __init__(self, rag_agent):
         self.rag_agent = rag_agent
-        self.db = db
         self.test_cases = self._load_test_cases()
     
     def _load_test_cases(self) -> List[Dict]:
         """
-        Load test cases for accuracy testing
-        In a real implementation, these would be loaded from a test dataset
+        Loads a predefined set of test cases. In a real-world scenario, this would load from a dedicated test dataset file (e.g., a CSV or JSON file).
+        
+        Each test case includes:
+        - query: The question to ask the RAG agent.
+        - expected_keywords: A list of essential keywords that a correct answer should contain.
         """
         return [
             {
                 "query": "What is forward kinematics in robotics?",
                 "expected_keywords": ["kinematics", "position", "motion", "joint angles", "end-effector"],
-                "context": "Forward kinematics is the use of kinematic equations to determine the position and orientation of the end-effector based on the joint parameters of the robot."
             },
             {
                 "query": "Explain PID controller in humanoid robots",
                 "expected_keywords": ["PID", "proportional", "integral", "derivative", "control", "error"],
-                "context": "A PID controller in humanoid robots is a control loop mechanism that uses proportional, integral, and derivative terms to minimize error in the system."
             },
             {
                 "query": "What is sensor fusion in robotics?",
                 "expected_keywords": ["sensor fusion", "multiple sensors", "data integration", "accuracy", "reliability"],
-                "context": "Sensor fusion is the process of combining data from multiple sensors to achieve more accurate and reliable information than what could be obtained from any single sensor."
+            },
+            {
+                "query": "What is the purpose of a URDF file?",
+                "expected_keywords": ["URDF", "robot model", "kinematic", "dynamic", "visual representation"],
+            },
+            {
+                "query": "How does Gazebo simulate physics?",
+                "expected_keywords": ["Gazebo", "physics engine", "ODE", "Bullet", "Simbody", "DART", "collision"],
             }
         ]
     
     async def run_accuracy_test(self) -> Dict:
         """
-        Run the accuracy test and return results
+        Executes the accuracy test by iterating through test cases, calling the RAG agent, and evaluating the responses.
         """
         correct_answers = 0
         total_tests = len(self.test_cases)
@@ -55,25 +64,19 @@ class RAGAccuracyTester:
         }
         
         for i, test_case in enumerate(self.test_cases):
-            print(f"Running test {i+1}/{total_tests}: {test_case['query']}")
-            
-            # Instead of using search results from Qdrant, we'll simulate with context
-            # In a real scenario, the RAG agent would search and find relevant content
-            search_results_mock = [{"payload": {"text": test_case["context"]}}]
+            print(f"Running test {i+1}/{total_tests}: \"{test_case['query']}\"")
             
             try:
-                # Get response from RAG agent
-                response = await self.rag_agent.generate_response(
-                    query=test_case["query"],
-                    search_results=search_results_mock
-                )
+                # Get response from the RAG agent by performing a real search
+                answer, sources = await self.rag_agent.generate_response(query=test_case["query"])
                 
-                # Check if response contains expected keywords
-                is_correct = self._check_response_accuracy(response, test_case["expected_keywords"])
+                # Check if the response contains the expected keywords
+                is_correct = self._check_response_accuracy(answer, test_case["expected_keywords"])
                 
                 result_detail = {
                     "query": test_case["query"],
-                    "response": response,
+                    "response": answer,
+                    "sources": sources,
                     "expected_keywords": test_case["expected_keywords"],
                     "is_correct": is_correct
                 }
@@ -82,7 +85,6 @@ class RAGAccuracyTester:
                 
                 if is_correct:
                     correct_answers += 1
-                    results["correct_answers"] += 1
                 
                 print(f"  Result: {'✓ PASS' if is_correct else '✗ FAIL'}")
                 
@@ -91,57 +93,73 @@ class RAGAccuracyTester:
                 results["detailed_results"].append({
                     "query": test_case["query"],
                     "response": None,
+                    "sources": [],
                     "expected_keywords": test_case["expected_keywords"],
                     "is_correct": False,
                     "error": str(e)
                 })
         
-        # Calculate accuracy
-        accuracy_percentage = (correct_answers / total_tests) * 100
+        results["correct_answers"] = correct_answers
+        accuracy_percentage = (correct_answers / total_tests) * 100 if total_tests > 0 else 0
         results["accuracy_percentage"] = accuracy_percentage
         
         # Check if accuracy meets the >90% requirement
-        results["meets_accuracy_requirement"] = accuracy_percentage > 90.0
+        results["meets_accuracy_requirement"] = accuracy_percentage >= 90.0
         
-        print(f"\nTest Results:")
-        print(f"Correct Answers: {correct_answers}/{total_tests}")
+        print("\n--- RAG Accuracy Test Summary ---")
+        print(f"Total Tests: {total_tests}")
+        print(f"Correct Answers: {correct_answers}")
         print(f"Accuracy: {accuracy_percentage:.2f}%")
-        print(f"Meets >90% requirement: {'YES' if results['meets_accuracy_requirement'] else 'NO'}")
+        print(f"Requirement (>90%): {'✓ PASSED' if results['meets_accuracy_requirement'] else '✗ FAILED'}")
         
         return results
     
     def _check_response_accuracy(self, response: str, expected_keywords: List[str]) -> bool:
         """
-        Check if the response contains expected keywords
-        This is a basic implementation - in production, more sophisticated NLP techniques would be used
+        Evaluates if the response is accurate by checking for the presence of expected keywords.
+        A response is considered correct if it contains at least 70% of the expected keywords.
         """
+        if not response:
+            return False
+            
         response_lower = response.lower()
+        present_keywords_count = sum(1 for keyword in expected_keywords if keyword.lower() in response_lower)
         
-        # Count how many expected keywords are present in the response
-        present_keywords = [keyword for keyword in expected_keywords if keyword.lower() in response_lower]
+        # Require at least 70% of keywords to be present for the answer to be considered correct
+        required_keywords_count = int(len(expected_keywords) * 0.7)
         
-        # Require at least 70% of expected keywords to be present for accuracy
-        required_keywords = max(1, int(len(expected_keywords) * 0.7))  # At least 70% of keywords
-        
-        return len(present_keywords) >= required_keywords
+        return present_keywords_count >= required_keywords_count
 
-# Function to run RAG accuracy tests
-async def run_rag_accuracy_tests(rag_agent: RAGAgent, db: Session) -> bool:
+async def run_rag_accuracy_tests() -> bool:
     """
-    Run RAG accuracy tests to ensure >90% accuracy
+    Initializes and runs the RAG accuracy test suite.
     """
-    tester = RAGAccuracyTester(rag_agent, db)
+    print("Initializing RAG Accuracy Test...")
+    tester = RAGAccuracyTester(rag_agent_instance)
     results = await tester.run_accuracy_test()
     
-    if results["meets_accuracy_requirement"]:
-        print("\n✓ RAG accuracy test PASSED! Accuracy is above 90%")
-        return True
-    else:
-        print(f"\n✗ RAG accuracy test FAILED! Accuracy is {results['accuracy_percentage']:.2f}% (requirement: >90%)")
-        return False
+    # Save detailed results to a file for analysis
+    with open("rag_accuracy_results.json", "w") as f:
+        json.dump(results, f, indent=4)
+        
+    print("\nDetailed test results saved to 'rag_accuracy_results.json'")
+    
+    return results["meets_accuracy_requirement"]
 
-# Example usage
 if __name__ == "__main__":
-    # This is just an example of how the testing would work
-    # In practice, you would initialize the RAG agent with proper dependencies
-    print("RAG accuracy testing module. Run from the main application context.")
+    # This allows the test to be run directly.
+    # It requires the environment variables (e.g., QDRANT_URL, OPENAI_API_KEY) to be set.
+    print("Running RAG accuracy test directly...")
+    
+    # Ensure the event loop is managed correctly
+    try:
+        asyncio.run(run_rag_accuracy_tests())
+    except RuntimeError as e:
+        # In some environments (like Jupyter), an event loop is already running.
+        if "cannot run loop while another loop is running" in str(e):
+            loop = asyncio.get_running_loop()
+            task = loop.create_task(run_rag_accuracy_tests())
+        else:
+            raise
+    
+    print("\nTest execution finished.")
