@@ -150,3 +150,197 @@ Each phase concludes with measurable outcomes to verify completion.
 | **4. Frontend Integration**  | The chatbot UI is functional on the website. A user can receive answers from both full-book and "selected text" queries. |
 | **5. Bonus Features**        | A test user can sign up, log in, and see personalized content. Per-chapter Urdu translation is confirmed functional. |
 | **6. Polish & Deploy**       | All critical bugs are resolved. The site is live at its public URL and achieves a Lighthouse performance score over 90. |
+
+---
+
+## 9. Extended Implementation Phases for RAG Chatbot & Bonus Features
+
+### Phase 3.5: FastAPI Backend Development
+**Entry Criteria**: Core book content is completed (Phase 2)
+**Exit Criteria**: FastAPI backend is operational with all required endpoints and services
+
+| Task | Description | Owner | Duration |
+|------|-------------|-------|----------|
+| 3.5.1 | Set up FastAPI project structure with async endpoints | Backend team | 3 days |
+| 3.5.2 | Configure Neon Serverless Postgres connection and database models | Backend team | 2 days |
+| 3.5.3 | Implement user authentication with Better-Auth integration | Backend team | 3 days |
+| 3.5.4 | Create user profile model and background questionnaire storage | Backend team | 2 days |
+| 3.5.5 | Implement authentication middleware for protected endpoints | Backend team | 1 day |
+| 3.5.6 | Set up comprehensive error handling across all endpoints | Backend team | 1 day |
+
+### Phase 4.5: Vector Database & Ingestion Pipeline
+**Entry Criteria**: Book content is completed, FastAPI backend is in development
+**Exit Criteria**: Qdrant Cloud is populated with all book content embeddings
+
+| Task | Description | Owner | Duration |
+|------|-------------|-------|----------|
+| 4.5.1 | Set up Qdrant Cloud Free Tier instance | Backend team | 1 day |
+| 4.5.2 | Research and implement optimal Markdown chunking strategy | Backend team | 2 days |
+| 4.5.3 | Create vector embedding generation service using OpenAI models | Backend team | 2 days |
+| 4.5.4 | Build ingestion pipeline to process all book Markdown content | Backend team | 3 days |
+| 4.5.5 | Implement ingestion validation and error handling | Backend team | 1 day |
+| 4.5.6 | Create automated deployment script for ingestion pipeline | DevOps team | 1 day |
+
+### Phase 5.5: RAG Core Implementation
+**Entry Criteria**: FastAPI backend (Phase 3.5), Vector database (Phase 4.5) are completed
+**Exit Criteria**: RAG functionality is operational with both full book and selected-text modes
+
+| Task | Description | Owner | Duration |
+|------|-------------|-------|----------|
+| 5.5.1 | Implement full book querying functionality | Backend team | 3 days |
+| 5.5.2 | Implement selected-text-only mode for RAG queries | Backend team | 3 days |
+| 5.5.3 | Integrate OpenAI/ChatKit SDKs for content generation | Backend team | 2 days |
+| 5.5.4 | Build context handling to ensure accurate source citations | Backend team | 2 days |
+| 5.5.5 | Create RAG accuracy testing framework | QA team | 2 days |
+| 5.5.6 | Achieve >90% RAG accuracy on test queries | QA team | 2 days |
+
+### Phase 6.5: User Personalization & Authentication
+**Entry Criteria**: FastAPI backend infrastructure is in place (Phase 3.5)
+**Exit Criteria**: Authentication and personalization features are fully implemented
+
+| Task | Description | Owner | Duration |
+|------|-------------|-------|----------|
+| 6.5.1 | Implement mandatory background questionnaire at signup | Frontend team | 2 days |
+| 6.5.2 | Create per-chapter "Personalize" button functionality | Frontend team | 2 days |
+| 6.5.3 | Develop personalization logic using stored user profiles | Backend team | 3 days |
+| 6.5.4 | Implement content adaptation (beginner vs advanced explanations) | Backend team | 3 days |
+| 6.5.5 | Test personalization accuracy and user experience | QA team | 2 days |
+
+### Phase 7.5: Urdu Translation Implementation
+**Entry Criteria**: Basic frontend and backend infrastructure are in place
+**Exit Criteria**: Urdu translation feature is functional across all chapters
+
+| Task | Description | Owner | Duration |
+|------|-------------|-------|----------|
+| 7.5.1 | Select and integrate reliable Urdu translation service | Backend team | 2 days |
+| 7.5.2 | Create per-chapter "Translate to Urdu" button with loading states | Frontend team | 2 days |
+| 7.5.3 | Implement UI states (loading, success, error) for translation | Frontend team | 1 day |
+| 7.5.4 | Ensure technical terminology is accurately translated | Translation team | 2 days |
+| 7.5.5 | Implement fallback mechanisms when translation service fails | Frontend team | 1 day |
+| 7.5.6 | Test translation quality and performance (sub-3s latency) | QA team | 2 days |
+
+### Phase 8.5: Frontend Component Integration
+**Entry Criteria**: Backend APIs are completed (Phases 3.5, 5.5, 6.5, 7.5)
+**Exit Criteria**: All interactive frontend components are seamlessly integrated
+
+| Task | Description | Owner | Duration |
+|------|-------------|-------|----------|
+| 8.5.1 | Integrate RAG chatbot component into Docusaurus pages | Frontend team | 3 days |
+| 8.5.2 | Implement Better-Auth forms and user session management | Frontend team | 2 days |
+| 8.5.3 | Add per-chapter Personalize and Urdu translation buttons | Frontend team | 2 days |
+| 8.5.4 | Ensure responsive design across mobile and desktop devices | Frontend team | 2 days |
+| 8.5.5 | Conduct accessibility testing (WCAG 2.1 AA compliance) | QA team | 2 days |
+
+### Phase 9.5: Reusable Skills & Subagents Development
+**Entry Criteria**: Core RAG functionality is implemented (Phase 5.5)
+**Exit Criteria**: Reusable skills/subagents are created and tested for chatbot workflows
+
+| Task | Description | Owner | Duration |
+|------|-------------|-------|----------|
+| 9.5.1 | Design architecture for reusable skills/subagents | Backend team | 1 day |
+| 9.5.2 | Create RAG retrieval skill with modular design | Backend team | 2 days |
+| 9.5.3 | Develop content personalization skill for subagent use | Backend team | 2 days |
+| 9.5.4 | Build translation service skill with error handling | Backend team | 2 days |
+| 9.5.5 | Implement skill orchestration and testing framework | Backend team | 2 days |
+| 9.5.6 | Document skills for future reuse and bonus point achievement | Documentation team | 1 day |
+
+### Phase 10.5: Comprehensive Testing Strategy
+**Entry Criteria**: All features are implemented (Phases 3.5-9.5)
+**Exit Criteria**: All testing requirements are met and validated
+
+| Task | Description | Owner | Duration |
+|------|-------------|-------|----------|
+| 10.5.1 | Execute RAG accuracy tests with >90% threshold verification | QA team | 3 days |
+| 10.5.2 | Test authentication flows and security measures | QA team | 2 days |
+| 10.5.3 | Validate personalization logic and user experience | QA team | 2 days |
+| 10.5.4 | Conduct translation quality assessments with technical accuracy >90% | QA team | 2 days |
+| 10.5.5 | Perform load and performance testing with sub-2s response times | QA team | 3 days |
+| 10.5.6 | Execute end-to-end user journey testing for all features | QA team | 3 days |
+
+### Phase 11.5: Final Deployment & Integration
+**Entry Criteria**: All features pass testing (Phase 10.5)
+**Exit Criteria**: Fully integrated, deployed system with all RAG and bonus features
+
+| Task | Description | Owner | Duration |
+|------|-------------|-------|----------|
+| 11.5.1 | Configure production deployment for FastAPI backend | DevOps team | 2 days |
+| 11.5.2 | Set up automated ingestion pipeline for content updates | DevOps team | 2 days |
+| 11.5.3 | Deploy updated Docusaurus frontend with all new features | DevOps team | 1 day |
+| 11.5.4 | Conduct final end-to-end validation testing | QA team | 2 days |
+| 11.5.5 | Monitor system performance and resolve any deployment issues | DevOps team | 1 day |
+
+## 10. Updated Dependency Graph
+
+The following diagram illustrates the enhanced development sequence with the additional RAG chatbot implementation phases:
+
+```mermaid
+graph TD
+    A[Phase 1: Constitution & Setup] --> B[Phase 2: Core Book Writing];
+    A --> C[Phase 3: RAG Backend];
+    A --> C5[Phase 3.5: FastAPI Backend Development];
+
+    B --> C;
+    B --> D5[Phase 4.5: Vector Database & Ingestion];
+
+    C --> E5[Phase 5.5: RAG Core Implementation];
+    C --> F5[Phase 6.5: User Personalization & Authentication];
+    C5 --> C;
+    C5 --> D5;
+    C5 --> E5;
+    C5 --> F5;
+
+    D5 --> E5;
+
+    E5 --> G5[Phase 7.5: Urdu Translation Implementation];
+    E5 --> H5[Phase 8.5: Frontend Component Integration];
+
+    F5 --> H5;
+    G5 --> H5;
+
+    H5 --> I5[Phase 9.5: Skills & Subagents Development];
+    I5 --> J5[Phase 10.5: Comprehensive Testing];
+    J5 --> K5[Phase 11.5: Final Deployment];
+    F[Phase 6: Polish & Deploy] --> K5;
+    E[Phase 5: Bonus Features] --> F;
+    D[Phase 4: Frontend Integration] --> F;
+    D --> H5;
+```
+
+## 11. Parallel Work Opportunities
+
+The following tasks can be worked on in parallel to accelerate development:
+
+| Parallel Work Group | Tasks | Team | Duration |
+|-------------------|-------|------|----------|
+| **Database Setup** | Neon Postgres configuration + Qdrant Cloud setup | Backend team | 2 days |
+| **API Development** | Authentication endpoints + RAG query endpoints | Backend team | 5 days |
+| **Frontend Components** | Chatbot UI + Auth forms + Personalization button | Frontend team | 5 days |
+| **Testing Activities** | RAG accuracy tests + Translation quality + Authentication flow | QA team | 5 days |
+| **Skills Development** | RAG retrieval skill + Translation skill + Personalization skill | Backend team | 4 days |
+
+## 12. Updated Design Decisions Requiring ADRs
+
+The following additional architectural decisions have been identified as requiring formal ADRs:
+
+13. **Ingestion Strategy**: Batch vs. incremental content ingestion for Qdrant updates
+14. **Translation Provider**: OpenAI GPT models vs. specialized translation API for Urdu
+15. **Personalization Algorithm**: Rule-based vs. ML-based adaptation of content
+16. **Chatbot Memory**: Short-term conversation memory persistence strategy
+17. **Caching Strategy**: Redis vs. in-memory caching for RAG intermediate results
+18. **Real-time Updates**: Server-sent events vs. WebSockets for chat interface
+
+## 13. Phase Checkpoints Aligned with Updated Specification
+
+The following checkpoints ensure each phase meets the requirements defined in the updated `spec.md`:
+
+| Phase | Checkpoint Requirements from spec.md | Validation Method |
+|-------|-------------------------------------|-------------------|
+| 3.5 | FastAPI backend with async endpoints | Code review + API validation |
+| 4.5 | Qdrant Cloud populated with all book content | Database content verification |
+| 5.5 | Full book and selected-text-only RAG modes | Functional testing against spec |
+| 6.5 | Better-Auth with questionnaire and personalization | End-to-end user flow testing |
+| 7.5 | Urdu translation with <3s latency and >90% accuracy | Performance and quality metrics |
+| 8.5 | Docusaurus components for all interactive features | UI/UX validation |
+| 9.5 | Reusable skills/subagents for chatbot workflows | Code modularity assessment |
+| 10.5 | RAG accuracy >90% on test queries | Automated test suite results |
+| 11.5 | Complete deployment with all features integrated | Deployment validation checklist |

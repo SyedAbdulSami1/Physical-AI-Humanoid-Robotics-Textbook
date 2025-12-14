@@ -135,3 +135,147 @@ This constitution is the single source of truth for project standards. All devel
 
 ### 7.2. Amendments
 Any proposed changes to this constitution must be formally documented, reviewed, and approved via an Architectural Decision Record (ADR) before they can be adopted.
+
+---
+
+## Article 8: RAG Chatbot Implementation Standards
+
+### 8.1. Backend Framework Mandate
+**Standard**: The RAG chatbot backend MUST utilize FastAPI as the primary web framework. All API endpoints related to the chatbot functionality MUST be implemented as asynchronous functions (`async def`) to ensure optimal performance and scalability.
+
+**Rationale**: FastAPI provides excellent performance through asyncio, automatic API documentation, and strong typing support which reduces runtime errors. Async endpoints are essential for handling multiple concurrent chat requests efficiently.
+
+**Quality Gates**:
+- All endpoints must include proper type hints
+- API documentation must be automatically generated and accessible
+- Response times must remain under 2 seconds for 95% of requests
+
+### 8.2. Data Storage Requirements
+**Standard**: The RAG chatbot MUST use Neon Serverless Postgres for all user/session storage and personalization data. This includes user profiles, authentication sessions, personalization preferences, and background questionnaire responses.
+
+**Rationale**: Neon's serverless Postgres provides auto-scaling capabilities, reduced costs during low usage, and seamless integration with modern Python applications. Centralizing user data in a relational database enables complex personalization logic and user analytics.
+
+**Quality Gates**:
+- All database queries must use connection pooling
+- Data access must be secured through authentication middleware
+- User data privacy and GDPR compliance must be maintained
+
+### 8.3. Vector Storage Specifications
+**Standard**: The RAG system MUST utilize Qdrant Cloud Free Tier for vector embeddings storage and retrieval. The vector database MUST contain embeddings of all textbook content for accurate semantic search and retrieval.
+
+**Rationale**: Qdrant provides efficient similarity search capabilities specifically designed for vector embeddings, with good performance and cost-effectiveness. The cloud tier ensures high availability and maintenance-free operation.
+
+**Quality Gates**:
+- Embedding generation and ingestion pipeline must complete within 10 minutes
+- Vector search response time must be under 500ms for 95% of queries
+- The ingestion process must validate embedding quality before insertion
+
+### 8.4. Generative AI Integration
+**Standard**: The RAG chatbot MUST leverage OpenAI/ChatKit SDKs for content generation and response formulation. The system MUST properly integrate retrieved context from the vector store with the LLM's generative capabilities.
+
+**Rationale**: OpenAI's models provide state-of-the-art language understanding and generation capabilities with reliable performance. Using established SDKs ensures compatibility and maintainability.
+
+**Quality Gates**:
+- Generated responses must cite specific sources from the textbook content
+- The system must gracefully handle API rate limits and errors
+- LLM hallucinations must be minimized through proper prompting techniques
+
+### 8.5. Selected-Text-Only RAG Mode
+**Standard**: The chatbot MUST support a selected-text-only RAG mode where user queries are contextualized based only on highlighted text sections rather than the entire textbook corpus.
+
+**Rationale**: This feature allows users to ask specific questions about particular content segments without interference from unrelated chapters, improving precision and relevance of responses.
+
+**Quality Gates**:
+- Selection-based queries must return contextually relevant responses within 3 seconds
+- The interface must clearly indicate when this mode is active
+- Users must be able to switch seamlessly between full-book and selection-based modes
+
+### 8.6. Authentication and User Profiling
+**Standard**: The system MUST implement Better-Auth integration with mandatory background questionnaire at user signup. The questionnaire MUST collect information about the user's software/hardware experience to enable content personalization.
+
+**Rationale**: Better-Auth provides secure, production-ready authentication with minimal setup overhead. The background questionnaire enables targeted personalization, improving the learning experience for users with varying experience levels.
+
+**Quality Gates**:
+- Authentication must support secure password reset and session management
+- Questionnaire responses must be stored securely and linked to user sessions
+- The system must validate questionnaire completeness before enabling personalization
+
+### 8.7. Personalization Logic
+**Standard**: Per-chapter Personalize button functionality MUST be implemented using stored user profiles. The content adaptation MUST be dynamic and tailored to the user's experience level as indicated in their profile.
+
+**Rationale**: Personalization significantly enhances user engagement and comprehension by adapting content complexity to individual backgrounds. Chapter-level personalization allows for granular customization without overwhelming the user.
+
+**Quality Gates**:
+- Personalized content must load within 2 seconds of clicking the button
+- The system must maintain the user's scroll position after personalization
+- Personalization logic must be consistently applied across all chapters
+
+### 8.8. Urdu Translation Capability
+**Standard**: Per-chapter Urdu translation button MUST be implemented with a reliable translation service that maintains technical accuracy and readability. The translation service MUST handle technical terminology appropriately.
+
+**Rationale**: Providing Urdu translations increases accessibility for a broader audience, supporting the project's mission of inclusive education. Technical accuracy is crucial for conveying complex concepts correctly.
+
+**Quality Gates**:
+- Translation accuracy for technical content must exceed 90%
+- Translated content must be properly formatted and maintain readability
+- The translation process must include a loading state and error handling
+
+### 8.9. Ingestion Pipeline Requirements
+**Standard**: An automated ingestion pipeline MUST be created for all book Markdown content. The pipeline MUST chunk content appropriately, generate embeddings, and persist them to the vector store with error handling and validation.
+
+**Rationale**: Automated ingestion ensures the RAG system's knowledge stays synchronized with textbook updates and reduces manual maintenance overhead. Proper chunking and embedding generation are critical for retrieval accuracy.
+
+**Quality Gates**:
+- The pipeline must process all Markdown files within the `docs/` directory
+- Content chunks must be validated for length and coherence
+- Failed processing of individual files must not halt the entire pipeline
+
+### 8.10. Async Endpoint Implementation
+**Standard**: All backend endpoints MUST be implemented asynchronously using `async def` functions. This includes endpoints for chat queries, personalization, translation, user profile management, and content retrieval.
+
+**Rationale**: Asynchronous endpoints prevent blocking operations and allow the server to handle multiple requests concurrently, which is especially important for I/O-intensive operations like vector searches and LLM calls.
+
+**Quality Gates**:
+- Synchronous endpoints will not be accepted in code reviews
+- All database operations must be performed asynchronously
+- Error handling must be implemented for async operations
+
+### 8.11. Authentication Middleware
+**Standard**: All endpoints that handle user data, personalization, or content modification MUST be protected by authentication middleware. Access control MUST be enforced based on user roles and session validity.
+
+**Rationale**: Authentication middleware ensures data privacy, prevents unauthorized access to personalization features, and maintains security across the platform. User-specific features require validated sessions.
+
+**Quality Gates**:
+- Unauthenticated requests to protected endpoints must return 401 Unauthorized
+- Session validation must occur before processing any user-specific content
+- Authentication checks must not significantly impact response times
+
+### 8.12. Error Handling and Resilience
+**Standard**: Comprehensive error handling MUST be implemented throughout the application. The system MUST gracefully degrade in response to service failures (e.g., LLM unavailability, vector store downtime) without crashing.
+
+**Rationale**: RAG systems depend on multiple external services prone to intermittent failures. Robust error handling ensures a consistent user experience even during partial system outages.
+
+**Quality Gates**:
+- All external API calls must have timeout and retry mechanisms
+- The UI must display user-friendly error messages for all failure scenarios
+- The system must log errors for monitoring and debugging purposes
+
+### 8.13. RAG Accuracy Testing
+**Standard**: A comprehensive test suite MUST be implemented to measure RAG accuracy. Tests MUST validate that the system retrieves relevant context and generates correct answers with acceptable precision and recall metrics.
+
+**Rationale**: Accuracy testing ensures the RAG system performs as expected and meets the educational quality standards of the textbook. Regular testing prevents regressions in retrieval and generation quality.
+
+**Quality Gates**:
+- Retrieval accuracy must exceed 90% for test queries
+- Generated responses must be validated against reference answers
+- Test suite must cover edge cases and diverse query types
+
+### 8.14. Skills and Subagents Architecture
+**Standard**: Reusable skills and subagents MUST be created specifically for chatbot workflows. Complex operations like RAG retrieval, content personalization, and translation MUST be encapsulated in modular, testable components.
+
+**Rationale**: Skills and subagents promote code reuse, simplify maintenance, and enable sophisticated orchestration of complex workflows. Modular design improves testability and extensibility.
+
+**Quality Gates**:
+- Each skill/subagent must have dedicated unit tests
+- Skills must be composable and configurable through parameters
+- Performance benchmarks must be established for each skill to ensure efficiency

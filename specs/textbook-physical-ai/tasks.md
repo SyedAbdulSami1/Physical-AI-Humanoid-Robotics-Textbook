@@ -152,6 +152,155 @@ description: "Task list for implementing the Physical AI & Humanoid Robotics Tex
 - [ ] T066 Prepare the final submission for the hackathon.
 
 ---
+
+## Phase 8: Extended RAG Backend Development
+
+**Purpose**: Enhance the FastAPI backend with additional features and ensure compatibility with Neon Postgres and Qdrant Cloud.
+**Success Criteria**: All backend services are operational with async endpoints, authentication middleware, comprehensive error handling, and proper database integration.
+
+- [ ] T067 [P] Set up FastAPI project with async endpoints in `backend/main.py`.
+- [ ] T068 Configure Neon Serverless Postgres for user/session/personalization data in `backend/app/core/config.py`.
+- [ ] T069 [P] Implement user authentication with Better-Auth integration in `backend/app/api/auth.py`.
+- [ ] T070 Implement mandatory background questionnaire at signup in `backend/app/models/user.py`.
+- [ ] T071 Store questionnaire responses in Neon Postgres in `backend/app/api/auth.py`.
+- [ ] T072 [P] Implement authentication middleware for protected endpoints in `backend/app/middleware/auth_middleware.py`.
+- [ ] T073 Set up comprehensive error handling in `backend/app/middleware/error_handler.py`.
+- [ ] T074 [P] Create database models for user profiles in `backend/app/models/profile.py`.
+- [ ] T075 Implement async endpoints for user management in `backend/app/api/user.py`.
+
+**CHECKPOINT**: FastAPI backend is operational with all required database integrations and security measures.
+
+---
+
+## Phase 9: Vector Database & Ingestion Pipeline
+
+**Purpose**: Set up Qdrant Cloud and build a robust ingestion pipeline to process all book Markdown content.
+**Success Criteria**: Qdrant Cloud is populated with all book embeddings and ingestion pipeline completes within 10 minutes.
+
+- [ ] T076 Set up Qdrant Cloud Free Tier instance and create collection in `backend/app/core/qdrant.py`.
+- [ ] T077 Research and implement optimal Markdown chunking strategy in `backend/app/services/chunking_service.py`.
+- [ ] T078 Create vector embedding generation service using OpenAI models in `backend/app/services/embedding_service.py`.
+- [ ] T079 [P] Build ingestion pipeline to process all book Markdown content in `scripts/ingest_pipeline.py`.
+- [ ] T080 [P] Implement ingestion validation and error handling in `scripts/ingest_pipeline.py`.
+- [ ] T081 Create automated deployment script for ingestion pipeline in `scripts/deploy_ingestion.sh`.
+- [ ] T082 [P] Test ingestion pipeline with complete book content and verify all chunks in Qdrant.
+
+**CHECKPOINT**: Qdrant Cloud is populated with all book content embeddings using robust ingestion pipeline.
+
+---
+
+## Phase 10: RAG Core Implementation & Selected-Text Mode
+
+**Purpose**: Enhance RAG functionality with full book querying and selected-text-only mode.
+**Success Criteria**: Both full book and selected-text-only RAG modes are operational and achieve >90% accuracy.
+
+- [ ] T083 Implement full book querying functionality in `backend/app/services/rag_service.py`.
+- [ ] T084 Implement selected-text-only mode for RAG queries in `backend/app/services/rag_service.py`.
+- [ ] T085 [P] Integrate OpenAI/ChatKit SDKs for content generation in `backend/app/services/generation_service.py`.
+- [ ] T086 Build context handling to ensure accurate source citations in `backend/app/services/rag_service.py`.
+- [ ] T087 [P] Create RAG accuracy testing framework in `tests/rag_accuracy_test.py`.
+- [ ] T088 [P] Achieve >90% RAG accuracy on test queries in `tests/rag_accuracy_test.py`.
+- [ ] T089 [P] Test both full book and selected-text modes with sample queries.
+
+**CHECKPOINT**: RAG functionality is operational with both full book and selected-text-only modes achieving >90% accuracy.
+
+---
+
+## Phase 11: Personalization Logic & User Profile Integration
+
+**Purpose**: Implement per-chapter personalization logic using stored user profiles.
+**Success Criteria**: Per-chapter "Personalize" button dynamically adapts content based on user profile within 2 seconds.
+
+- [ ] T090 [P] Implement background questionnaire at signup with storage in Neon Postgres in `backend/app/services/profile_service.py`.
+- [ ] T091 [P] Create per-chapter "Personalize" button functionality in `src/components/PersonalizeButton/index.tsx`.
+- [ ] T092 Develop personalization logic using stored user profiles in `backend/app/services/personalization_service.py`.
+- [ ] T093 Implement content adaptation (beginner vs advanced explanations) in `backend/app/services/personalization_service.py`.
+- [ ] T094 [P] Test personalization accuracy and user experience in `tests/personalization_test.py`.
+- [ ] T095 [P] Ensure personalized content loads within 2 seconds in `backend/app/api/personalize.py`.
+
+**CHECKPOINT**: Per-chapter "Personalize" button dynamically adapts content based on user profile within 2 seconds.
+
+---
+
+## Phase 12: Urdu Translation Implementation
+
+**Purpose**: Implement per-chapter Urdu translation with reliable service and proper UI states.
+**Success Criteria**: Urdu translation completes with <3 second latency and maintains technical accuracy >90%.
+
+- [ ] T096 [P] Select and integrate reliable Urdu translation service in `backend/app/services/translation_service.py`.
+- [ ] T097 Create per-chapter "Translate to Urdu" button with loading states in `src/components/TranslateButton/index.tsx`.
+- [ ] T098 [P] Implement UI states (loading, success, error) for translation in `src/components/TranslateButton/index.tsx`.
+- [ ] T099 Ensure technical terminology is accurately translated in `backend/app/services/translation_service.py`.
+- [ ] T100 [P] Implement fallback mechanisms when translation service fails in `backend/app/api/translate.py`.
+- [ ] T101 Test translation quality and performance (sub-3s latency) in `tests/translation_test.py`.
+
+**CHECKPOINT**: Urdu translation feature is functional with <3s latency and >90% technical accuracy.
+
+---
+
+## Phase 13: Frontend Component Integration
+
+**Purpose**: Integrate all interactive frontend components seamlessly into the Docusaurus site.
+**Success Criteria**: All interactive components are responsive, accessible, and functionally integrated.
+
+- [ ] T102 [P] Integrate RAG chatbot component into Docusaurus pages in `src/components/Chatbot/index.tsx`.
+- [ ] T103 [P] Implement Better-Auth forms and user session management in `src/components/AuthForms/index.tsx`.
+- [ ] T104 Add per-chapter Personalize and Urdu translation buttons in `src/theme/DocItem/index.tsx`.
+- [ ] T105 Ensure responsive design across mobile and desktop devices in `src/css/custom.css`.
+- [ ] T106 Conduct accessibility testing (WCAG 2.1 AA compliance) in `tests/accessibility_test.js`.
+
+**CHECKPOINT**: All interactive frontend components are seamlessly integrated with responsive design and accessibility compliance.
+
+---
+
+## Phase 14: Reusable Skills & Subagents Development
+
+**Purpose**: Create reusable skills and subagents specifically for chatbot workflows to target bonus points.
+**Success Criteria**: At least 8-12 reusable intelligence candidates are created and tested for chatbot workflows.
+
+- [ ] T107 [P] [REUSABLE INTELLIGENCE CANDIDATE] Design architecture for reusable skills/subagents in `backend/app/skills/__init__.py`.
+- [ ] T108 [P] [REUSABLE INTELLIGENCE CANDIDATE] Create RAG retrieval skill with modular design in `backend/app/skills/rag_retrieval_skill.py`.
+- [ ] T109 [P] [REUSABLE INTELLIGENCE CANDIDATE] Develop content personalization skill for subagent use in `backend/app/skills/personalization_skill.py`.
+- [ ] T110 [P] [REUSABLE INTELLIGENCE CANDIDATE] Build translation service skill with error handling in `backend/app/skills/translation_skill.py`.
+- [ ] T111 [REUSABLE INTELLIGENCE CANDIDATE] Implement skill orchestration and testing framework in `backend/app/skills/orchestrator.py`.
+- [ ] T112 [P] [REUSABLE INTELLIGENCE CANDIDATE] Create additional skills for chat memory, source citation, and result validation in `backend/app/skills/`.
+- [ ] T113 [P] [REUSABLE INTELLIGENCE CANDIDATE] Test all skills for proper functionality and reusability in `tests/skills_test.py`.
+- [ ] T114 [P] [REUSABLE INTELLIGENCE CANDIDATE] Document skills for future reuse and bonus point achievement in `docs/skills_documentation.md`.
+
+**CHECKPOINT**: At least 8-12 reusable skills/subagents are created and tested for chatbot workflows.
+
+---
+
+## Phase 15: Comprehensive Testing Strategy
+
+**Purpose**: Execute comprehensive testing for all features including RAG accuracy, authentication, personalization, and translation.
+**Success Criteria**: All testing requirements are met with RAG accuracy >90%, functional auth flows, personalization logic, and translation quality.
+
+- [ ] T115 Execute RAG accuracy tests with >90% threshold verification in `tests/rag_accuracy_test.py`.
+- [ ] T116 [P] Test authentication flows and security measures in `tests/auth_test.py`.
+- [ ] T117 [P] Validate personalization logic and user experience in `tests/personalization_test.py`.
+- [ ] T118 [P] Conduct translation quality assessments with technical accuracy >90% in `tests/translation_test.py`.
+- [ ] T119 [P] Perform load and performance testing with sub-2s response times in `tests/performance_test.py`.
+- [ ] T120 [P] Execute end-to-end user journey testing for all features in `tests/e2e_test.py`.
+
+**CHECKPOINT**: All testing requirements are met and validated with all quality thresholds achieved.
+
+---
+
+## Phase 16: Final Deployment & Integration
+
+**Purpose**: Deploy the complete system with all RAG and bonus features integrated.
+**Success Criteria**: Fully integrated, deployed system with all RAG and bonus features operational at public URL.
+
+- [ ] T121 [P] Configure production deployment for FastAPI backend to Vercel in `backend/vercel.json`.
+- [ ] T122 [P] Set up automated ingestion pipeline for content updates in `scripts/auto_ingest.sh`.
+- [ ] T123 Deploy updated Docusaurus frontend with all new features to GitHub Pages in `.github/workflows/deploy.yml`.
+- [ ] T124 [P] Conduct final end-to-end validation testing in `tests/final_validation.py`.
+- [ ] T125 [P] Monitor system performance and resolve any deployment issues in `backend/app/middleware/logging_middleware.py`.
+
+**CHECKPOINT**: Fully integrated, deployed system with all RAG and bonus features operational at public URL.
+
+---
 ## Dependencies & Execution Order
 
 - **Phase 1** must be completed before any other phase can start.
@@ -160,6 +309,17 @@ description: "Task list for implementing the Physical AI & Humanoid Robotics Tex
 - **Phase 4** is a prerequisite for **Phase 5**.
 - **Phase 5** is a prerequisite for **Phase 6**.
 - **Phase 6** is a prerequisite for **Phase 7**.
+- **Phase 3** is a prerequisite for **Phase 8**.
+- **Phase 8** is a prerequisite for **Phase 10**.
+- **Phase 8** is a prerequisite for **Phase 11**.
+- **Phase 8** is a prerequisite for **Phase 12**.
+- **Phase 10** is a prerequisite for **Phase 13**.
+- **Phase 11** is a prerequisite for **Phase 13**.
+- **Phase 12** is a prerequisite for **Phase 13**.
+- **Phase 10** is a prerequisite for **Phase 14**.
+- **Phase 13** is a prerequisite for **Phase 15**.
+- **Phase 14** is a prerequisite for **Phase 15**.
+- **Phase 15** is a prerequisite for **Phase 16**.
 
 ### Parallel Opportunities
 
@@ -167,3 +327,9 @@ description: "Task list for implementing the Physical AI & Humanoid Robotics Tex
 - **Phase 3**: Database setup (T025, T026) can be parallelized with initial FastAPI setup (T024).
 - **Phase 5**: The three user stories (Auth, Personalization, Translation) can be developed in parallel by different team members after Phase 4 is complete.
 - **Phase 6**: Testing, optimization, and documentation tasks (T056-T062) can largely be done in parallel.
+- **Phase 8**: FastAPI setup (T067) can be parallelized with database configuration tasks (T068, T074).
+- **Phase 9**: Chunking and embedding services (T077, T078) can be developed in parallel.
+- **Phase 11**: Backend personalization service (T092) can be developed in parallel with frontend button implementation (T091).
+- **Phase 12**: Backend translation service (T096) can be developed in parallel with frontend button implementation (T097).
+- **Phase 14**: Multiple skills can be developed in parallel (T108-T112).
+- **Phase 15**: Different testing tasks can be executed in parallel (T116-T120).
