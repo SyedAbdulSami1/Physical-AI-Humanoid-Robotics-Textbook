@@ -4,7 +4,7 @@ import os
 import re
 from fastapi import APIRouter, Depends, HTTPException, status
 from qdrant_client import QdrantClient, models as qdrant_models
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain.docstore.document import Document
 import markdown
