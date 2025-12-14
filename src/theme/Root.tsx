@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Root from '@theme-original/Root';
-import ChatbotComponent from '@site/src/components/ChatbotComponent';
+import { SelectedTextProvider } from './Chatbot/SelectedTextProvider';
+import Chatbot from './Chatbot/Chatbot';
 import AuthForm from '@site/src/components/AuthForm'; // Assuming you might want a modal login
 import PersonalizeButton from '@site/src/components/PersonalizeButton';
 import UrduTranslationButton from '@site/src/components/UrduTranslationButton';
@@ -24,18 +25,18 @@ export default function RootWrapper({children}) {
   };
 
   return (
-    <>
+    <SelectedTextProvider>
       {/* The original Docusaurus root component that renders the page */}
       <Root>{children}</Root>
 
       {/* Render the chatbot on all pages */}
-      <ChatbotComponent />
+      <Chatbot />
 
-      {/* 
+      {/*
         This is a conceptual example of how you might integrate the other components.
         You would likely have a modal system or place these buttons in specific page layouts
         rather than rendering them on every single page like this.
-        
+
         For example, the AuthForm could be in a modal triggered from the navbar.
         The Personalize/Translate buttons would be passed the chapterId from the specific doc page.
       */}
@@ -50,6 +51,6 @@ export default function RootWrapper({children}) {
           </div>
         )}
       </div> */}
-    </>
+    </SelectedTextProvider>
   );
 }
