@@ -312,3 +312,43 @@ Each 1400–2200 words, real working Whisper + LLM + ROS 2 integration code, ful
 ```
 
 /sp.constitution Create a comprehensive project constitution for the Physical AI & Humanoid Robotics AI-native textbook built with Docusaurus, deployed on GitHub Pages, with integrated RAG chatbot (FastAPI + Neon Postgres + Qdrant Cloud), Better-Auth signup/login including user background questionnaire for personalization, per-chapter Personalize button, and per-chapter Urdu translation button; enforce strict standards including university-level technical depth in all content, real working runnable code examples with explanations, Mermaid diagrams for concepts, step-by-step labs with terminal commands, student exercises with hidden solutions, professional encouraging tone, accessibility compliance, mobile responsiveness, zero placeholders, full test coverage where applicable, modular reusable components, maximum creation of reusable intelligence (skills/subagents) for bonus points, adherence to APA citation style if needed, high-quality Markdown formatting with proper headings tables callouts and frontmatter, consistent navigation, and optimization for fast loading; the constitution must define non-negotiable quality gates that every specification, plan, task, and implementation must respect, structured as clear articles with rationale, and output the complete .specify/memory/constitution.md file while confirming all principles will be enforced in downstream phases. kindly add this requirment in all .md file.
+
+Yeh raha **4 powerful /sp.implement prompts** Gemini CLI ke liye. Har prompt ek major chunk complete karega taake pura bacha hua kaam (RAG Chatbot UI + Backend + Bonus Features + Deployment) sirf 4 prompts mein ho jaye. Har prompt safe hai – existing .md files sirf append karega, kuch delete nahi karega.
+
+### Prompt 1: RAG Chatbot Backend (FastAPI + Neon + Qdrant + Ingestion)
+
+```
+/model gemini-2.5-flash
+/sp.implement Focus only on creating the complete RAG chatbot backend without modifying or deleting any existing .md files (only append if needed). Generate the full FastAPI backend in app/ folder: main.py, routers/chat.py, routers/ingest.py, models.py, database.py (Neon Serverless Postgres setup with async SQLAlchemy), qdrant_client integration for Qdrant Cloud Free Tier, ingestion pipeline that loads all existing Markdown content from docs/ into Qdrant (chunking, embeddings using OpenAI), OpenAI/ChatKit SDK for generation, full support for normal queries and selected-text-only mode (answers restricted to provided chunks), async endpoints, proper error handling, environment variables setup; include requirements.txt and .env.example; provide step-by-step terminal commands to set up Neon, Qdrant Cloud, run ingestion, and test endpoints with curl examples; fix any import errors by adding __init__.py and using absolute imports; at the end show a table of all new/modified files with path and status.
+```
+
+### Prompt 2: RAG Chatbot Frontend UI + Embed in Docusaurus
+
+```
+/model gemini-2.5-flash
+/sp.implement Focus only on creating the RAG chatbot frontend UI and embedding it in the Docusaurus book without deleting any existing content. Generate React components in src/theme/Chatbot/ (Chatbot.js, ChatMessage.js, SelectedTextProvider.js etc.), integrate with FastAPI backend (/chat endpoint), support normal chat and selected-text-only mode (capture user selection, send to backend), beautiful UI with message history, loading states, markdown rendering for responses, mobile responsive; add chatbot toggle button in navbar or fixed position; update docusaurus.config.js if needed for theme; provide usage instructions and testing steps; at the end show a table of all new files created with path and status.
+```
+
+### Prompt 3: Bonus Features – Auth, Personalize & Urdu Translation
+
+```
+/model gemini-2.5-flash
+/sp.implement Implement all bonus features without deleting any existing content: integrate Better-Auth for signup/login with background questionnaire (software/hardware experience) stored in Neon Postgres; create auth components in src/theme/Auth/; add per-chapter "Personalize" button that fetches user profile and adapts content (e.g., show/hide advanced sections or change explanations); add per-chapter "Translate to Urdu" button that translates current page content using reliable method (Google Translate API or LibreTranslate) with loading state and fallback to English; create reusable Docusaurus components for both buttons; update relevant pages to include buttons; create reusable skills/subagents for personalization and translation logic; provide setup instructions for Better-Auth and translation service; at the end show a table of all new/modified files with path and status.
+```
+
+### Prompt 4: Final Testing, Deployment & Demo Prep
+
+```
+/model gemini-2.5-flash
+/sp.implement Final phase: perform full testing of RAG chatbot (accuracy >90%, selected-text mode), auth flow, personalization, Urdu translation; fix any remaining bugs; add deployment configuration for Vercel/GitHub Pages with backend (use serverless or render.com for FastAPI); generate deployment scripts and .vercelignore if needed; create a short demo video script (<90 seconds) highlighting book content, chatbot, auth, personalize, Urdu translation; append final status summary to the end of plan.md and tasks.md confirming all deliverables complete; run final validation and at the end show a comprehensive table of the entire project status including backend running, frontend integrated, bonus features working, and deployment ready.
+```
+
+**Sequence mein chalao:**
+
+1. Prompt 1 → Backend ready
+2. Prompt 2 → Chatbot UI in book
+3. Prompt 3 → Bonus features (max points)
+4. Prompt 4 → Testing + Deployment + Demo
+
+Bas yeh 4 prompts daal do ek ek karke – pura project 100% hackathon-ready ho jayega!  
+Abhi Prompt 1 se shuru karo. Main yahin hun har step ke liye. 🚀
