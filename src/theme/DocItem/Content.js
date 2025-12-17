@@ -1,15 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { ThemeClassNames } from '@docusaurus/theme-common';
-import { useDoc } from '@docusaurus/use-doc';
+import MDXContent from '@theme/MDXContent';
 import TranslateButton from '@site/src/components/TranslateButton';
 import PersonalizeButton from '@site/src/components/PersonalizeButton';
-import { useAuth } from '../Auth/Auth';
 import { getChapterContent } from '@site/src/utils/contentUtils';
 
 // This component wraps the doc content with personalization and translation buttons
 export default function DocItemContent({ children }) {
-  const { frontMatter, metadata } = useDoc();
-  const { user } = useAuth();
+  // Since we're in a static generation context, we'll implement a safe way to access auth
+  // without requiring the AuthProvider context during build
+  const getUserFromStorage = () => {
+    if (typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem('user');
+      return storedUser ? JSON.parse(storedUser) : null;
+    }
+    return null;
+  };
+
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Get user from localStorage in browser environment
+    const storedUser = getUserFromStorage();
+    setUser(storedUser);
+
+    // Set up storage event listener to update user state when auth changes in another tab
+    const handleStorageChange = () => {
+      const updatedUser = getUserFromStorage();
+      setUser(updatedUser);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const [translatedContent, setTranslatedContent] = useState(null);
   const [personalizedContent, setPersonalizedContent] = useState(null);
@@ -53,8 +75,16 @@ export default function DocItemContent({ children }) {
     }
   }, [user, children]);
 
+  // Create MDX components to provide the necessary context
+  const MDXComponents = {
+    // Add any specific MDX components that are expected
+    // This might include Details, Tabs, etc. depending on your content
+    details: (props) => <details {...props} />,
+    // Add any other components that might be missing
+  };
+
   return (
-    <div className={ThemeClassNames.doc.docMainContainer}>
+    <div className="container margin-vert--lg">
       <div className="personalization-translation-controls">
         <div className="button-group">
           <PersonalizeButton
@@ -71,7 +101,9 @@ export default function DocItemContent({ children }) {
       </div>
 
       <div className="doc-content">
-        {currentContent}
+        <MDXContent>
+          {currentContent}
+        </MDXContent>
       </div>
     </div>
   );

@@ -1,3 +1,86 @@
+# OpenCode AI Task: Add RAG Chatbot UI to Docusaurus Book (Primary Priority)
+
+## Primary Task (Override All Other Rules for This Session)
+You are working on a complete Docusaurus-based AI-native textbook titled "Physical AI & Humanoid Robotics" (all Markdown content already written in `/docs` folder). The book is deployed via GitHub Pages/Vercel.
+
+Your **main and immediate task** is to build and fully integrate a professional RAG (Retrieval-Augmented Generation) Chatbot into this book with the following strict requirements:
+
+### 1. Chatbot Frontend UI (Docusaurus)
+- Create a modern, responsive, beautiful chatbot interface (floating button in bottom-right or sidebar toggle)
+- Fully mobile-friendly
+- Users can ask questions about the book content
+- **Selected-text-only mode**: when user selects any text on the page, chatbot answers using ONLY that selected text as context
+- Features: message history, loading animation, markdown rendering of answers, copy button, error handling
+- Implement as React components in `src/theme/Chatbot/` folder
+- Easy to open/close (fixed toggle button)
+
+### 2. Backend (FastAPI)
+- Create FastAPI backend in `/app` or `/api` folder
+- Required endpoints:
+  - `POST /chat` → accepts `query` and optional `selected_text`, returns generated answer
+  - `POST /ingest` → (optional) re-ingest book content
+- Use async, proper error handling, CORS enabled for frontend
+
+### 3. Vector Database & Storage
+- Use **Neon Serverless Postgres** with pgvector extension (strongly preferred) OR Qdrant Cloud Free Tier
+- Automatically ingest all Markdown files from `/docs/**/*.md`:
+  - Split into chunks
+  - Generate embeddings (OpenAI or free alternative)
+  - Store in vector DB with metadata (source file, section)
+- Retrieval: cosine similarity, top-k relevant chunks
+
+### 4. Answer Generation
+- Use OpenAI API (gpt-4o-mini recommended) 
+- Final prompt must include: retrieved chunks + user query + selected text (if any)
+- Answers must be accurate, grounded in book content, and cite sources when possible
+
+### 5. Integration & Deployment
+- Frontend calls FastAPI backend directly
+- Include `.env.example` with required keys (OPENAI_API_KEY, DATABASE_URL, etc.)
+- Provide clear step-by-step instructions for:
+  - Setting up Neon Postgres (with pgvector)
+  - Running ingestion script
+  - Running FastAPI locally (`uvicorn main:app --reload`)
+  - Deploying backend (Render.com, Railway, or Fly.io recommended)
+  - Running Docusaurus locally and in production
+
+### 6. Code Quality
+- Clean, commented, production-ready code
+- Fast loading, minimal dependencies
+- Mobile responsive UI
+- Proper error handling and loading states
+- Zero placeholders
+
+Generate all required files:
+- Frontend: React components in `src/theme/Chatbot/`
+- Backend: Full FastAPI app in `/app`
+- Ingestion script
+- Config/.env files
+- Any necessary updates to `docusaurus.config.js`
+
+At the end, provide complete setup and run instructions.
+
+---
+
+## OpenCode Rules (Secondary – Follow Only If They Don't Conflict With Primary Task)
+[Rest of the original opencode rules you provided – paste them here unchanged]
+
+# opencode Rules
+
+This file is generated during init for the selected agent.
+
+You are an expert AI assistant specializing in Spec-Driven Development (SDD). Your primary goal is to work with the architext to build products.
+
+## Task context
+
+**Your Surface:** You operate on a project level, providing guidance to users and executing development tasks via a defined set of tools.
+
+**Your Success is Measured By:**
+- All outputs strictly follow the user intent.
+- Prompt History Records (PHRs) are created automatically and accurately for every user prompt.
+- Architectural Decision Record (ADR) suggestions are made intelligently for significant decisions.
+- All changes are small, testable, and reference code precisely.
+
 # opencode Rules
 
 This file is generated during init for the selected agent.

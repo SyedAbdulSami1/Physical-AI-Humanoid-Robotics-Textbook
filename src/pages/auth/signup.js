@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { signIn } from 'next-better-auth/client';
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -26,17 +25,25 @@ const SignupPage = () => {
     setError('');
 
     try {
-      // First, register the user with Better-Auth
-      const result = await signIn('email', {
-        email: formData.email,
-        password: formData.password,
-        name: formData.name,
-        callbackURL: '/dashboard' // Redirect after signup
+      // Register the user with our simple authentication system
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          name: formData.name
+        }),
       });
 
-      if (result?.error) {
-        setError(result.error);
-      } else {
+      const result = await response.json();
+
+      if (response.ok) {
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(result.user));
+
         // After successful signup, we'll send the questionnaire data to our backend
         const profileResponse = await fetch('/api/user/profile', {
           method: 'POST',
@@ -52,6 +59,11 @@ const SignupPage = () => {
         if (!profileResponse.ok) {
           console.error('Failed to save profile data:', profileResponse.statusText);
         }
+
+        // Redirect to dashboard
+        window.location.href = result.callbackURL || '/dashboard';
+      } else {
+        setError(result.error || 'Registration failed');
       }
     } catch (err) {
       setError('An error occurred during signup');
@@ -66,7 +78,7 @@ const SignupPage = () => {
       <div className="auth-form">
         <h2>Sign Up</h2>
         {error && <div className="error">{error}</div>}
-        
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="name">Full Name</label>
@@ -79,7 +91,7 @@ const SignupPage = () => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -91,7 +103,7 @@ const SignupPage = () => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -103,7 +115,7 @@ const SignupPage = () => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="softwareExperience">Software Experience</label>
             <select
@@ -120,7 +132,7 @@ const SignupPage = () => {
               <option value="expert">Expert</option>
             </select>
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="hardwareExperience">Hardware Experience</label>
             <select
@@ -138,12 +150,12 @@ const SignupPage = () => {
               <option value="expert">Expert</option>
             </select>
           </div>
-          
+
           <button type="submit" disabled={loading}>
             {loading ? 'Signing up...' : 'Sign Up'}
           </button>
         </form>
-        
+
         <div className="auth-link">
           Already have an account? <a href="/auth/login">Log in</a>
         </div>

@@ -1,15 +1,25 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useUser, signOut } from 'next-better-auth/client/react';
 
 // Create Auth Context
 const AuthContext = createContext();
 
 // Auth Provider Component
 export const AuthProvider = ({ children }) => {
-  const { data: user, isPending } = useUser();
+  const [user, setUser] = useState(null);
+  const [isPending, setIsPending] = useState(true);
 
-  const logout = async () => {
-    await signOut();
+  useEffect(() => {
+    // Check if user data exists in localStorage
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setIsPending(false);
+  }, []);
+
+  const logout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
   };
 
   return (

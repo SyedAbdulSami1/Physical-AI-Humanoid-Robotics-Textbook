@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { signIn } from 'next-better-auth/client';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -23,14 +22,25 @@ const LoginPage = () => {
     setError('');
 
     try {
-      const result = await signIn('email', {
-        email: formData.email,
-        password: formData.password,
-        callbackURL: '/dashboard' // Redirect after login
+      // Simple authentication simulation - in production, replace with actual authentication logic
+      // For now, we'll just store user data in localStorage
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
 
-      if (result?.error) {
-        setError(result.error);
+      const result = await response.json();
+
+      if (response.ok) {
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(result.user));
+        // Redirect to dashboard or previous page
+        window.location.href = result.callbackURL || '/dashboard';
+      } else {
+        setError(result.error || 'Invalid credentials');
       }
     } catch (err) {
       setError('An error occurred during login');
@@ -45,7 +55,7 @@ const LoginPage = () => {
       <div className="auth-form">
         <h2>Login</h2>
         {error && <div className="error">{error}</div>}
-        
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email</label>
@@ -58,7 +68,7 @@ const LoginPage = () => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -70,12 +80,12 @@ const LoginPage = () => {
               required
             />
           </div>
-          
+
           <button type="submit" disabled={loading}>
             {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
-        
+
         <div className="auth-link">
           Don't have an account? <a href="/auth/signup">Sign up</a>
         </div>

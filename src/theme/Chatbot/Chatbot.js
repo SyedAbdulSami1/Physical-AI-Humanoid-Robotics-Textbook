@@ -4,7 +4,8 @@ import { useSelectedText } from './SelectedTextProvider';
 import ChatMessage from './ChatMessage';
 import './chatbot.css';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// Use import.meta.env for Vite-based projects or define a fallback
+const API_URL = typeof process !== 'undefined' ? (process.env.REACT_APP_API_URL || 'http://localhost:8000') : 'http://localhost:8000';
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +16,7 @@ const Chatbot = () => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-  
+
   const { selectedText } = useSelectedText();
 
   const scrollToBottom = useCallback(() => {
@@ -36,13 +37,13 @@ const Chatbot = () => {
   const handleSend = async () => {
     if (input.trim() === '') return;
 
-    const userMessage = { 
-      id: Date.now(), 
-      sender: 'user', 
+    const userMessage = {
+      id: Date.now(),
+      sender: 'user',
       text: input,
       selectedText: selectedText // Include selected text if available
     };
-    
+
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setLoading(true);
@@ -50,10 +51,10 @@ const Chatbot = () => {
     try {
       const token = localStorage.getItem('authToken');
       if (!token) {
-        setMessages(prev => [...prev, { 
-          id: Date.now(), 
-          sender: 'bot', 
-          text: 'You must be logged in to use the chat. Please sign up or log in first.' 
+        setMessages(prev => [...prev, {
+          id: Date.now(),
+          sender: 'bot',
+          text: 'You must be logged in to use the chat. Please sign up or log in first.'
         }]);
         setLoading(false);
         return;
@@ -78,22 +79,22 @@ const Chatbot = () => {
       }
 
       const data = await response.json();
-      
+
       const botMessage = {
         id: Date.now(),
         sender: 'bot',
         text: data.answer,
         sources: data.sources
       };
-      
+
       setMessages(prev => [...prev, botMessage]);
 
     } catch (error) {
       console.error("Chat API error:", error);
-      const errorMessage = { 
-        id: Date.now(), 
-        sender: 'bot', 
-        text: 'Sorry, I encountered an error processing your request. Please try again.' 
+      const errorMessage = {
+        id: Date.now(),
+        sender: 'bot',
+        text: 'Sorry, I encountered an error processing your request. Please try again.'
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -116,7 +117,7 @@ const Chatbot = () => {
       <button className="chatbot-toggle-button" onClick={toggleChat}>
         {isOpen ? '×' : '🤖'}
       </button>
-      
+
       {isOpen && (
         <div className="chatbot-window">
           <div className="chatbot-header">
@@ -125,12 +126,12 @@ const Chatbot = () => {
               ×
             </button>
           </div>
-          
+
           <div className="chatbot-messages">
             {messages.map((message) => (
               <ChatMessage key={message.id} message={message} />
             ))}
-            
+
             {loading && (
               <div className="message bot-message">
                 <div className="typing-indicator">
@@ -142,7 +143,7 @@ const Chatbot = () => {
             )}
             <div ref={messagesEndRef} />
           </div>
-          
+
           <div className="chatbot-input-form">
             {selectedText && (
               <div className="selected-text-indicator">
@@ -160,8 +161,8 @@ const Chatbot = () => {
                 className="chat-input"
                 aria-label="Type your message"
               />
-              <button 
-                onClick={handleSend} 
+              <button
+                onClick={handleSend}
                 disabled={loading}
                 className="send-button"
                 aria-label="Send message"
