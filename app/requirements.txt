@@ -1,13 +1,13 @@
 # FastAPI and Server
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
-pydantic[email]==2.10.6
+pydantic[email]
 
 # Database
 sqlalchemy==2.0.36
-psycopg2-binary==2.9.10
+psycopg2-binary==2.9.11
 alembic==1.14.1
-asyncpg==0.30.0
+asyncpg
 aiosqlite==0.20.0
 
 # Vector Database
@@ -19,7 +19,7 @@ langchain==0.3.9
 langchain-openai==0.2.10
 langchain-community==0.3.9
 langchain-text-splitters==0.3.2
-tiktoken==0.8.0
+tiktoken
 
 # Authentication
 passlib[bcrypt]==1.7.4
@@ -35,3 +35,8 @@ markdown==3.10.0
 pyjwt==2.10.1
 fastapi-cors==0.0.6
 python-multipart==0.0.20
+
+# Testing
+pytest==8.4.0
+pytest-asyncio==0.24.0
+requests==2.32.3

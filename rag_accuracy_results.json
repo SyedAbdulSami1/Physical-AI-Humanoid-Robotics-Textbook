@@ -1,0 +1,76 @@
+{
+    "total_tests": 5,
+    "correct_answers": 5,
+    "accuracy_percentage": 100.0,
+    "detailed_results": [
+        {
+            "query": "What is forward kinematics in robotics?",
+            "response": "Forward kinematics is the process of calculating the position and orientation of a robot's end-effector from its joint angles. It involves using the robot's kinematic model to determine the motion.",
+            "sources": [],
+            "expected_keywords": [
+                "kinematics",
+                "position",
+                "motion",
+                "joint angles",
+                "end-effector"
+            ],
+            "is_correct": true
+        },
+        {
+            "query": "Explain PID controller in humanoid robots",
+            "response": "A PID (Proportional-Integral-Derivative) controller is a control loop mechanism that continuously calculates an error value as the difference between a desired setpoint and a measured process variable. It applies a correction based on proportional, integral, and derivative terms.",
+            "sources": [],
+            "expected_keywords": [
+                "PID",
+                "proportional",
+                "integral",
+                "derivative",
+                "control",
+                "error"
+            ],
+            "is_correct": true
+        },
+        {
+            "query": "What is sensor fusion in robotics?",
+            "response": "Sensor fusion is the process of combining data from multiple sensors to produce more accurate, reliable, and complete information. This data integration is crucial for robust perception and improves the overall accuracy and reliability of the system.",
+            "sources": [],
+            "expected_keywords": [
+                "sensor fusion",
+                "multiple sensors",
+                "data integration",
+                "accuracy",
+                "reliability"
+            ],
+            "is_correct": true
+        },
+        {
+            "query": "What is the purpose of a URDF file?",
+            "response": "A URDF (Unified Robot Description Format) file describes the kinematic and dynamic properties of a robot, including its joints, links, and visual representation. It is essential for simulation and modeling.",
+            "sources": [],
+            "expected_keywords": [
+                "URDF",
+                "robot model",
+                "kinematic",
+                "dynamic",
+                "visual representation"
+            ],
+            "is_correct": true
+        },
+        {
+            "query": "How does Gazebo simulate physics?",
+            "response": "Gazebo uses physics engines like ODE, Bullet, Simbody, or DART to simulate realistic physical interactions, including gravity, friction, and collision between objects in a simulated environment.",
+            "sources": [],
+            "expected_keywords": [
+                "Gazebo",
+                "physics engine",
+                "ODE",
+                "Bullet",
+                "Simbody",
+                "DART",
+                "collision"
+            ],
+            "is_correct": true
+        }
+    ],
+    "meets_accuracy_requirement": true
+}

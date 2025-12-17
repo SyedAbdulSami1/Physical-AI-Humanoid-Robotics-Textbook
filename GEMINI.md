@@ -352,3 +352,36 @@ Yeh raha **4 powerful /sp.implement prompts** Gemini CLI ke liye. Har prompt ek 
 
 Bas yeh 4 prompts daal do ek ek karke – pura project 100% hackathon-ready ho jayega!  
 Abhi Prompt 1 se shuru karo. Main yahin hun har step ke liye. 🚀
+
+Yeh raha woh final phase ka prompt 3 chhote, manageable prompts mein divide kiya gaya hai taake Gemini CLI ek ek karke comfortably complete kar sake. Har prompt safe hai – existing content sirf append karega, delete nahi.
+
+### Prompt 1: Testing & Bug Fixes
+
+```
+/model gemini-2.5-flash
+/sp.implement Focus only on full testing and bug fixing without deleting any content: thoroughly test the RAG chatbot for accuracy >90% on book content queries and correct selected-text-only mode (answers strictly from selected chunks); test Better-Auth signup/login flow with questionnaire storage in Neon Postgres; test per-chapter Personalize button (content adapts correctly based on user background); test per-chapter Urdu translation button (accurate translation, loading states, fallback); identify and fix any remaining bugs in backend (FastAPI endpoints), frontend components, or integration; provide detailed test results with examples of successful queries and fixes applied; append a "Testing Results & Bug Fixes" section at the end of plan.md summarizing what was tested and resolved; at the end show a table of tested features with status (pass/fail/fixed).
+```
+
+### Prompt 2: Deployment Configuration
+
+```
+/model gemini-2.5-flash
+/sp.implement Focus only on deployment setup without deleting any content: add full deployment configuration for the complete project (Docusaurus frontend + FastAPI backend); configure for Vercel (preferred) or GitHub Pages with backend hosted on Render.com or similar serverless platform; generate vercel.json or necessary config files, .vercelignore, deployment scripts (e.g., build commands, environment variables setup for Neon, Qdrant, OpenAI keys); include step-by-step instructions for deploying both frontend and backend; test local build with production settings; append a "Deployment Configuration" section at the end of plan.md with all commands and configs; at the end show a table of deployment-related files created/modified with path and status.
+```
+
+### Prompt 3: Demo Video Script + Final Status Summary
+
+```
+/model gemini-2.5-flash
+/sp.implement Final step: create a concise demo video script (<90 seconds) that highlights navigating the book content, using the RAG chatbot (normal + selected-text mode), signing up with questionnaire, clicking Personalize button to see adapted content, clicking Urdu translation button; include exact narration lines, what to show on screen, and timing; perform final validation of all features; append a "Final Project Status Summary" section at the end of both plan.md and tasks.md confirming all base deliverables and bonus features are complete and working; append the full demo video script to the end of plan.md; run final project validation and at the end show a comprehensive table confirming: backend running, frontend integrated, RAG chatbot working, auth + personalization active, Urdu translation functional, deployment ready, and overall hackathon submission complete.
+```
+
+**Sequence:**
+
+1. Prompt 1 daalo → Testing + fixes complete
+2. Prompt 2 daalo → Deployment ready
+3. Prompt 3 daalo → Demo script + final confirmation
+
+Bas yeh 3 prompts daal do ek ek karke – pura project 100% finished, tested, deployable aur submission-ready ho jayega!
+
+Abhi Prompt 1 se shuru karo. Main yahin hun last step tak. 🚀 Good luck bhai, top submission confirm!
