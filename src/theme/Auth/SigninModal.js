@@ -1,32 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { authClient } from '@site/src/utils/authClient';
-import { useHistory } from '@docusaurus/router';
 
-const LoginPage = () => {
+const SigninModal = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const history = useHistory();
-
-  useEffect(() => {
-    // Check if already logged in
-    const checkSession = async () => {
-      try {
-        const session = await authClient.getSession();
-        if (session?.user) {
-          // Redirect to dashboard if already logged in
-          history.push('/dashboard');
-        }
-      } catch (error) {
-        console.error('Error checking session:', error);
-      }
-    };
-
-    checkSession();
-  }, [history]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,8 +19,7 @@ const LoginPage = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSignin = async () => {
     setLoading(true);
     setError('');
 
@@ -48,15 +30,16 @@ const LoginPage = () => {
       });
 
       if (result?.error) {
-        setError(result.error?.message || 'Login failed');
+        setError(result.error?.message || 'Signin failed');
         setLoading(false);
         return;
       }
 
-      // Redirect to dashboard or previous page
-      window.location.href = '/dashboard'; // or wherever you want to redirect
+      // Close modal and redirect or show success
+      onClose();
+      // Optionally redirect to dashboard or show welcome message
     } catch (err) {
-      setError('An error occurred during login');
+      setError('An error occurred during signin');
       console.error(err);
     } finally {
       setLoading(false);
@@ -65,17 +48,18 @@ const LoginPage = () => {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      handleSubmit(e);
+      handleSignin();
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-form">
-        <h2>Sign In</h2>
-        {error && <div className="error">{error}</div>}
-        
-        <form onSubmit={handleSubmit}>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>Sign In</h2>
+          <button className="close-button" onClick={onClose}>×</button>
+        </div>
+        <div className="modal-body">
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -101,17 +85,21 @@ const LoginPage = () => {
             />
           </div>
           
-          <button type="submit" disabled={loading}>
-            {loading ? 'Signing In...' : 'Sign In'}
-          </button>
-        </form>
-        
-        <div className="auth-link">
-          Don't have an account? <a href="/auth/signup">Sign up</a>
+          <div className="form-actions">
+            <button onClick={handleSignin} disabled={loading}>
+              {loading ? 'Signing In...' : 'Sign In'}
+            </button>
+          </div>
+          
+          <div className="auth-links">
+            <p>Don't have an account? <a href="#" onClick={(e) => { e.preventDefault(); onClose(); window.location.href = '/auth/signup'; }}>Sign up</a></p>
+          </div>
+          
+          {error && <div className="error">{error}</div>}
         </div>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default SigninModal;

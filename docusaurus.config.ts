@@ -61,7 +61,10 @@ const config: Config = {
           onUntruncatedBlogPosts: 'warn',
         },
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: [
+            './src/css/custom.css',
+            './src/css/auth.css'
+          ],
         },
       } satisfies Preset.Options,
     ],
@@ -87,6 +90,16 @@ const config: Config = {
           label: 'Textbook',
         },
         {to: '/blog', label: 'Blog', position: 'left'},
+        {
+          to: '/auth/signup',
+          label: 'Sign Up',
+          position: 'right',
+        },
+        {
+          to: '/auth/login',
+          label: 'Sign In',
+          position: 'right',
+        },
         {
           href: 'https://github.com/gemini-cli/Physical-AI-Humanoid-Robotics-Textbook',
           label: 'GitHub',

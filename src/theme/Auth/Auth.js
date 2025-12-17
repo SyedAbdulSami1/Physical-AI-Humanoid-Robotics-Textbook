@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authClient } from '@site/src/utils/authClient';
 
 // Create Auth Context
 const AuthContext = createContext();
@@ -9,21 +10,45 @@ export const AuthProvider = ({ children }) => {
   const [isPending, setIsPending] = useState(true);
 
   useEffect(() => {
-    // Check if user data exists in localStorage
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsPending(false);
+    // Initialize auth state using Better-Auth
+    const initAuth = async () => {
+      try {
+        const session = await authClient.getSession();
+        if (session?.user) {
+          setUser(session.user);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      } finally {
+        setIsPending(false);
+      }
+    };
+
+    initAuth();
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
+  const logout = async () => {
+    try {
+      await authClient.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Fallback to clearing user state if API call fails
+      setUser(null);
+    }
+  };
+
+  const value = {
+    user,
+    isPending,
+    logout,
+    signIn: authClient.signIn,
+    signUp: authClient.signUp,
+    getSession: authClient.getSession
   };
 
   return (
-    <AuthContext.Provider value={{ user, isPending, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
@@ -57,7 +82,7 @@ export const AuthComponent = () => {
         </div>
       ) : (
         <div className="login-prompt">
-          <a href="/auth/login">Login</a> or <a href="/auth/signup">Sign Up</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); window.location.href = '/auth/login'; }}>Login</a> or <a href="#" onClick={(e) => { e.preventDefault(); window.location.href = '/auth/signup'; }}>Sign Up</a>
         </div>
       )}
     </div>
