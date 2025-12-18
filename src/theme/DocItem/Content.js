@@ -85,15 +85,13 @@ export default function DocItemContent({ children }) {
 
   return (
     <div className="container margin-vert--lg">
-      <div className="personalization-translation-controls">
+      <div className="chapter-controls">
         <div className="button-group">
           <PersonalizeButton
-            chapterContent={children}
             onPersonalize={handlePersonalize}
           />
-
           <TranslateButton
-            content={children}
+            content={typeof children === 'string' ? children : JSON.stringify(children)}
             onTranslate={handleTranslate}
             language="ur"
           />

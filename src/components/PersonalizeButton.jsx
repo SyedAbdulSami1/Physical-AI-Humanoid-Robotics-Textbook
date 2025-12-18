@@ -1,17 +1,30 @@
 // src/components/PersonalizeButton.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './styles.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
-const PersonalizeButton = ({ chapterContent, onPersonalize }) => {
+const PersonalizeButton = ({ children, onPersonalize }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [userProfile, setUserProfile] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+        // Check authentication and load user profile on component mount
+        const token = localStorage.getItem('better-auth.session_token');
+        setIsAuthenticated(!!token);
+
+        if (token) {
+            // Load user profile from localStorage or fetch from backend
+            const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+            setUserProfile(profile);
+        }
+    }, []);
 
     const handlePersonalize = async () => {
-        // Check if user is authenticated by looking for auth token in localStorage
         const token = localStorage.getItem('better-auth.session_token');
 
         if (!token) {
@@ -19,21 +32,33 @@ const PersonalizeButton = ({ chapterContent, onPersonalize }) => {
             return;
         }
 
+        if (!userProfile || Object.keys(userProfile).length === 0) {
+            setError('Please complete your profile to enable personalization.');
+            return;
+        }
+
         setLoading(true);
         setError('');
 
         try {
-            // Get user's profile data to use for personalization
-            // For now, we'll retrieve it from localStorage if available
-            // In a real implementation, you'd fetch it from your backend
-            const profileData = JSON.parse(localStorage.getItem('userProfile') || '{}');
+            // Get the raw HTML or text content to personalize
+            let contentToPersonalize = '';
+            if (typeof children === 'string') {
+                contentToPersonalize = children;
+            } else if (React.isValidElement(children)) {
+                // If it's a React element, we need to extract text content
+                contentToPersonalize = children.props.children || '';
+            } else {
+                // Handle other cases
+                contentToPersonalize = '';
+            }
 
             // Call personalization API with both the content and user profile
             const response = await axios.post(
                 `${API_URL}/personalize/`,
                 {
-                    content: chapterContent,
-                    user_profile: profileData
+                    content: contentToPersonalize,
+                    user_profile: userProfile
                 },
                 {
                     headers: {
@@ -55,14 +80,23 @@ const PersonalizeButton = ({ chapterContent, onPersonalize }) => {
         }
     };
 
+    if (!isAuthenticated) {
+        return null; // Only show the button if user is authenticated
+    }
+
     return (
         <div className="feature-button-container">
             <button
                 onClick={handlePersonalize}
                 disabled={loading}
                 className="feature-button"
+                title="Adapt content to your experience level"
             >
-                {loading ? 'Personalizing...' : '✨ Personalize This Content'}
+                {loading ? (
+                    <span>🔄 Personalizing...</span>
+                ) : (
+                    <span>✨ Personalize Content</span>
+                )}
             </button>
             {error && <p className="error-message">{error}</p>}
         </div>
