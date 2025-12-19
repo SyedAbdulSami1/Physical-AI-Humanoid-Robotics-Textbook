@@ -2,9 +2,10 @@
 Skill 1: Content Summarization Agent
 """
 from typing import List
-import openai
+import google.generativeai as genai
 import asyncio
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -13,8 +14,8 @@ class ContentSummarizationAgent:
     Skill that summarizes long content chunks for more focused RAG responses
     """
     
-    def __init__(self, openai_client):
-        self.openai_client = openai_client
+    def __init__(self, gemini_model: genai.GenerativeModel):
+        self.gemini_model = gemini_model
     
     async def summarize_content(self, content: str, max_length: int = 200) -> str:
         """
@@ -28,17 +29,11 @@ class ContentSummarizationAgent:
             system_prompt = "You are an expert at summarizing technical content while preserving key concepts and details."
             user_prompt = f"Please summarize the following content:\n\n{content}\n\nSummary (about {max_length} words):"
             
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                max_tokens=500,
-                temperature=0.3
-            )
+            full_prompt = f"{system_prompt}\n\n{user_prompt}"
             
-            return response.choices[0].message.content
+            response = await self.gemini_model.generate_content_async(full_prompt)
+            
+            return response.text
         except Exception as e:
             logger.error(f"Error in content summarization: {str(e)}")
             return content  # Return original content if summarization fails
@@ -91,8 +86,8 @@ class QueryRefinementAgent:
     Skill that refines user queries to improve RAG performance
     """
     
-    def __init__(self, openai_client):
-        self.openai_client = openai_client
+    def __init__(self, gemini_model: genai.GenerativeModel):
+        self.gemini_model = gemini_model
     
     async def refine_query(self, original_query: str) -> str:
         """
@@ -107,17 +102,11 @@ class QueryRefinementAgent:
             
             user_prompt = f"Refine this query: {original_query}"
             
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                max_tokens=100,
-                temperature=0.5
-            )
+            full_prompt = f"{system_prompt}\n\n{user_prompt}"
+
+            response = await self.gemini_model.generate_content_async(full_prompt)
             
-            return response.choices[0].message.content.strip()
+            return response.text.strip()
         except Exception as e:
             logger.error(f"Error in query refinement: {str(e)}")
             return original_query  # Return original if refinement fails
@@ -130,8 +119,8 @@ class ResponseVerificationAgent:
     Skill that verifies the accuracy of generated responses against the source content
     """
     
-    def __init__(self, openai_client):
-        self.openai_client = openai_client
+    def __init__(self, gemini_model: genai.GenerativeModel):
+        self.gemini_model = gemini_model
     
     async def verify_response(self, response: str, source_content: str) -> dict:
         """
@@ -141,24 +130,19 @@ class ResponseVerificationAgent:
             system_prompt = (
                 "You are an expert fact-checker. "
                 "Verify if the response is consistent with the provided source content. "
-                "Return a JSON with 'is_consistent' (boolean) and 'feedback' (string)."
+                "Return a JSON object with two keys: 'is_consistent' (boolean) and 'feedback' (string). "
+                "Do not add any other text or markdown formatting."
             )
             
-            user_prompt = f"Source content: {source_content}\n\nResponse: {response}\n\nVerify consistency:"
+            user_prompt = f"Source content: {source_content}\n\nResponse: {response}\n\nVerify consistency and provide JSON output:"
             
-            response_check = await self.openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                max_tokens=200,
-                temperature=0.2,
-                response_format={"type": "json_object"}
-            )
+            full_prompt = f"{system_prompt}\n\n{user_prompt}"
+
+            response_check = await self.gemini_model.generate_content_async(full_prompt)
             
-            import json
-            verification_result = json.loads(response_check.choices[0].message.content)
+            # Clean the response to ensure it is valid JSON
+            cleaned_text = response_check.text.strip().replace("```json", "").replace("```", "").strip()
+            verification_result = json.loads(cleaned_text)
             return verification_result
         except Exception as e:
             logger.error(f"Error in response verification: {str(e)}")

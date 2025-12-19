@@ -3,7 +3,7 @@
 import os
 from typing import List, Tuple
 from qdrant_client import QdrantClient, models as qdrant_models
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain.prompts import ChatPromptTemplate
 
 class RAGAgent:
@@ -11,13 +11,13 @@ class RAGAgent:
         # --- Client and Model Setup ---
         self.QDRANT_URL = os.getenv("QDRANT_URL")
         self.QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-        self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+        self.GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
         self.QDRANT_COLLECTION_NAME = "textbook_content"
 
         # Initialize clients and models
         self.qdrant_client = QdrantClient(url=self.QDRANT_URL, api_key=self.QDRANT_API_KEY)
-        self.embeddings = OpenAIEmbeddings(api_key=self.OPENAI_API_KEY)
-        self.llm = ChatOpenAI(model="gpt-4-turbo", temperature=0.1, api_key=self.OPENAI_API_KEY)
+        self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=self.GEMINI_API_KEY)
+        self.llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.1, google_api_key=self.GEMINI_API_KEY)
 
         # --- Prompt Template ---
         self.RAG_PROMPT_TEMPLATE = """

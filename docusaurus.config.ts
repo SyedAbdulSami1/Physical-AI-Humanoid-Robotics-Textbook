@@ -34,6 +34,10 @@ const config: Config = {
     locales: ['en'],
   },
 
+  customFields: {
+    apiUrl: process.env.DOCUSAURUS_API_URL || 'http://localhost:8000',
+  },
+
   presets: [
     [
       'classic',

@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './styles.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
 const PersonalizeButton = ({ children, onPersonalize }) => {
+    const { siteConfig } = useDocusaurusContext();
+    const { apiUrl } = siteConfig.customFields;
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [userProfile, setUserProfile] = useState(null);
@@ -55,7 +57,7 @@ const PersonalizeButton = ({ children, onPersonalize }) => {
 
             // Call personalization API with both the content and user profile
             const response = await axios.post(
-                `${API_URL}/personalize/`,
+                `${apiUrl}/personalize/`,
                 {
                     content: contentToPersonalize,
                     user_profile: userProfile

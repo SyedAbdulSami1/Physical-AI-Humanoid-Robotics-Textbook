@@ -1,9 +1,11 @@
 """
 Comprehensive RAG Agent that integrates all subagents for enhanced functionality
 """
+import os
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
-import openai
+import google.generativeai as genai
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
 import logging
@@ -25,17 +27,21 @@ class ComprehensiveRAGAgent:
     Main RAG agent that integrates multiple subagents for enhanced functionality
     """
     
-    def __init__(self, qdrant_client: QdrantClient, collection_name: str, openai_api_key: str, db: Session):
+    def __init__(self, qdrant_client: QdrantClient, collection_name: str, gemini_api_key: str, db: Session):
         self.qdrant_client = qdrant_client
         self.collection_name = collection_name
-        self.openai_client = openai.OpenAI(api_key=openai_api_key)
         self.db = db
         
-        # Initialize all subagents
-        self.summarization_agent = ContentSummarizationAgent(self.openai_client)
+        # Configure Gemini
+        genai.configure(api_key=gemini_api_key)
+        self.gemini_model = genai.GenerativeModel('gemini-1.5-pro')
+        self.embedding_model = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=gemini_api_key)
+
+        # Initialize all subagents with the Gemini model
+        self.summarization_agent = ContentSummarizationAgent(self.gemini_model)
         self.question_router = ContextualQuestionRouter()
-        self.query_refiner = QueryRefinementAgent(self.openai_client)
-        self.response_verifier = ResponseVerificationAgent(self.openai_client)
+        self.query_refiner = QueryRefinementAgent(self.gemini_model)
+        self.response_verifier = ResponseVerificationAgent(self.gemini_model)
         self.conversation_manager = MultiTurnConversationManager()
         self.personalization_adapter = PersonalizationAdapter()
     
@@ -44,12 +50,8 @@ class ComprehensiveRAGAgent:
         Search the vector database for relevant content
         """
         try:
-            # Embed the query using OpenAI's embedding model
-            response = self.openai_client.embeddings.create(
-                input=query,
-                model="text-embedding-ada-002"
-            )
-            query_vector = response.data[0].embedding
+            # Embed the query using Gemini's embedding model via LangChain wrapper
+            query_vector = self.embedding_model.embed_query(query)
             
             # Prepare search filters
             search_filter = None
@@ -125,7 +127,7 @@ class ComprehensiveRAGAgent:
             if conversation_context:
                 full_context = f"Previous conversation:\n{conversation_context}\n\nCurrent context:\n{full_context}"
             
-            # Prepare the prompt for OpenAI
+            # Prepare the prompt for Gemini
             system_prompt = (
                 f"You are an expert assistant for the Physical AI & Humanoid Robotics textbook. "
                 f"Answer questions about humanoid robotics, physical AI, machine learning, control systems, "
@@ -137,18 +139,12 @@ class ComprehensiveRAGAgent:
             
             user_prompt = f"Context:\n{full_context}\n\nQuestion: {refined_query}\n\nAnswer:"
             
-            # Call OpenAI API asynchronously
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                max_tokens=1000,
-                temperature=0.7
-            )
+            full_prompt = f"{system_prompt}\n\n{user_prompt}"
+
+            # Call Gemini API asynchronously
+            response = await self.gemini_model.generate_content_async(full_prompt)
             
-            generated_response = response.choices[0].message.content
+            generated_response = response.text
             
             # Verify the response against source content
             verification = await self.response_verifier.verify_response(generated_response, context)
@@ -199,7 +195,7 @@ class ComprehensiveRAGAgent:
             # Summarize selected text if it's long
             summarized_text = await self.summarization_agent.summarize_content(selected_text)
             
-            # Prepare the prompt for OpenAI
+            # Prepare the prompt for Gemini
             system_prompt = (
                 "You are an expert assistant for the Physical AI & Humanoid Robotics textbook. "
                 "Answer the following question based ONLY on the provided selected text. "
@@ -214,18 +210,12 @@ class ComprehensiveRAGAgent:
                 
             user_prompt = f"Selected Text:\n{full_context}\n\nQuestion: {refined_query}\n\nAnswer:"
             
-            # Call OpenAI API asynchronously
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                max_tokens=1000,
-                temperature=0.7
-            )
+            full_prompt = f"{system_prompt}\n\n{user_prompt}"
+
+            # Call Gemini API asynchronously
+            response = await self.gemini_model.generate_content_async(full_prompt)
             
-            generated_response = response.choices[0].message.content
+            generated_response = response.text
             
             # Verify the response against source content
             verification = await self.response_verifier.verify_response(generated_response, summarized_text)

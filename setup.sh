@@ -60,28 +60,23 @@ else
 fi
 
 # Create .env file if it doesn't exist
-if [ ! -f ".env" ]; then
-    echo "Creating .env file with default values..."
-    cat > .env << EOF
+if [ ! -f "app/.env" ]; then
+    echo "Creating .env file with default values in app/ directory..."
+    cat > app/.env << EOF
+# Security
+AUTH_SECRET_KEY="your_auth_secret_key"
+
 # Database Configuration
-NEON_DATABASE_URL=postgresql://username:password@ep-dry-snowflake-123456.us-east-1.aws.neon.tech/dbname?sslmode=require
+NEON_DATABASE_URL="your_neon_database_url"
 
 # Qdrant Configuration
-QDRANT_URL=https://your-cluster-url.europe-west3-0.gcp.cloud.qdrant.io:6333
-QDRANT_API_KEY=your-qdrant-api-key
-QDRANT_COLLECTION_NAME=textbook_content
+QDRANT_URL="your_qdrant_url"
+QDRANT_API_KEY="your_qdrant_api_key"
 
 # OpenAI Configuration
-OPENAI_API_KEY=your-openai-api-key
-
-# JWT Configuration
-JWT_SECRET_KEY=your-super-secret-jwt-key-change-in-production
-
-# Application Configuration
-HOST=0.0.0.0
-PORT=8000
+OPENAI_API_KEY="your_openai_api_key"
 EOF
-    echo "⚠ Created .env file with default values - please update with your actual credentials"
+    echo "⚠ Created .env file in app/ with default values - please update with your actual credentials"
 fi
 
 echo "==========================================="

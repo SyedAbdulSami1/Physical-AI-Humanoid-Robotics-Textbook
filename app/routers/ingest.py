@@ -5,7 +5,7 @@ import re
 from fastapi import APIRouter, Depends, HTTPException, status
 from qdrant_client import QdrantClient, models as qdrant_models
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.docstore.document import Document
 import markdown
 from bs4 import BeautifulSoup
@@ -21,12 +21,12 @@ router = APIRouter(
 
 QDRANT_URL = os.getenv("QDRANT_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 QDRANT_COLLECTION_NAME = "textbook_content"
 
 # Initialize clients
 qdrant_client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
-embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
+embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=GEMINI_API_KEY)
 
 # Text splitter configuration
 text_splitter = RecursiveCharacterTextSplitter(
@@ -87,7 +87,7 @@ async def run_ingestion(current_user: models.User = Depends(schemas.get_current_
     qdrant_client.recreate_collection(
         collection_name=QDRANT_COLLECTION_NAME,
         vectors_config=qdrant_models.VectorParams(
-            size=1536,  # OpenAI embeddings dimension
+            size=768,  # Google Gemini embeddings dimension
             distance=qdrant_models.Distance.COSINE,
         ),
     )

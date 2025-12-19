@@ -7,9 +7,8 @@ services:
       dockerfile: Dockerfile.backend
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/robotics_db
-      - SECRET_KEY=your-super-secret-key-here
+    env_file:
+      - ./app/.env
     depends_on:
       - db
     volumes:

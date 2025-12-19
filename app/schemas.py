@@ -33,7 +33,7 @@ class UserProfile(UserProfileBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -49,7 +49,7 @@ class User(UserBase):
     profile: UserProfile
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- Chat Schemas ---
 

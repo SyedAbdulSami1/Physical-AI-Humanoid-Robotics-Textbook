@@ -1,9 +1,8 @@
 # app/translation.py
 
 import os
+import google.generativeai as genai
 from fastapi import APIRouter, Depends, HTTPException
-from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
 
 from app import schemas, models
 from app.personalization import get_chapter_content  # Reuse the content reader
@@ -14,8 +13,16 @@ router = APIRouter(
 )
 
 # --- LLM Setup ---
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-llm = ChatOpenAI(model="gpt-4-turbo", temperature=0.3, api_key=OPENAI_API_KEY)
+try:
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    if not GEMINI_API_KEY:
+        raise ValueError("GEMINI_API_KEY environment variable not found.")
+    genai.configure(api_key=GEMINI_API_KEY)
+    llm = genai.GenerativeModel('gemini-1.5-pro')
+except ValueError as e:
+    llm = None
+    print(f"Error initializing Gemini: {e}")
+
 
 # --- Prompt Template ---
 TRANSLATE_PROMPT_TEMPLATE = """
@@ -35,8 +42,6 @@ ENGLISH MARKDOWN CONTENT:
 URDU MARKDOWN CONTENT:
 """
 
-translate_prompt = ChatPromptTemplate.from_template(TRANSLATE_PROMPT_TEMPLATE)
-
 @router.post("/urdu", response_model=schemas.TranslationResponse)
 async def translate_chapter_to_urdu(
     request: schemas.TranslationRequest,
@@ -45,6 +50,9 @@ async def translate_chapter_to_urdu(
     """
     Translates a chapter's content into Urdu for an authenticated user.
     """
+    if not llm:
+        raise HTTPException(status_code=500, detail="Translation service is not configured.")
+        
     # 1. Get original chapter content
     try:
         chapter_content = get_chapter_content(request.chapter_id)
@@ -52,13 +60,15 @@ async def translate_chapter_to_urdu(
         # Re-raise the exception if the chapter is not found or path is invalid
         raise e
 
-    # 2. Construct the chain and invoke the LLM
-    chain = translate_prompt | llm
+    # 2. Manually format the prompt
+    formatted_prompt = TRANSLATE_PROMPT_TEMPLATE.format(chapter_content=chapter_content)
     
-    response = await chain.ainvoke({
-        "chapter_content": chapter_content,
-    })
-
-    translated_content = response.content
+    # 3. Invoke the Gemini LLM
+    try:
+        response = await llm.generate_content_async(formatted_prompt)
+        translated_content = response.text
+    except Exception as e:
+        print(f"Error during Gemini API call for translation: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get a response from the translation service.")
 
     return schemas.TranslationResponse(translated_content=translated_content)

@@ -17,7 +17,7 @@ const Chatbot = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  const { selectedText } = useSelectedText();
+  const { selectedText, setSelectedText } = useSelectedText();
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -45,6 +45,7 @@ const Chatbot = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    setSelectedText(''); // Clear selected text
     setInput('');
     setLoading(true);
 
@@ -75,7 +76,18 @@ const Chatbot = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+        if (response.status === 401) {
+          localStorage.removeItem('authToken');
+          setMessages(prev => [...prev, {
+            id: Date.now(),
+            sender: 'bot',
+            text: 'Your session has expired. Please log in again to continue.'
+          }]);
+        } else {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+        setLoading(false);
+        return;
       }
 
       const data = await response.json();

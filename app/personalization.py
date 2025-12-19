@@ -1,9 +1,8 @@
 # app/personalization.py
 
 import os
+import google.generativeai as genai
 from fastapi import APIRouter, Depends, HTTPException
-from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
 
 from app import schemas, models
 
@@ -13,8 +12,18 @@ router = APIRouter(
 )
 
 # --- LLM Setup ---
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-llm = ChatOpenAI(model="gpt-4-turbo", temperature=0.1, api_key=OPENAI_API_KEY)
+# Use the native Google aPI as requested
+try:
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    if not GEMINI_API_KEY:
+        raise ValueError("GEMINI_API_KEY environment variable not found.")
+    genai.configure(api_key=GEMINI_API_KEY)
+    llm = genai.GenerativeModel('gemini-1.5-pro')
+except ValueError as e:
+    # Handle the case where the API key is missing
+    llm = None
+    print(f"Error initializing Gemini: {e}")
+
 
 # --- Prompt Template ---
 PERSONALIZE_PROMPT_TEMPLATE = """
@@ -43,8 +52,6 @@ ORIGINAL CHAPTER CONTENT:
 REWRITTEN AND PERSONALIZED MARKDOWN:
 """
 
-personalize_prompt = ChatPromptTemplate.from_template(PERSONALIZE_PROMPT_TEMPLATE)
-
 def get_chapter_content(chapter_id: str) -> str:
     """
     Reads the content of a chapter's Markdown file from the `docs` directory.
@@ -69,23 +76,31 @@ async def personalize_chapter_content(
     """
     Personalizes a chapter's content based on the authenticated user's profile.
     """
+    if not llm:
+        raise HTTPException(status_code=500, detail="Personalization service is not configured.")
+
     if not current_user.profile:
         raise HTTPException(status_code=404, detail="User profile not found.")
 
     # 1. Get original chapter content
     chapter_content = get_chapter_content(request.chapter_id)
 
-    # 2. Construct the chain and invoke the LLM
-    chain = personalize_prompt | llm
+    # 2. Manually format the prompt
+    formatted_prompt = PERSONALIZE_PROMPT_TEMPLATE.format(
+        role=current_user.profile.role.value if current_user.profile.role else 'Not specified',
+        expertise=current_user.profile.technical_expertise.value if current_user.profile.technical_expertise else 'Not specified',
+        interest=current_user.profile.primary_interest or 'Not specified',
+        style=current_user.profile.preferred_explanation_style.value if current_user.profile.preferred_explanation_style else 'beginner',
+        chapter_content=chapter_content,
+    )
     
-    response = await chain.ainvoke({
-        "role": current_user.profile.role.value if current_user.profile.role else 'Not specified',
-        "expertise": current_user.profile.technical_expertise.value if current_user.profile.technical_expertise else 'Not specified',
-        "interest": current_user.profile.primary_interest or 'Not specified',
-        "style": current_user.profile.preferred_explanation_style.value if current_user.profile.preferred_explanation_style else 'beginner',
-        "chapter_content": chapter_content,
-    })
+    # 3. Invoke the Gemini LLM
+    try:
+        response = await llm.generate_content_async(formatted_prompt)
+        personalized_content = response.text
+    except Exception as e:
+        print(f"Error during Gemini API call: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get a response from the personalization service.")
 
-    personalized_content = response.content
 
     return schemas.PersonalizeResponse(personalized_content=personalized_content)
