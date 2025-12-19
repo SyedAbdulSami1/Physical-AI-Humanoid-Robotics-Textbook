@@ -163,3 +163,5 @@ This project is a documentation website built using Docusaurus.
 ## Installation
 npm install
 npm run start
+
+pip install google-generativeai
