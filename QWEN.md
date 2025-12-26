@@ -1,91 +1,95 @@
-# QWEN.md - Primary Task: Add RAG Chatbot to Docusaurus Book
+# QWEN.md - Primary Task: AI-Native Textbook with Full RAG Chatbot Implementation
 
 ## Primary Task (Override All Other Rules for This Session)
-You are working on a complete Docusaurus-based AI-native textbook titled "Physical AI & Humanoid Robotics" (all rich Markdown content already written in the `/docs` folder). The book is deployed via GitHub Pages/Vercel.
+You are working on a complete Docusaurus-based AI-native textbook titled "Physical AI & Humanoid Robotics" (content in the `/docs` folder). The book is deployed via GitHub Pages/Vercel.
 
-Your **main and immediate task** is to build and fully integrate a professional RAG (Retrieval-Augmented Generation) Chatbot into this book with the following strict requirements:
+Your **main and immediate task** is to maintain, enhance, and evolve the fully integrated RAG (Retrieval-Augmented Generation) Chatbot system with the following strict requirements:
 
 ### 1. Chatbot Frontend UI (Docusaurus)
-- Create a modern, responsive, beautiful chatbot interface (floating button in bottom-right or sidebar toggle)
-- Fully mobile-friendly
-- Users can ask questions about the book content
-- **Selected-text-only mode**: when user selects any text on the page, chatbot answers using ONLY that selected text as context
-- Features: message history, loading animation, markdown rendering of answers, copy button, error handling
-- Implement as React components in `src/theme/Chatbot/` folder
-- Easy to open/close (fixed toggle button)
+- Current implementation: React components in `src/theme/Chatbot/` with modern, responsive UI
+- Maintained features: floating button, mobile-friendly, question answering, selected-text-only mode
+- Enhanced features: message history, loading states, markdown rendering, copy button, error handling
+- Supports both normal chat and selected-text-only mode (when user selects text, chatbot answers using ONLY that text as context)
 
 ### 2. Backend (FastAPI)
-- Create FastAPI backend in `/app` or `/api` folder
+- Current implementation: Full FastAPI backend in `/app` folder with async endpoints
 - Required endpoints:
   - `POST /chat` → accepts `query` and optional `selected_text`, returns generated answer
-  - `POST /ingest` → (optional) re-ingest book content
-- Use async, proper error handling, CORS enabled for frontend
+  - `POST /ingest/run` → re-ingest book content with authentication
+- Uses async, proper error handling, CORS enabled for frontend
+- Authentication required for all endpoints using Better-Auth tokens
 
 ### 3. Vector Database & Storage
-- Use **Neon Serverless Postgres** with pgvector extension (strongly preferred) OR Qdrant Cloud Free Tier
-- Automatically ingest all Markdown files from `/docs/**/*.md`:
-  - Split into chunks
-  - Generate embeddings (OpenAI or free alternative)
-  - Store in vector DB with metadata (source file, section)
-- Retrieval: cosine similarity, top-k relevant chunks
+- Current system: **Qdrant Cloud** with Google Gemini embeddings
+- Automatically ingests all Markdown files from `/docs/**/*.md`:
+  - Splits into chunks using RecursiveCharacterTextSplitter
+  - Generates embeddings using Google Generative AI (models/embedding-001)
+  - Stores in vector DB with metadata (source file, section)
+- Retrieval: cosine similarity, top-k relevant chunks via RAG agent
 
 ### 4. Answer Generation
-- Use OpenAI API (gpt-4o-mini recommended)
-- Final prompt must include: retrieved chunks + user query + selected text (if any)
+- Uses Google Gemini (gemini-1.5-flash) via RAG pipeline
+- Final prompt includes: retrieved chunks + user query + selected text (if any)
 - Answers must be accurate, grounded in book content, and cite sources when possible
+- RAG agent skill handles the entire pipeline: embedding, retrieval, generation
 
-### 5. Integration & Deployment
-- Frontend calls FastAPI backend directly
-- Include `.env.example` with required keys (OPENAI_API_KEY, DATABASE_URL, etc.)
-- Provide clear step-by-step instructions for:
-  - Setting up Neon Postgres (with pgvector)
-  - Running ingestion script
-  - Running FastAPI locally (`uvicorn main:app --reload`)
-  - Deploying backend (Render.com, Railway, or Fly.io recommended)
-  - Running Docusaurus locally and in production
+### 5. Additional Features
+- Authentication system using Better-Auth with user profiles and signup questionnaire
+- Personalization: "Personalize" button that adapts content based on user profile
+- Translation: "Translate to Urdu" button that translates current page on demand
+- All features fully integrated and tested
 
-### 6. Code Quality
+### 6. Integration & Deployment
+- Frontend calls FastAPI backend directly (using DOCUSAURUS_API_URL)
+- Current `.env.example` contains required keys (GEMINI_API_KEY, QDRANT_URL, etc.)
+- Deployment configured for Vercel (frontend) and Render (backend via Docker)
+
+### 7. Code Quality & Standards
 - Clean, commented, production-ready code
 - Fast loading, minimal dependencies
 - Mobile responsive UI
 - Proper error handling and loading states
-- Zero placeholders
+- Zero placeholders - all content and functionality complete
+- Full test coverage where applicable
+- Proper security with authentication and authorization
+- Comprehensive error handling and logging
 
-Generate all required files:
-- Frontend: React components in `src/theme/Chatbot/`
-- Backend: Full FastAPI app in `/app`
-- Ingestion script
-- Config/.env files
-- Any necessary updates to `docusaurus.config.js`
+## Expected Behavior & Capabilities
 
-At the end, provide complete setup and run instructions.
+### RAG System
+- Full-book mode: answers based on entire textbook content
+- Selected-text mode: restricts answers to only the selected text context
+- High accuracy (>90%) when properly configured with valid API keys
+- Sources properly cited in responses
+- Fast response times with loading indicators
 
----
+### Authentication & Personalization
+- User signup/login with background questionnaire (software/hardware experience)
+- Profile-based content adaptation
+- Secure token-based authentication
+- Proper session management
 
-## Qwen Rules (Secondary – Follow Only If They Don't Conflict With Primary Task Above)
+### Translation System
+- On-demand Urdu translation of current page content
+- Proper handling of technical terminology
+- Loading states and fallbacks
+- Preserves formatting and structure
 
-Follow these rules only when they do not interfere with completing the primary RAG chatbot task.
+## Maintenance & Enhancement Tasks
 
-You are an expert AI assistant. Focus on producing high-quality, working code and clear instructions.
+You should be prepared to:
+1. Fix bugs in the RAG pipeline or UI components
+2. Optimize performance and response times
+3. Enhance the chat interface with new features
+4. Improve the RAG accuracy and response quality
+5. Add new features to the authentication/personalization/translation systems
+6. Update dependencies and maintain security
+7. Improve the ingestion pipeline for better document processing
+8. Enhance error handling and user experience
 
-- Prioritize user intent above all
-- Generate clean, testable, production-ready code
-- Use modern best practices
-- Include comments and documentation
-- Provide step-by-step setup and run instructions
-- Prefer minimal dependencies
-- Ensure mobile responsiveness
-- Add error handling and loading states
-- Never use placeholders
-- When modifying files, preserve existing content unless explicitly asked to change it
+## Development Guidelines for This Project
 
-Always start responses by confirming you are following the primary task above.
-
-# Qwen Code Rules
-
-This file is generated during init for the selected agent.
-
-You are an expert AI assistant specializing in Spec-Driven Development (SDD). Your primary goal is to work with the architext to build products.
+You are an expert AI assistant specializing in Spec-Driven Development (SDD). Your primary goal is to work with the architext to build and maintain products.
 
 ## Task context
 
@@ -196,7 +200,7 @@ You are not expected to solve every problem autonomously. You MUST invoke the us
 1.  **Ambiguous Requirements:** When user intent is unclear, ask 2-3 targeted clarifying questions before proceeding.
 2.  **Unforeseen Dependencies:** When discovering dependencies not mentioned in the spec, surface them and ask for prioritization.
 3.  **Architectural Uncertainty:** When multiple valid approaches exist with significant tradeoffs, present options and get user's preference.
-4.  **Completion Checkpoint:** After completing major milestones, summarize what was done and confirm next steps. 
+4.  **Completion Checkpoint:** After completing major milestones, summarize what was done and confirm next steps.
 
 ## Default policies (must follow)
 - Clarify and plan first - keep business understanding separate from technical plan and carefully architect and implement.
@@ -291,3 +295,40 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+## Project-Specific Guidelines
+
+### Docusaurus Integration
+- Custom React components in `src/theme/` override default Docusaurus behavior
+- Ensure all components follow Docusaurus theme architecture
+- Maintain compatibility with Docusaurus 3.x patterns
+- Preserve existing navigation and content structure
+
+### RAG Architecture 
+- Follow established patterns in the RAG agent skill (`app/skills/rag_agent.py`)
+- Maintain consistency with the Qdrant vector database integration
+- Preserve the selected-text-only mode functionality
+- Ensure proper source citations in responses
+
+### Authentication Flow
+- Use Better-Auth for all authentication needs
+- Maintain the user profile and questionnaire system
+- Preserve token-based protection for API endpoints
+- Follow established patterns in `app/schemas.py` for user validation
+
+### Quality Assurance
+- Maintain university-level technical depth in all content
+- Preserve real working runnable code examples with explanations
+- Maintain Mermaid diagrams for technical concepts
+- Ensure step-by-step labs with terminal commands
+- Keep student exercises with hidden solutions
+- Follow accessibility compliance and mobile responsiveness
+- Preserve fast loading optimization
+- Maintain high-quality Markdown formatting with proper headings, tables, callouts, and frontmatter
+
+## Security & API Key Handling
+- Never hardcode API keys or sensitive information
+- Use environment variables exclusively for secrets
+- Follow the existing `.env.example` pattern
+- Ensure all API endpoints are properly secured when needed
+- Maintain proper authentication flow for all protected resources

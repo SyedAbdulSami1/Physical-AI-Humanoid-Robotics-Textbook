@@ -11,13 +11,12 @@ router = APIRouter(
 
 @router.post("/", response_model=schemas.ChatResponse)
 async def handle_chat_request(
-    request: schemas.ChatRequest,
-    current_user: models.User = Depends(schemas.get_current_active_user)
+    request: schemas.ChatRequest
 ):
     """
     Handles a chat request by invoking the RAG agent.
 
-    This endpoint is protected and requires user authentication. It takes a user's
+    This endpoint takes a user's
     query and an optional `selected_text` field.
 
     - If `selected_text` is provided, the RAG agent will focus its search on
@@ -32,11 +31,7 @@ async def handle_chat_request(
     4. Calling the language model to generate a response.
     5. Returning the answer and the sources used.
     """
-    if not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized",
-        )
+
 
     try:
         # Delegate the entire logic to the RAG agent skill

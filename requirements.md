@@ -68,9 +68,8 @@ NEON_DATABASE_URL="postgresql+asyncpg://<user>:<password>@<host>/<dbname>"
 QDRANT_URL="https"
 QDRANT_API_KEY=""
 
-# Backend - OpenAI
-# Get this from your OpenAI dashboard
-OPENAI_API_KEY="sk-..."
+# Backend - Gemini
+# Get this from your Google Cloud Console
 
 # Backend - Authentication
 # Use a long, random string for security
@@ -133,18 +132,7 @@ yarn start
 
 The Docusaurus website will be running at `http://localhost:3000`.
 
-## 6. Content Ingestion
 
-After running the backend for the first time, you must populate the vector database with the textbook content. You can do this by sending a POST request to the `/ingest/run` endpoint.
-
-**Note**: This requires a valid authentication token.
-
-1.  Go to the website (`http://localhost:3000`).
-2.  Create an account using the Sign-Up form.
-3.  Log in with your new account.
-4.  Use a tool like Postman, `curl`, or a simple script to send a POST request to `http://localhost:8000/ingest/run` with your authentication token in the `Authorization` header (`Bearer <your_token>`).
-
-Once the ingestion is complete, the chatbot will be able to answer questions about the textbook.
 
 # Project Requirements
 
@@ -163,5 +151,3 @@ This project is a documentation website built using Docusaurus.
 ## Installation
 npm install
 npm run start
-
-pip install google-generativeai

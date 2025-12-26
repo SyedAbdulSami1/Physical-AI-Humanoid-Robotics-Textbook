@@ -37,18 +37,9 @@ const ChatbotComponent = () => {
         setLoading(true);
 
         try {
-            // Assume token is stored in localStorage after login
-            const token = localStorage.getItem('authToken');
-            if (!token) {
-                setMessages(prev => [...prev, { sender: 'bot', text: 'You must be logged in to use the chat.' }]);
-                setLoading(false);
-                return;
-            }
-
             const response = await axios.post(
                 `${API_URL}/chat/`,
-                { query: input },
-                { headers: { Authorization: `Bearer ${token}` } }
+                { query: input }
             );
             
             const botMessage = { 

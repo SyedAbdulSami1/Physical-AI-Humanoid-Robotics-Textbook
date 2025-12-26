@@ -25,18 +25,18 @@ Your **main and immediate task** is to build and fully integrate a professional 
 - Use **Neon Serverless Postgres** with pgvector extension (strongly preferred) OR Qdrant Cloud Free Tier
 - Automatically ingest all Markdown files from `/docs/**/*.md`:
   - Split into chunks
-  - Generate embeddings (OpenAI or free alternative)
+  - Generate embeddings (Google Gemini or free alternative)
   - Store in vector DB with metadata (source file, section)
 - Retrieval: cosine similarity, top-k relevant chunks
 
 ### 4. Answer Generation
-- Use OpenAI API (gpt-4o-mini recommended) 
+- Use Google Gemini API (gemini-1.5-flash recommended) 
 - Final prompt must include: retrieved chunks + user query + selected text (if any)
 - Answers must be accurate, grounded in book content, and cite sources when possible
 
 ### 5. Integration & Deployment
 - Frontend calls FastAPI backend directly
-- Include `.env.example` with required keys (OPENAI_API_KEY, DATABASE_URL, etc.)
+- Include `.env.example` with required key (GEMINI_API_KEY)
 - Provide clear step-by-step instructions for:
   - Setting up Neon Postgres (with pgvector)
   - Running ingestion script

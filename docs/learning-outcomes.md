@@ -51,7 +51,7 @@ This course, "Physical AI & Humanoid Robotics: AI Systems in the Physical World 
 
 **Outcome 6: Integrate GPT models for conversational robotics.**
 
-*   **Speech Recognition and Voice Commands**: Students will implement voice-to-action systems using technologies like OpenAI Whisper for accurate speech recognition, enabling robots to understand and respond to natural language commands.
+*   **Speech Recognition and Voice Commands**: Students will implement voice-to-action systems using speech recognition technologies, enabling robots to understand and respond to natural language commands.
 *   **Natural Language Understanding (NLU)**: The course will delve into techniques for NLU, allowing LLMs to translate complex natural language commands into structured, executable sequences of ROS 2 actions for the robot.
 *   **Cognitive Planning**: Students will explore how LLMs can facilitate high-level cognitive planning, enabling robots to interpret abstract goals (e.g., "Clean the room") and break them down into a series of actionable sub-tasks and motion plans.
 *   **Multi-Modal Interaction**: The ultimate goal is to integrate multi-modal interaction capabilities, combining speech, gesture, and vision to create truly intelligent and responsive conversational robots that can engage in rich, context-aware dialogues.

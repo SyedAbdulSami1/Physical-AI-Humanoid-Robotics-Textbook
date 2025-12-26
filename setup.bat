@@ -62,8 +62,8 @@ if not exist ".env" (
         echo QDRANT_API_KEY=your-qdrant-api-key
         echo QDRANT_COLLECTION_NAME=textbook_content
         echo.
-        echo # OpenAI Configuration
-        echo OPENAI_API_KEY=your-openai-api-key
+        
+        echo GEMINI_API_KEY=your_gemini_api_key
         echo.
         echo # JWT Configuration
         echo JWT_SECRET_KEY=your-super-secret-jwt-key-change-in-production

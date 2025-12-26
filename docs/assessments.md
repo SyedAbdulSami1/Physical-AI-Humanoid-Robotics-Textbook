@@ -33,7 +33,7 @@ The course features a series of distinct, yet interconnected, project-based asse
 
 *   **Objective**: This is the culminating project, requiring students to integrate all learned modules to create a simulated humanoid robot capable of receiving natural language commands, planning, navigating, perceiving objects, and manipulating them autonomously. It assesses the comprehensive understanding and application of Physical AI principles and embodied intelligence.
 *   **Description**: Students will develop a complete system for a simulated humanoid robot within Isaac Sim or Gazebo. The robot will need to respond to a voice command (e.g., "Go to the kitchen, find the red apple, and place it on the table"). This involves:
-    *   **Speech Recognition**: Using OpenAI Whisper to convert voice commands to text.
+    *   **Speech Recognition**: Using a speech-to-text service to convert voice commands to text.
     *   **Cognitive Planning**: Employing an integrated LLM (or a simplified rule-based system mimicking LLM logic) to translate the natural language command into a sequence of executable ROS 2 actions and sub-goals (e.g., navigate to room, search for object, pick up object, navigate to destination, place object).
     *   **Navigation**: Using Nav2 (adapted for bipedal motion) to plan and execute paths while avoiding dynamic obstacles.
     *   **Perception**: Utilizing computer vision techniques (potentially from the Isaac-based perception pipeline project) to identify and localize the target object.
@@ -55,3 +55,5 @@ These assessments are designed to provide students with invaluable experience in
 ---
 
 [**← Previous: Weekly Breakdown**](./weekly-breakdown.md) | [**Next: Hardware Requirements →**](./hardware-requirements.md)
+
+This document adheres to the principles and quality gates outlined in the Project Constitution.

@@ -43,8 +43,8 @@ graph TD
     C -- Task Complete --> G(Status Node: Announce Completion);
 ```
 
-1.  **Voice-to-Action (Whisper Node)**: A ROS 2 node that uses the OpenAI Whisper API to listen for a voice command from a microphone, transcribe it to text, and publish it to a topic.
-2.  **Cognitive Planning (LLM Planner Node)**: The "brain" of the robot. This node subscribes to the transcribed text. It then queries a powerful LLM (like GPT-4) with a carefully crafted prompt to generate a step-by-step plan of ROS 2 actions. It acts as a state machine, executing each step of the plan in sequence.
+1.  **Voice-to-Action (Speech-to-Text Node)**: A ROS 2 node that uses a speech-to-text library to listen for a voice command from a microphone, transcribe it to text, and publish it to a topic.
+2.  **Cognitive Planning (LLM Planner Node)**: The "brain" of the robot. This node subscribes to the transcribed text. It then queries a powerful LLM (like Google's Gemini) with a carefully crafted prompt to generate a step-by-step plan of ROS 2 actions. It acts as a state machine, executing each step of the plan in sequence.
 3.  **Perception (Perception Node)**: This node processes images from the robot's head-mounted camera. It uses an object detection model (e.g., YOLOv8) to identify and locate objects in the environment, publishing their 3D coordinates.
 4.  **Navigation (Nav2)**: You will configure and launch the standard ROS 2 Navigation stack (Nav2) to handle bipedal path planning and locomotion, enabling the robot to walk to a specified coordinate.
 5.  **Manipulation (MoveIt2)**: You will configure and launch the ROS 2 Manipulation stack (MoveIt2) to control the robot's arm, enabling it to plan and execute a grasp on the target object.
@@ -94,7 +94,7 @@ autonomous_humanoid_ws/
 Ensure you have a working ROS 2 Humble, Gazebo, and all necessary Python libraries installed.
 ```bash
 # Install key Python libraries
-pip install openai "openai[whisper]" ultralytics
+pip install ultralytics google-genai
 ```
 
 ### 2. Robot URDF & Simulation
@@ -105,46 +105,48 @@ pip install openai "openai[whisper]" ultralytics
 This node should:
 - Initialize `rclpy`.
 - Create a publisher for the transcribed text (`/voice_command`).
-- Use a library like `sounddevice` to capture audio.
-- Call the Whisper API to get the transcription.
+- Use a suitable speech-to-text library to capture audio and get the transcription.
 - Publish the result.
 
 ```python
 # humanoid_ai/voice_to_action_node.py (Snippet)
+# Implement your chosen speech-to-text solution here.
+# Example using a generic STT library:
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
-import openai
+import speech_recognition as sr # Example library
 import sounddevice as sd
 import numpy as np
 import scipy.io.wavfile as wav
+import tempfile
+import os
 
 class VoiceToActionNode(Node):
     def __init__(self):
         super().__init__('voice_to_action_node')
         self.publisher_ = self.create_publisher(String, '/voice_command', 10)
         self.get_logger().info('Voice command node started. Listening...')
+        self.recognizer = sr.Recognizer()
         self.listen_and_transcribe()
 
     def listen_and_transcribe(self):
-        # Configuration
-        fs = 16000  # Sample rate
-        duration = 5  # seconds
-        
-        # Record audio
-        myrecording = sd.rec(int(duration * fs), samplerate=fs, channels=1, dtype='int16')
-        sd.wait()  # Wait until recording is finished
+        with sr.Microphone() as source:
+            self.recognizer.adjust_for_ambient_noise(source)
+            self.get_logger().info("Say something!")
+            audio = self.recognizer.listen(source)
 
-        # Save as a temporary WAV file
-        wav.write('temp_command.wav', fs, myrecording)
-
-        # Transcribe using Whisper
-        with open('temp_command.wav', 'rb') as audio_file:
-            transcript = openai.Audio.transcribe("whisper-1", audio_file)
-            self.get_logger().info(f'Heard: {transcript["text"]}')
+        try:
+            # Example: using Google Web Speech API (requires internet, may have usage limits)
+            text = self.recognizer.recognize_google(audio)
+            self.get_logger().info(f'Heard: {text}')
             msg = String()
-            msg.data = transcript["text"]
+            msg.data = text
             self.publisher_.publish(msg)
+        except sr.UnknownValueError:
+            self.get_logger().warn("Speech Recognition could not understand audio")
+        except sr.RequestError as e:
+            self.get_logger().error(f"Could not request results from Speech Recognition service; {e}")
 
 # main function and rclpy init/shutdown omitted for brevity
 ```
@@ -154,6 +156,9 @@ This is the most complex node. It acts as the brain and coordinates the other co
 
 ```python
 # humanoid_ai/llm_planner_node.py (Snippet)
+import google.genai as genai
+import os
+
 class LLMPlannerNode(Node):
     def __init__(self):
         super().__init__('llm_planner_node')
@@ -162,6 +167,16 @@ class LLMPlannerNode(Node):
         # Add clients for Nav2 and MoveIt2 actions
         # Add publisher to send goals
         self.state = "IDLE"
+        
+        # --- LLM Setup ---
+        try:
+            genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+            self.model = genai.GenerativeModel('gemini-pro')
+        except Exception as e:
+            self.get_logger().error(f"Failed to initialize Gemini client: {e}")
+            self.get_logger().error("Please make sure the GEMINI_API_KEY environment variable is set.")
+            return
+
 
     def command_callback(self, msg):
         if self.state == "IDLE":
@@ -182,8 +197,9 @@ class LLMPlannerNode(Node):
         Command: "{command}"
         Plan:
         """
-        # Call OpenAI API (GPT-4) with this prompt
-        # response = openai.Completion.create(...)
+        # Call Gemini API with this prompt
+        response = self.model.generate_content(prompt)
+
         # For this example, let's hardcode the plan
         plan = [
             "1. find_object('soda_can')",
@@ -293,7 +309,7 @@ Your project will be evaluated based on the following criteria.
 | ---------------------- | ------ | ------------------------------------------------------------------------------------------------------------ |
 | **Functionality**      | 40%    | The robot successfully completes the entire task from voice command to grasp. The system is robust.          |
 | **Code Quality**       | 20%    | Code is clean, well-commented, and follows ROS 2 best practices. The repository is properly structured.        |
-| **VLA Implementation** | 20%    | The integration of Whisper, LLM, Perception, Navigation, and Manipulation is seamless and well-architected.  |
+| **VLA Implementation** | 20% | The integration of Speech-to-Text, LLM, Perception, Navigation, and Manipulation is seamless and well-architected. |
 | **Video Demo**         | 15%    | The demo video is clear, concise, and effectively showcases the project's functionality and your understanding. |
 | **Documentation**      | 5%     | The `README.md` file in your workspace clearly explains how to set up and run your project.                    |
 

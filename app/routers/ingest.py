@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from qdrant_client import QdrantClient, models as qdrant_models
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain.docstore.document import Document
+from langchain_core.documents import Document
 import markdown
 from bs4 import BeautifulSoup
 
@@ -67,7 +67,7 @@ def get_documents_from_docs(docs_path: str = "docs") -> list[Document]:
 
 
 @router.post("/run", status_code=status.HTTP_202_ACCEPTED)
-async def run_ingestion(current_user: models.User = Depends(schemas.get_current_active_user)):
+async def run_ingestion():
     """
     Protected endpoint to trigger the content ingestion process.
     This should be called only when the textbook content is updated.
@@ -79,9 +79,7 @@ async def run_ingestion(current_user: models.User = Depends(schemas.get_current_
     5. Generates embeddings for each chunk.
     6. Upserts the vectors into the Qdrant collection.
     """
-    # For simplicity, only active users can trigger this. Add more granular permissions if needed.
-    if not current_user.is_active:
-        raise HTTPException(status_code=403, detail="Not authorized")
+
 
     # 1. Delete and Recreate Collection
     qdrant_client.recreate_collection(

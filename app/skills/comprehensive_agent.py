@@ -4,7 +4,7 @@ Comprehensive RAG Agent that integrates all subagents for enhanced functionality
 import os
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
-import google.generativeai as genai
+import google.genai as genai
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional

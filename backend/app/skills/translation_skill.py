@@ -38,27 +38,51 @@ class TranslationSkill:
             logger.error(f"Error in {self.name}: {str(e)}")
             raise
     
+    import httpx
+
+# ... (keep existing logging setup)
+
+class TranslationSkill:
+    # ... (keep existing __init__ and execute methods)
+
     async def _translate_text(self, text: str, target_language: str) -> str:
         """
-        Translates text to the specified language.
-        In a real implementation, this would call a translation model or API.
+        Translates text to the specified language using LibreTranslate.
         """
-        # In a real implementation, we would use:
-        # 1. A local NLLB model via transformers
-        # 2. Or a translation API like Google Translate
-        # 3. Or LibreTranslate for open-source solution
-        
-        # Placeholder implementation
-        if target_language.lower() == "ur":
-            # Return a note that this is where the translation would happen
-            return (
-                f"[TRANSLATED TO URDU]: {text[:100]}... "
-                f"(In a real implementation, this would be translated to Urdu "
-                f"using a local NLLB model)"
-            )
-        else:
-            # For other languages, return the original text
+        if target_language.lower() != "ur":
             return text
+
+        libretranslate_url = "https://libretranslate.de/translate"
+        
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    libretranslate_url,
+                    json={
+                        "q": text,
+                        "source": "en",
+                        "target": "ur",
+                        "format": "text"
+                    },
+                    timeout=30.0  # 30-second timeout
+                )
+                response.raise_for_status()  # Raise an exception for bad status codes
+                
+                result = response.json()
+                
+                if "translatedText" in result:
+                    return result["translatedText"]
+                else:
+                    logger.error(f"LibreTranslate response did not contain 'translatedText': {result}")
+                    raise Exception("Translation failed: Invalid response from service.")
+
+        except httpx.RequestError as e:
+            logger.error(f"Error calling LibreTranslate API: {e}")
+            raise Exception(f"Translation service is unavailable: {e}")
+        except Exception as e:
+            logger.error(f"An unexpected error occurred during translation: {e}")
+            raise
+
 
 # Create a singleton instance
 translation_skill = TranslationSkill()

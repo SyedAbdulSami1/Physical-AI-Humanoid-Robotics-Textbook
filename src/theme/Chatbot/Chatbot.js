@@ -50,17 +50,6 @@ const Chatbot = () => {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        setMessages(prev => [...prev, {
-          id: Date.now(),
-          sender: 'bot',
-          text: 'You must be logged in to use the chat. Please sign up or log in first.'
-        }]);
-        setLoading(false);
-        return;
-      }
-
       const requestBody = {
         query: input,
         selected_text: selectedText || null // Send selected text if available
@@ -70,24 +59,12 @@ const Chatbot = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem('authToken');
-          setMessages(prev => [...prev, {
-            id: Date.now(),
-            sender: 'bot',
-            text: 'Your session has expired. Please log in again to continue.'
-          }]);
-        } else {
-          throw new Error(`API request failed with status ${response.status}`);
-        }
-        setLoading(false);
-        return;
+        throw new Error(`API request failed with status ${response.status}`);
       }
 
       const data = await response.json();

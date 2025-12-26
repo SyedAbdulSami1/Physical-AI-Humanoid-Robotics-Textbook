@@ -1,281 +1,113 @@
----
-title: Project Constitution for the Physical AI & Humanoid Robotics Textbook
-version: 1.0
-date: 2025-12-13
-author: Gemini Agent
----
+# Project Constitution: Physical AI & Humanoid Robotics Textbook
 
-# Project Constitution: The Physical AI & Humanoid Robotics Textbook
+This document outlines the core principles, standards, and quality gates for the development of the "Physical AI & Humanoid Robotics" AI-native textbook. All specifications, plans, tasks, and implementations must strictly adhere to these guidelines.
 
-## Preamble
+## 1. Core Project Vision & Goals
+
+**1.1. Project Title:** Physical AI & Humanoid Robotics: AI Systems in the Physical World and Embodied Intelligence
+
+**1.2. Primary Objective:** To create a comprehensive, AI-native textbook leveraging Docusaurus for content delivery and a RAG chatbot for interactive learning. The textbook aims to bridge the gap between digital AI knowledge and its application in controlling humanoid robots in simulated and real-world environments.
+
+**1.3. Target Audience:** University students and professionals with existing AI knowledge seeking to apply it to physical AI and robotics.
+
+## 2. Content Standards & Quality Gates
+
+**2.1. Technical Depth (Non-Negotiable):**
+-   All content must maintain a rigorous, university-level technical depth, suitable for a capstone course.
+-   Concepts must be explained thoroughly with foundational theory and practical applications.
+-   **Rationale:** Ensures academic credibility and prepares students for advanced physical AI challenges.
+
+**2.2. Code Examples (Non-Negotiable):**
+-   All code examples must be real, runnable, and thoroughly tested.
+-   Each example must include clear explanations of its purpose, functionality, and expected output.
+-   Code blocks must be properly formatted and syntax-highlighted.
+-   **Rationale:** Facilitates hands-on learning and immediate application of concepts, crucial for robotics.
+
+**2.3. Diagrams & Visualizations (Non-Negotiable):**
+-   Mermaid diagrams must be used extensively to illustrate complex concepts, architectures, data flows, and state machines.
+-   Diagrams must be clear, concise, and accurately represent the described systems.
+-   **Rationale:** Enhances comprehension of intricate robotic and AI systems.
+
+**2.4. Step-by-Step Labs & Terminal Commands (Non-Negotiable):**
+-   Each module must include practical, step-by-step laboratory exercises with clear terminal commands.
+-   Labs should guide students through setup, execution, and verification of robotic tasks.
+-   **Rationale:** Provides essential practical experience and builds confidence in real-world deployment.
+
+**2.5. Student Exercises with Hidden Solutions (Non-Negotiable):**
+-   Each chapter/section must include exercises to reinforce learning.
+-   Solutions to exercises must be available but clearly marked as "hidden" or "revealable" to encourage independent problem-solving.
+-   **Rationale:** Promotes active learning and self-assessment.
+
+**2.6. Professional & Encouraging Tone (Non-Negotiable):**
+-   The language used throughout the textbook must be professional, clear, and encouraging.
+-   Avoid jargon where simpler terms suffice, but do not shy away from necessary technical vocabulary.
+-   **Rationale:** Maintains academic integrity and motivates learners.
+
+**2.7. Accessibility Compliance (Non-Negotiable):**
+-   All content and UI components must meet WCAG 2.1 AA standards.
+-   Consideration for screen readers, keyboard navigation, and color contrast is paramount.
+-   **Rationale:** Ensures inclusivity for all learners.
+
+**2.8. Mobile Responsiveness (Non-Negotiable):**
+-   The Docusaurus frontend must be fully responsive and optimized for various screen sizes, from mobile phones to large desktops.
+-   **Rationale:** Provides a seamless learning experience across devices.
+
+**2.9. Zero Placeholders (Non-Negotiable):**
+-   Absolutely no placeholder text, images, or code is allowed in the final output. All content must be complete and accurate.
+-   **Rationale:** Delivers a polished, production-ready product.
+
+## 3. Technical Architecture & Implementation Standards
+
+**3.1. Docusaurus Frontend:**
+-   **Framework:** Docusaurus (React-based).
+-   **Deployment:** GitHub Pages.
+-   **Styling:** Adhere to Docusaurus theme conventions and project-specific CSS.
+-   **Markdown Quality:** High-quality Markdown formatting with proper headings (H1, H2, etc.), tables, callouts, and frontmatter.
+-   **Consistent Navigation:** Intuitive and consistent navigation structure across all chapters and modules.
+-   **Fast Loading:** Optimize assets and code for fast page load times.
+
+**3.2. RAG Chatbot Integration:**
+-   **Backend:** FastAPI (Python) hosted on a serverless platform (e.g., Render.com).
+
+-   **Vector Database:** Qdrant Cloud Free Tier for vector embeddings of textbook content.
+-   **LLM Integration:** Google Gemini API for text generation and embeddings.
+-   **Public Access**: The chatbot is fully public and requires no user authentication.
+-   **Functionality**:
+    -   Normal query mode (answer from full textbook context).
+    -   Selected-text-only mode (answer restricted to user-selected text chunks).
+    -   Ingestion pipeline to load `docs/` content into Qdrant (chunking, embeddings).
+-   **API Design:** Async endpoints, proper error handling, environment variable management.
+
+
+
+**3.6. Code Quality & Maintainability:**
+-   **Modular Reusable Components:** Prioritize creating modular and reusable components across both frontend and backend.
+-   **Full Test Coverage:** Where applicable (e.g., backend APIs, critical frontend logic), implement comprehensive unit and integration tests.
+-   **Reusable Intelligence:** Maximize the creation of reusable skills/subagents for common tasks (e.g., RAG pipeline components).
+-   **Adherence to APA Citation Style:** If external sources are cited (e.g., research papers, datasets), adhere strictly to APA 7th edition guidelines.
+-   **Consistent Formatting:** Follow project-specific formatters (e.g., Prettier, ESLint, Black, Ruff) and maintain consistent code style.
+
+## 4. Operational Readiness
+
+**4.1. Version Control:** All code must be managed via Git, with clear commit messages following Conventional Commits (`type(scope): subject`).
+**4.2. Documentation:** API endpoints, database schemas, and complex logic must be documented.
+**4.3. Environment Management:** Strict separation of development, staging, and production environments using environment variables.
+
+## 5. Non-Negotiable Quality Gates Summary
+
+Every artifact (spec, plan, task, implementation) must demonstrate adherence to:
+-   University-level technical depth.
+-   Real, runnable, explained code examples.
+-   Extensive use of clear Mermaid diagrams.
+-   Step-by-step labs with terminal commands.
+-   Exercises with hidden solutions.
+-   Professional and encouraging tone.
+-   Full accessibility compliance.
+-   Complete mobile responsiveness.
+-   Absence of any placeholders.
+-   Appropriate test coverage.
+-   Modular and reusable components.
+-   Consistent high-quality formatting.
+-   Efficient performance and fast loading.
 
-This document defines the non-negotiable principles, standards, and quality gates for the AI-native textbook project, "Physical AI & Humanoid Robotics." All specifications, plans, tasks, and implementations must adhere to this constitution without exception. Its purpose is to ensure the final product is of the highest quality, technically robust, and educationally effective.
 
----
-
-## Article 1: Core Principles
-
-### 1.1. Educational Mission
-The primary goal is to create a university-level educational resource that is comprehensive, engaging, and accessible. The tone shall be professional, encouraging, and authoritative, fostering a deep understanding of Physical AI.
-
-### 1.2. Quality First
-There will be no compromise on quality. All content, code, and features must be polished, fully functional, and free of placeholders. The user experience shall be seamless and intuitive.
-
-### 1.3. AI-Native Integration
-The project must transcend being a static textbook. It will be an interactive learning platform, leveraging AI to create a personalized and responsive educational experience. This includes the RAG chatbot and content personalization features.
-
-### 1.4. Accessibility and Inclusivity
-The platform must be accessible to all users, complying with WCAG 2.1 AA standards. It must be fully responsive for desktop, tablet, and mobile devices. Content will be made available in multiple languages, starting with English and Urdu, to broaden its reach.
-
----
-
-## Article 2: Content Standards
-
-### 2.1. Technical Depth and Accuracy
-All content must be of university-level technical depth, factually accurate, and up-to-date. Concepts shall be explained with clarity and rigor.
-
-### 2.2. Runnable Code Examples
-Every code snippet, example, or lab exercise provided must be correct, tested, and runnable. Each example must include a clear explanation of its function and expected output.
-
-### 2.3. Rich Media and Diagrams
-Complex concepts and architectures must be illustrated using Mermaid diagrams. Where appropriate, other visual aids should be used to enhance understanding.
-
-### 2.4. Interactive Learning Components
-- **Step-by-Step Labs**: Each module should include practical, hands-on labs with clear terminal commands and instructions.
-- **Student Exercises**: Each chapter must contain exercises to test understanding. Solutions must be provided but hidden by default (e.g., in a collapsible section).
-
-### 2.5. Formatting and Citation
-- **Markdown Quality**: All content will be written in high-quality Markdown, using proper headings, tables, callouts (e.g., `> **Note:**`), and frontmatter for metadata.
-- **APA Style**: Any external sources, research papers, or significant references must be cited using APA 7th edition style.
-
----
-
-## Article 3: Technical Architecture & Stack
-
-### 3.1. Frontend
-- **Framework**: Docusaurus for the main textbook site.
-- **Deployment**: Static site generated by Docusaurus, deployed to GitHub Pages.
-- **Styling**: Custom CSS and/or a framework that ensures a clean, modern, and responsive design.
-
-### 3.2. Backend
-- **Framework**: FastAPI (Python). All endpoints must be asynchronous (`async def`).
-- **Database (User Data)**: Neon Serverless Postgres. Used for storing user profiles, authentication data, and personalization preferences.
-- **Vector Store (RAG)**: Qdrant Cloud (Free Tier). Used for storing and querying vector embeddings of the textbook content.
-
-### 3.3. AI & ML Services
-- **LLM/Chat**: OpenAI SDK or compatible APIs (e.g., ChatKit) for the RAG chatbot's generative component.
-- **Translation**: A reliable, high-quality translation service API must be used for the "Translate to Urdu" feature.
-
-### 3.4. Authentication
-- **Service**: Better-Auth for handling user signup, login, and session management.
-- **User Profile**: A mandatory background questionnaire upon signup will collect information on the user's software/hardware experience to enable content personalization. This data will be stored securely in the Postgres database.
-
----
-
-## Article 4: Feature Requirements
-
-### 4.1. RAG Chatbot
-- **Functionality**: The chatbot must be able to answer questions based on the entire content of the textbook.
-- **Contextual Querying**: It must support two modes: (1) querying the full book content, and (2) querying only a user-highlighted text selection.
-- **Ingestion Pipeline**: A robust, automated pipeline must be created to read all Markdown files from the `docs/` directory, chunk them appropriately, generate embeddings, and ingest them into the Qdrant vector database during the build/deploy process.
-- **Accuracy**: The RAG system must achieve >90% accuracy in retrieving relevant context and providing correct answers. This must be verifiable with a test suite.
-
-### 4.2. Personalization
-- **Trigger**: A "Personalize" button must be present on every chapter page.
-- **Logic**: When clicked, the content of the chapter should be dynamically adapted based on the user's profile (e.g., stored questionnaire responses). For example, it might show more foundational explanations for beginners or more advanced code examples for experts.
-- **Implementation**: This will be achieved via a backend endpoint that re-processes or filters the content based on the user's profile and returns the personalized version.
-
-### 4.3. Urdu Translation
-- **Trigger**: A "Translate to Urdu" button must be present on every chapter page.
-- **Functionality**: Clicking this button will translate the entire chapter's content into Urdu.
-- **User Experience**: The button must show a clear loading state while the translation is in progress. The translated content should replace the English content in-place or be displayed in a clearly designated area.
-
-### 4.4. Frontend Components
-All interactive features (chatbot, auth forms, personalize button, translate button) must be implemented as modular Docusaurus/React components and seamlessly integrated into the site.
-
----
-
-## Article 5: Development & Quality Assurance
-
-### 5.1. Modularity and Reusability
-- **Backend**: The FastAPI application must be structured logically (e.g., `routers`, `models`, `services`).
-- **Skills/Subagents**: For bonus points and to promote reusability, complex logic (e.g., for RAG, personalization) should be encapsulated into reusable "skills" or "subagents" that can be orchestrated by the main application.
-
-### 5.2. Testing
-- **Backend**: The FastAPI backend must have a high degree of test coverage. This includes unit tests for individual functions and integration tests for API endpoints. A dedicated test suite for RAG accuracy is mandatory.
-- **Frontend**: Critical frontend components (especially those involving user interaction and API calls) must be tested.
-
-### 5.3. Performance
-The website and all backend services must be optimized for fast loading and response times. Asynchronous operations are mandatory for all I/O-bound tasks.
-
-### 5.4. Security
-- **Authentication**: All backend endpoints that provide personalized data or require a user context must be protected by authentication middleware.
-- **Secrets Management**: No secrets (API keys, database credentials) shall be hardcoded. They must be managed through environment variables (e.g., via a `.env` file that is not committed to version control).
-
----
-
-## Article 6: Deployment & Operations
-
-### 6.1. Deployment
-- **Frontend**: The Docusaurus site will be deployed to GitHub Pages.
-- **Backend**: The FastAPI application will be deployed to a suitable cloud provider capable of running it (e.g., Render, Vercel, AWS). Deployment scripts must be provided.
-
-### 6.2. Ingestion
-The content ingestion pipeline for the RAG chatbot must be automated and run as part of the main deployment workflow to ensure the chatbot's knowledge is always in sync with the textbook content.
-
-### 6.3. Documentation
-Clear, step-by-step instructions for local setup, testing, and deployment must be provided in the project's `README.md` or a similar top-level documentation file.
-
----
-
-## Article 7: Governance
-
-### 7.1. Adherence
-This constitution is the single source of truth for project standards. All development work must conform to the principles and requirements laid out herein.
-
-### 7.2. Amendments
-Any proposed changes to this constitution must be formally documented, reviewed, and approved via an Architectural Decision Record (ADR) before they can be adopted.
-
----
-
-## Article 8: RAG Chatbot Implementation Standards
-
-### 8.1. Backend Framework Mandate
-**Standard**: The RAG chatbot backend MUST utilize FastAPI as the primary web framework. All API endpoints related to the chatbot functionality MUST be implemented as asynchronous functions (`async def`) to ensure optimal performance and scalability.
-
-**Rationale**: FastAPI provides excellent performance through asyncio, automatic API documentation, and strong typing support which reduces runtime errors. Async endpoints are essential for handling multiple concurrent chat requests efficiently.
-
-**Quality Gates**:
-- All endpoints must include proper type hints
-- API documentation must be automatically generated and accessible
-- Response times must remain under 2 seconds for 95% of requests
-
-### 8.2. Data Storage Requirements
-**Standard**: The RAG chatbot MUST use Neon Serverless Postgres for all user/session storage and personalization data. This includes user profiles, authentication sessions, personalization preferences, and background questionnaire responses.
-
-**Rationale**: Neon's serverless Postgres provides auto-scaling capabilities, reduced costs during low usage, and seamless integration with modern Python applications. Centralizing user data in a relational database enables complex personalization logic and user analytics.
-
-**Quality Gates**:
-- All database queries must use connection pooling
-- Data access must be secured through authentication middleware
-- User data privacy and GDPR compliance must be maintained
-
-### 8.3. Vector Storage Specifications
-**Standard**: The RAG system MUST utilize Qdrant Cloud Free Tier for vector embeddings storage and retrieval. The vector database MUST contain embeddings of all textbook content for accurate semantic search and retrieval.
-
-**Rationale**: Qdrant provides efficient similarity search capabilities specifically designed for vector embeddings, with good performance and cost-effectiveness. The cloud tier ensures high availability and maintenance-free operation.
-
-**Quality Gates**:
-- Embedding generation and ingestion pipeline must complete within 10 minutes
-- Vector search response time must be under 500ms for 95% of queries
-- The ingestion process must validate embedding quality before insertion
-
-### 8.4. Generative AI Integration
-**Standard**: The RAG chatbot MUST leverage OpenAI/ChatKit SDKs for content generation and response formulation. The system MUST properly integrate retrieved context from the vector store with the LLM's generative capabilities.
-
-**Rationale**: OpenAI's models provide state-of-the-art language understanding and generation capabilities with reliable performance. Using established SDKs ensures compatibility and maintainability.
-
-**Quality Gates**:
-- Generated responses must cite specific sources from the textbook content
-- The system must gracefully handle API rate limits and errors
-- LLM hallucinations must be minimized through proper prompting techniques
-
-### 8.5. Selected-Text-Only RAG Mode
-**Standard**: The chatbot MUST support a selected-text-only RAG mode where user queries are contextualized based only on highlighted text sections rather than the entire textbook corpus.
-
-**Rationale**: This feature allows users to ask specific questions about particular content segments without interference from unrelated chapters, improving precision and relevance of responses.
-
-**Quality Gates**:
-- Selection-based queries must return contextually relevant responses within 3 seconds
-- The interface must clearly indicate when this mode is active
-- Users must be able to switch seamlessly between full-book and selection-based modes
-
-### 8.6. Authentication and User Profiling
-**Standard**: The system MUST implement Better-Auth integration with mandatory background questionnaire at user signup. The questionnaire MUST collect information about the user's software/hardware experience to enable content personalization.
-
-**Rationale**: Better-Auth provides secure, production-ready authentication with minimal setup overhead. The background questionnaire enables targeted personalization, improving the learning experience for users with varying experience levels.
-
-**Quality Gates**:
-- Authentication must support secure password reset and session management
-- Questionnaire responses must be stored securely and linked to user sessions
-- The system must validate questionnaire completeness before enabling personalization
-
-### 8.7. Personalization Logic
-**Standard**: Per-chapter Personalize button functionality MUST be implemented using stored user profiles. The content adaptation MUST be dynamic and tailored to the user's experience level as indicated in their profile.
-
-**Rationale**: Personalization significantly enhances user engagement and comprehension by adapting content complexity to individual backgrounds. Chapter-level personalization allows for granular customization without overwhelming the user.
-
-**Quality Gates**:
-- Personalized content must load within 2 seconds of clicking the button
-- The system must maintain the user's scroll position after personalization
-- Personalization logic must be consistently applied across all chapters
-
-### 8.8. Urdu Translation Capability
-**Standard**: Per-chapter Urdu translation button MUST be implemented with a reliable translation service that maintains technical accuracy and readability. The translation service MUST handle technical terminology appropriately.
-
-**Rationale**: Providing Urdu translations increases accessibility for a broader audience, supporting the project's mission of inclusive education. Technical accuracy is crucial for conveying complex concepts correctly.
-
-**Quality Gates**:
-- Translation accuracy for technical content must exceed 90%
-- Translated content must be properly formatted and maintain readability
-- The translation process must include a loading state and error handling
-
-### 8.9. Ingestion Pipeline Requirements
-**Standard**: An automated ingestion pipeline MUST be created for all book Markdown content. The pipeline MUST chunk content appropriately, generate embeddings, and persist them to the vector store with error handling and validation.
-
-**Rationale**: Automated ingestion ensures the RAG system's knowledge stays synchronized with textbook updates and reduces manual maintenance overhead. Proper chunking and embedding generation are critical for retrieval accuracy.
-
-**Quality Gates**:
-- The pipeline must process all Markdown files within the `docs/` directory
-- Content chunks must be validated for length and coherence
-- Failed processing of individual files must not halt the entire pipeline
-
-### 8.10. Async Endpoint Implementation
-**Standard**: All backend endpoints MUST be implemented asynchronously using `async def` functions. This includes endpoints for chat queries, personalization, translation, user profile management, and content retrieval.
-
-**Rationale**: Asynchronous endpoints prevent blocking operations and allow the server to handle multiple requests concurrently, which is especially important for I/O-intensive operations like vector searches and LLM calls.
-
-**Quality Gates**:
-- Synchronous endpoints will not be accepted in code reviews
-- All database operations must be performed asynchronously
-- Error handling must be implemented for async operations
-
-### 8.11. Authentication Middleware
-**Standard**: All endpoints that handle user data, personalization, or content modification MUST be protected by authentication middleware. Access control MUST be enforced based on user roles and session validity.
-
-**Rationale**: Authentication middleware ensures data privacy, prevents unauthorized access to personalization features, and maintains security across the platform. User-specific features require validated sessions.
-
-**Quality Gates**:
-- Unauthenticated requests to protected endpoints must return 401 Unauthorized
-- Session validation must occur before processing any user-specific content
-- Authentication checks must not significantly impact response times
-
-### 8.12. Error Handling and Resilience
-**Standard**: Comprehensive error handling MUST be implemented throughout the application. The system MUST gracefully degrade in response to service failures (e.g., LLM unavailability, vector store downtime) without crashing.
-
-**Rationale**: RAG systems depend on multiple external services prone to intermittent failures. Robust error handling ensures a consistent user experience even during partial system outages.
-
-**Quality Gates**:
-- All external API calls must have timeout and retry mechanisms
-- The UI must display user-friendly error messages for all failure scenarios
-- The system must log errors for monitoring and debugging purposes
-
-### 8.13. RAG Accuracy Testing
-**Standard**: A comprehensive test suite MUST be implemented to measure RAG accuracy. Tests MUST validate that the system retrieves relevant context and generates correct answers with acceptable precision and recall metrics.
-
-**Rationale**: Accuracy testing ensures the RAG system performs as expected and meets the educational quality standards of the textbook. Regular testing prevents regressions in retrieval and generation quality.
-
-**Quality Gates**:
-- Retrieval accuracy must exceed 90% for test queries
-- Generated responses must be validated against reference answers
-- Test suite must cover edge cases and diverse query types
-
-### 8.14. Skills and Subagents Architecture
-**Standard**: Reusable skills and subagents MUST be created specifically for chatbot workflows. Complex operations like RAG retrieval, content personalization, and translation MUST be encapsulated in modular, testable components.
-
-**Rationale**: Skills and subagents promote code reuse, simplify maintenance, and enable sophisticated orchestration of complex workflows. Modular design improves testability and extensibility.
-
-**Quality Gates**:
-- Each skill/subagent must have dedicated unit tests
-- Skills must be composable and configurable through parameters
-- Performance benchmarks must be established for each skill to ensure efficiency

@@ -73,8 +73,7 @@ NEON_DATABASE_URL="your_neon_database_url"
 QDRANT_URL="your_qdrant_url"
 QDRANT_API_KEY="your_qdrant_api_key"
 
-# OpenAI Configuration
-OPENAI_API_KEY="your_openai_api_key"
+GEMINI_API_KEY="your_gemini_api_key"
 EOF
     echo "⚠ Created .env file in app/ with default values - please update with your actual credentials"
 fi

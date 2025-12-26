@@ -9,10 +9,10 @@ from dotenv import load_dotenv
 # This allows the app to be run from the 'app' directory, making 'app' a discoverable package
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.database import init_db
-from app.routers import auth, ingest, chat
-from app.personalization import router as personalize_router
-from app.translation import router as translate_router
+
+from app.routers import ingest, chat
+
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -36,31 +36,24 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # --- Event Handlers ---
 
-@app.on_event("startup")
-async def on_startup():
-    """
-    This event handler runs when the application starts up.
-    It initializes the database connection and creates tables.
-    """
-    print("Initializing database...")
-    await init_db()
-    print("Database initialization complete.")
+
+
 
 
 # --- API Routers ---
 
-app.include_router(auth.router)
+
 app.include_router(ingest.router)
 app.include_router(chat.router)
-app.include_router(personalize_router)
-app.include_router(translate_router)
+
+
 
 
 @app.get("/", tags=["Root"])

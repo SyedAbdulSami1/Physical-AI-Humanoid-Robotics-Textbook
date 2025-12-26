@@ -58,7 +58,7 @@ The Physical AI & Humanoid Robotics textbook project now includes:
 ### Technical Architecture:
 - **Backend**: FastAPI application with async support
 - **Database**: Neon Postgres for user data, Qdrant Cloud for vector embeddings
-- **AI Services**: OpenAI for embeddings and generation
+- **AI Services**: Google Gemini for embeddings and generation
 - **Frontend**: Docusaurus with React components
 - **Authentication**: JWT-based with refresh capabilities
 - **Translation**: Multi-API support with fallbacks

@@ -39,16 +39,43 @@ const config: Config = {
     apiUrl: process.env.DOCUSAURUS_API_URL || 'http://localhost:8000',
   },
 
+  // presets: [
+  //   [
+  //     'classic',
+  //     {
+  //         editUrl:
+  //           'https://github.com/gemini-cli/Physical-AI-Humanoid-Robotics-Textbook/tree/main/',
+  //       blog: {
+  //         showReadingTime: true,
+  //         feedOptions: {
+  //           type: ['rss', 'atom'],
+  //           xslt: true,
+  //         },
+  //         // Please change this to your repo.
+  //         // Remove this to remove the "edit this page" links.
+  //         editUrl:
+  //           'https://github.com/gemini-cli/Physical-AI-Humanoid-Robotics-Textbook/tree/main/',
+  //         // Useful options to enforce blogging best practices
+  //         onInlineTags: 'warn',
+  //         onInlineAuthors: 'warn',
+  //         onUntruncatedBlogPosts: 'warn',
+  //       },
+  //       theme: {
+  //         customCss: [
+  //           './src/css/custom.css',
+  //         ],
+  //       },
+  //     } satisfies Preset.Options,
+  //   ],
+  // ],
   presets: [
     [
       'classic',
       {
         docs: {
-          sidebarPath: './sidebars.ts',
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          sidebarPath: './sidebars.ts',  
+          // editUrl – ab docs plugin ke andar daala gaya hai
+          editUrl: 'https://github.com/SyedAbdulSami1/Physical-AI-Humanoid-Robotics-Textbook/tree/main/',
         },
         blog: {
           showReadingTime: true,
@@ -56,25 +83,18 @@ const config: Config = {
             type: ['rss', 'atom'],
             xslt: true,
           },
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
           // Useful options to enforce blogging best practices
+          editUrl: 'https://github.com/gemini-cli/Physical-AI-Humanoid-Robotics-Textbook/tree/main/',
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
           onUntruncatedBlogPosts: 'warn',
         },
         theme: {
-          customCss: [
-            './src/css/custom.css',
-            './src/css/auth.css'
-          ],
+          customCss: ['./src/css/custom.css'],
         },
       } satisfies Preset.Options,
     ],
   ],
-
   themeConfig: {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
@@ -95,16 +115,7 @@ const config: Config = {
           label: 'Textbook',
         },
         {to: '/blog', label: 'Blog', position: 'left'},
-        {
-          to: '/auth/signup',
-          label: 'Sign Up',
-          position: 'right',
-        },
-        {
-          to: '/auth/login',
-          label: 'Sign In',
-          position: 'right',
-        },
+
         {
           href: 'https://github.com/gemini-cli/Physical-AI-Humanoid-Robotics-Textbook',
           label: 'GitHub',

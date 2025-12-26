@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Vision-Language-Action: Cognitive Planning with LLMs
 
-We have successfully converted a spoken command into text. Now comes the "cognitive" part of our VLA pipeline. How does a robot understand the *intent* behind a command like "Clean the room" and translate that high-level goal into a concrete sequence of physical actions? This is where Large Language Models (LLMs) like GPT-4 come into play.
+We have successfully converted a spoken command into text. Now comes the "cognitive" part of our VLA pipeline. How does a robot understand the *intent* behind a command like "Clean the room" and translate that high-level goal into a concrete sequence of physical actions? This is where Large Language Models (LLMs) like Google's Gemini come into play.
 
 An LLM can act as the robot's "cognitive planner" or "task broker." By providing the LLM with a carefully crafted prompt—describing the robot's capabilities and the current state of the world—we can ask it to break down a complex command into a series of simpler, executable steps.
 
@@ -59,8 +59,8 @@ graph TD
 This lab will create the `llm_planner_node`. It will subscribe to the `/transcribed_text` topic from our Whisper node, make an API call to an LLM, and publish the resulting JSON plan.
 
 **Prerequisites**:
--   An API key for an LLM provider (e.g., OpenAI, Anthropic, Groq). We'll use the OpenAI API format for this lab.
--   The `openai` Python package: `pip install openai`.
+-   An API key for a Google AI (Gemini).
+-   The `google-genai` Python package: `pip install google-genai`.
 -   A running `whisper_node` from the previous lab.
 
 ### Step 1: Create the Planner Node
@@ -71,7 +71,7 @@ In your `voice_agent_py` package, create a new file for the planner node.
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
-from openai import OpenAI
+import google.genai as genai
 import json
 import os
 
@@ -85,12 +85,13 @@ class LLMPlannerNode(Node):
         
         # --- LLM Setup ---
         # IMPORTANT: Set your API key in your environment variables
-        # export OPENAI_API_KEY='your_key_here'
+        # export GEMINI_API_KEY='your_key_here'
         try:
-            self.client = OpenAI()
+            genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+            self.model = genai.GenerativeModel('gemini-pro')
         except Exception as e:
-            self.get_logger().error(f"Failed to initialize OpenAI client: {e}")
-            self.get_logger().error("Please make sure the OPENAI_API_KEY environment variable is set.")
+            self.get_logger().error(f"Failed to initialize Gemini client: {e}")
+            self.get_logger().error("Please make sure the GEMINI_API_KEY environment variable is set.")
             return
 
         # This is the "System Prompt" that defines the robot's world and abilities
@@ -108,7 +109,7 @@ The current state of the world is:
 - The 'storage_bin' is at 'corner_c'.
 - The robot's 'home_base' is at 'location_d'.
 
-Given the user's command, you must generate a JSON array of action objects. Each object must have an "action" and a "parameters" field. Do not include any actions that are not in the list above. Only respond with the raw JSON array, no other text or explanation.
+Given the user's command, you must generate a JSON array of action objects. Each object must have an "action" and a "parameters" field. Do not include any actions that are not in the list above. Only respond with the raw JSON array, with no other text or explanation.
 """
         self.get_logger().info('LLM Planner Node has started.')
 
@@ -118,16 +119,15 @@ Given the user's command, you must generate a JSON array of action objects. Each
         self.get_logger().info("Querying LLM for an action plan...")
         
         try:
-            response = self.client.chat.completions.create(
-                model="gpt-4-turbo-preview", # Or "gpt-3.5-turbo"
-                messages=[
-                    {"role": "system", "content": self.system_prompt},
-                    {"role": "user", "content": user_command}
-                ],
-                response_format={"type": "json_object"}
-            )
+            full_prompt = self.system_prompt + "\nUser Command: " + user_command
+            response = self.model.generate_content(full_prompt)
             
-            json_plan_str = response.choices[0].message.content
+            # Extract the JSON part of the response
+            json_plan_str = response.text.strip()
+            # Handle cases where the model might still wrap the JSON in markdown
+            if json_plan_str.startswith("```json"):
+                json_plan_str = json_plan_str[7:-4].strip()
+
             self.get_logger().info(f"Received JSON plan from LLM: {json_plan_str}")
             
             # Validate that the response is valid JSON
@@ -156,15 +156,16 @@ if __name__ == '__main__':
 ```
 **Code Breakdown**:
 1.  **System Prompt**: This is the most important part of the code. It sets the context for the LLM, constraining its possible outputs and defining the "API" (the robot's abilities) it can use. The instruction `Only respond with the raw JSON array` is critical for getting clean, parsable output.
-2.  **`response_format`**: We use the `response_format={"type": "json_object"}` feature of the OpenAI API. This is a powerful hint that forces the LLM to output a syntactically correct JSON object, which greatly improves reliability.
-3.  **API Call**: We call the Chat Completions API with our system prompt and the user's command.
-4.  **Publishing**: The raw JSON string from the LLM's response is published to the `/robot_action_plan` topic.
+2.  **Gemini Client**: We initialize the Gemini client using the `google.generativeai` library.
+3.  **API Call**: We call the `generate_content` method with our combined system and user prompt.
+4.  **Response Parsing**: Gemini models don't have a strict JSON-only output mode like some other APIs, so we add a simple check to strip markdown formatting (` ```json ... ``` `) if the model includes it.
+5.  **Publishing**: The raw JSON string from the LLM's response is published to the `/robot_action_plan` topic.
 
 ### Step 2: Add Entry Point and Build
 Add the `llm_planner_node` to your `setup.py` and rebuild your workspace.
 
 ### Step 3: Run the Full Pipeline
-1.  **Set your API key**: `export OPENAI_API_KEY='your_key_here'`.
+1.  **Set your API key**: `export GEMINI_API_KEY='your_key_here'`.
 2.  **Terminal 1**: Run the Whisper node.
     ```bash
     ros2 run voice_agent_py whisper_node
@@ -183,14 +184,14 @@ You should see the Whisper node transcribe your speech, then the LLM node will r
 
 **Example Output on `/robot_action_plan`**:
 ```
-data: '{"plan": [{"action": "go_to", "parameters": {"location": "table_a"}}, {"action": "pick_up", "parameters": {"object": "red_block"}}, {"action": "go_to", "parameters": {"location": "corner_c"}}, {"action": "drop_in", "parameters": {"bin": "storage_bin"}}]}'
+data: '[{"action": "go_to", "parameters": {"location": "table_a"}}, {"action": "pick_up", "parameters": {"object": "red_block"}}, {"action": "go_to", "parameters": {"location": "corner_c"}}, {"action": "drop_in", "parameters": {"bin": "storage_bin"}}]'
 ```
 
 ## Common Pitfalls
 
 1.  **Pitfall**: The LLM output is not valid JSON or includes extra text.
-    *   **Cause**: The prompt was not constrained enough, or you are using a model that doesn't support forced JSON output mode.
-    *   **Fix**: Emphasize the need for raw JSON in your system prompt. Use the `response_format={"type": "json_object"}` parameter if your model API supports it. If not, you may need to add string parsing logic in your Python code to extract the JSON from the LLM's response.
+    *   **Cause**: The prompt was not constrained enough. Gemini models can sometimes add explanatory text.
+    *   **Fix**: Emphasize the need for raw JSON in your system prompt. The code includes a basic cleanup for markdown, but you might need more robust parsing to find the JSON block if the model is particularly verbose.
 
 2.  **Pitfall**: The LLM "hallucinates" actions or objects that don't exist.
     *   **Cause**: The user's command was ambiguous, or the LLM is being too "creative."
@@ -228,7 +229,7 @@ data: '{"plan": [{"action": "go_to", "parameters": {"location": "table_a"}}, {"a
 </details>
 
 ## Further Reading
-- **OpenAI API Documentation**: [https://platform.openai.com/docs/api-reference](https://platform.openai.com/docs/api-reference)
+- **Google AI for Developers**: [https://ai.google.dev/](https://ai.google.dev/)
 - **JSON as a data interchange format**: [https://www.json.org/json-en.html](https://www.json.org/json-en.html)
 - **Prompt Engineering Guide**: [https://www.promptingguide.ai/](https://www.promptingguide.ai/)
 

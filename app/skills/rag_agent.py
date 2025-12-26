@@ -4,7 +4,7 @@ import os
 from typing import List, Tuple
 from qdrant_client import QdrantClient, models as qdrant_models
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 
 class RAGAgent:
     def __init__(self):

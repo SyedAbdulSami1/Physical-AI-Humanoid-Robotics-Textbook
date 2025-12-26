@@ -10,12 +10,7 @@
 - For local Qdrant: Ensure the service is running (`docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant`)
 - Check firewall settings if connecting to cloud Qdrant
 
-### 2. OpenAI API Connection Issues
-**Problem:** OpenAI API calls fail with authentication errors
-**Solution:**
-- Verify OPENAI_API_KEY in your .env file is valid
-- Check that your OpenAI account has sufficient credits
-- Ensure the API key has the necessary permissions for embeddings and chat completion
+
 
 ### 3. Database Connection Issues
 **Problem:** PostgreSQL/Neon connection fails
@@ -47,12 +42,7 @@ app.add_middleware(
 )
 ```
 
-### 6. Authentication Token Issues
-**Problem:** Auth tokens not being stored or sent correctly
-**Solution:**
-- Ensure JWT_SECRET_KEY in .env is secure and consistent
-- Verify that authentication endpoints are being called correctly
-- Check that tokens are properly stored in localStorage or cookies
+
 
 ### 7. Component Bundle Errors
 **Problem:** Docusaurus components don't load or show build errors
@@ -107,12 +97,7 @@ app.add_middleware(
 
 ## Personalization Issues
 
-### 13. Personalization Not Persisting
-**Problem:** User preferences are lost between sessions
-**Solutions:**
-- Verify that user preference data is being stored correctly in the database
-- Check that JWT tokens include proper user identification
-- Ensure frontend is making correct API calls to retrieve user preferences
+
 
 ## Testing Issues
 
@@ -135,7 +120,7 @@ app.add_middleware(
 - Implement content caching strategies
 
 ### 16. Rate Limiting
-**Problem:** API calls hitting rate limits (especially OpenAI)
+**Problem:** API calls hitting rate limits
 **Solutions:**
 - Implement request queuing and rate limiting
 - Add retry logic with exponential backoff
@@ -163,9 +148,3 @@ app.add_middleware(
 - Sanitize content before storage and display
 - Implement proper authentication and authorization
 - Use parameterized queries to prevent SQL injection
-
-### 20. Authentication Flow
-- Secure JWT tokens with proper expiration
-- Implement secure password hashing (bcrypt)
-- Use HTTPS in production
-- Implement proper session management

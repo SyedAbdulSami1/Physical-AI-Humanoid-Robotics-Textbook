@@ -1,148 +1,188 @@
-# Website
+# Physical AI & Humanoid Robotics Textbook
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+🤖 **An AI-Native Textbook for Embodied Intelligence** — A comprehensive educational resource combining robotics, AI, and physical systems through interactive learning and RAG-powered assistance.
 
-## Installation
+## 📘 About the Course
 
-```bash
-yarn
+This project hosts an AI-native textbook for **Physical AI & Humanoid Robotics**, a capstone course designed to bridge the gap between artificial intelligence and the physical world. The curriculum focuses on embodied intelligence — AI systems that operate in reality and understand physical laws — enabling students to apply their AI knowledge to control humanoid robots in both simulated and real-world environments.
+
+### 📚 Course Modules
+
+The textbook is structured around four core modules:
+
+- **Module 1: The Robotic Nervous System (ROS 2)** — Master ROS 2 fundamentals for robotic control
+- **Module 2: The Digital Twin (Gazebo & Unity)** — Learn physics simulation and environment building  
+- **Module 3: The AI-Robot Brain (NVIDIA Isaac™)** — Explore advanced perception and training with NVIDIA Isaac
+- **Module 4: Vision-Language-Action (VLA)** — Convergence of LLMs and robotics for natural human-robot interaction
+
+## 🤖 AI Features
+
+This textbook includes several AI-powered features that enhance the learning experience:
+
+- **🔍 RAG Chatbot**: An AI assistant that answers questions based on the textbook content using Retrieval-Augmented Generation
+  - Full-book mode: Answers using the entire textbook as context
+  - Selected-text mode: Answers using only the text you've selected on the page
+- **👤 Personalization**: Content adapts based on your background and experience level
+- **🌐 Urdu Translation**: On-demand translation to Urdu for broader accessibility
+- **🔐 Authentication System**: Secure access with user profiles and background questionnaire
+
+## 🛠️ Technologies Used
+
+### Frontend
+- [Docusaurus v3.9.2](https://docusaurus.io/) - Modern static site generator
+- React.js - Component-based UI development
+- Better-Auth - Authentication system
+- TypeScript - Type safety
+
+### Backend
+- [FastAPI](https://fastapi.tiangolo.com/) - High-performance Python web framework
+- [Qdrant](https://qdrant.tech/) - Vector database for RAG system
+- [Google Gemini](https://deepmind.google/technologies/gemini/) - AI model for responses
+- [LangChain](https://www.langchain.com/) - LLM application framework
+
+### Infrastructure
+- GitHub Pages / Vercel - Frontend deployment
+- Docker - Containerization for backend services
+- Neon Serverless Postgres - Database backend
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [Yarn](https://yarnpkg.com/) 
+- [Python](https://www.python.org/) (v3.9 or higher)
+
+### Setup Instructions
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/gemini-cli/Physical-AI-Humanoid-Robotics-Textbook.git
+   cd Physical-AI-Humanoid-Robotics-Textbook
+   ```
+
+2. **Install frontend dependencies**
+   ```bash
+   yarn install
+   ```
+
+3. **Set up backend**
+   ```bash
+   cd app
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+4. **Configure environment variables**
+   ```bash
+   # Create .env file in the project root
+   touch .env
+   ```
+   
+   Add the following to your `.env` file:
+   ```env
+   # Backend - Qdrant Cloud
+   QDRANT_URL="your-qdrant-url"
+   QDRANT_API_KEY="your-qdrant-api-key"
+   
+   # Backend - Google Gemini
+   GEMINI_API_KEY="your-gemini-api-key"
+   
+   # Backend - Authentication
+   AUTH_SECRET_KEY="a_very_secret_key_that_should_be_long_and_random"
+   ```
+
+5. **Run the application**
+
+   Terminal 1 (Backend):
+   ```bash
+   cd app
+   uvicorn main:app --reload
+   ```
+
+   Terminal 2 (Frontend):
+   ```bash
+   yarn start
+   ```
+
+6. **Populate the knowledge base**
+   
+   After starting the backend, you need to ingest the textbook content into the vector database:
+   
+   1. Visit the website at `http://localhost:3000`
+   2. Create an account and log in
+   3. Send a POST request to `http://localhost:8000/ingest/run` with your authentication token in the header:
+   
+   ```bash
+   curl -X POST "http://localhost:8000/ingest/run" \
+        -H "Authorization: Bearer YOUR_AUTH_TOKEN"
+   ```
+
+### Development Scripts
+
+- `yarn start` - Start the development server
+- `yarn build` - Build for production
+- `yarn serve` - Serve the production build
+- `yarn lint` - Lint the codebase
+- `yarn format` - Format the codebase
+
+## 🏗️ Project Structure
+
+```
+Physical-AI-Humanoid-Robotics-Textbook/
+├── docs/                   # Textbook content
+│   ├── module-1/           # Module 1: ROS 2 content
+│   ├── module-2/           # Module 2: Gazebo & Unity content
+│   ├── module-3/           # Module 3: NVIDIA Isaac content
+│   └── module-4/           # Module 4: VLA content
+├── src/                    # Docusaurus theme components
+│   ├── components/         # Reusable React components
+│   ├── pages/              # Custom pages
+│   └── theme/              # Docusaurus theme overrides
+├── app/                    # FastAPI backend
+│   ├── routers/            # API route definitions
+│   ├── skills/             # RAG and AI skills
+│   └── models.py           # Database models
+├── specs/                  # Project specifications
+└── static/                 # Static assets
 ```
 
-## Local Development
+## 🌐 Deployment
 
-```bash
-yarn start
-```
+### Frontend (Vercel/GitHub Pages)
+The Docusaurus frontend can be deployed to:
+- Vercel: Connect your GitHub repository
+- GitHub Pages: Use the built-in deployment workflow
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+### Backend (Render/Docker)
+The FastAPI backend is designed for deployment on:
+- Render: Use the provided `render.yaml`
+- Other platforms: Containerized with the provided `Dockerfile`
 
-## Build
+## 🤝 Contributing
 
-```bash
-yarn build
-```
+We welcome contributions to enhance this educational resource! To contribute:
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Add tests if applicable
+5. Ensure all tests pass
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
 
-## Deployment
+Please follow the existing code style and include documentation for new features.
 
-Using SSH:
+## 📄 License
 
-```bash
-USE_SSH=true yarn deploy
-```
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Not using SSH:
+## 👥 Credits
 
-```bash
-GIT_USER=<Your GitHub username> yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+This project was created to advance education in physical AI and humanoid robotics, combining cutting-edge AI techniques with robotics education to prepare students for the future of embodied intelligence.
 
 ---
 
-# Project Setup and Execution
-
-This project consists of a Docusaurus frontend and a Python (FastAPI) backend. Follow these steps to set up and run the full application locally.
-
-## 1. Prerequisites
-
--   [Node.js](https://nodejs.org/en/) (v18 or higher)
--   [Yarn](https://yarnpkg.com/)
--   [Python](https://www.python.org/downloads/) (v3.9 or higher)
-
-## 2. Environment Variables
-
-Create a `.env` file in the root of the project directory. This file is crucial for storing all your secrets and API keys.
-
-```env
-# .env
-
-# Backend - Neon Serverless Postgres
-# Get this from your Neon dashboard
-NEON_DATABASE_URL="postgresql+asyncpg://<user>:<password>@<host>/<dbname>"
-
-# Backend - Qdrant Cloud
-# Get these from your Qdrant Cloud dashboard
-QDRANT_URL="https"
-QDRANT_API_KEY=""
-
-# Backend - OpenAI
-# Get this from your OpenAI dashboard
-OPENAI_API_KEY="sk-..."
-
-# Backend - Authentication
-# Use a long, random string for security
-AUTH_SECRET_KEY="a_very_secret_key_that_should_be_long_and_random"
-
-# Frontend (Optional - if your deployed API is not at localhost:8000)
-# REACT_APP_API_URL="http://your-backend-api-url.com"
-```
-
-## 3. Backend Setup
-
-Navigate to the `app` directory and set up a Python virtual environment.
-
-```bash
-# From the project root
-cd app
-
-# Create a virtual environment
-python -m venv venv
-
-# Activate the virtual environment
-# On Windows
-venv\Scripts\activate
-# On macOS/Linux
-source venv/bin/activate
-
-# Install the required Python packages
-pip install -r requirements.txt
-```
-
-## 4. Frontend Setup
-
-Install the Node.js dependencies using Yarn.
-
-```bash
-# From the project root
-yarn install
-```
-
-## 5. Running the Application
-
-You need to run the backend and frontend servers in two separate terminals.
-
-**Terminal 1: Start the Backend Server**
-
-```bash
-# From the project root, inside the app directory with venv active
-cd app
-uvicorn main:app --reload
-```
-
-The backend API will be running at `http://localhost:8000`.
-
-**Terminal 2: Start the Frontend Server**
-
-```bash
-# From the project root
-yarn start
-```
-
-The Docusaurus website will be running at `http://localhost:3000`.
-
-## 6. Content Ingestion
-
-After running the backend for the first time, you must populate the vector database with the textbook content. You can do this by sending a POST request to the `/ingest/run` endpoint.
-
-**Note**: This requires a valid authentication token.
-
-1.  Go to the website (`http://localhost:3000`).
-2.  Create an account using the Sign-Up form.
-3.  Log in with your new account.
-4.  Use a tool like Postman, `curl`, or a simple script to send a POST request to `http://localhost:8000/ingest/run` with your authentication token in the `Authorization` header (`Bearer <your_token>`).
-
-Once the ingestion is complete, the chatbot will be able to answer questions about the textbook.
-
+Made with ❤️ for the Physical AI community

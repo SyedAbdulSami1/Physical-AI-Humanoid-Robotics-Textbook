@@ -2,7 +2,7 @@
 Skill 1: Content Summarization Agent
 """
 from typing import List
-import google.generativeai as genai
+import google.genai as genai
 import asyncio
 import logging
 import json

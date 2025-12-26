@@ -120,7 +120,7 @@ The course is divided into sequential modules that progressively introduce stude
     *   Strategies for integrating pre-trained GPT-style models with robot control architectures.
     *   Challenges and opportunities in translating natural language to robot actions.
 *   **Speech Recognition and Voice-to-Action**:
-    *   Utilizing OpenAI Whisper for highly accurate speech-to-text transcription.
+    *   Utilizing a speech-to-text service for highly accurate speech-to-text transcription.
     *   Processing natural language commands from human users.
     *   Developing robust pipelines to convert spoken instructions into machine-understandable commands.
 *   **Cognitive Planning with LLMs**:
