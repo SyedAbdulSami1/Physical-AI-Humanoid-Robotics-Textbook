@@ -74,7 +74,7 @@ QDRANT_URL="https://2e707ff9-216c-4a4d-a466-edc75be0a675.us-east4-0.gcp.cloud.qd
 QDRANT_API_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.ak6OZ2qIGErAOaNWWYsIc518qxna24pX1MdAlaR36zg"
 
 # Gemini Configuration
-GEMINI_API_KEY="AIzaSyC5wl6NvgWkmG3yBWq9Gy9_GfWn56A3WZM"
+GEMINI_API_KEY="AIzaSyC1wJfcDuSl201ncYi30DPGyDVHoA7onZw"
 
 # Docusaurus & Backend Configuration
 # Replace the placeholder values with your actual credentials.
@@ -100,8 +100,9 @@ NEON_DATABASE_URL="postgresql://neondb_owner:npg_iktLCd2mREJ6@ep-delicate-sun-ah
 
 
 # API Keys
-GEMINI_API_KEY="AIzaSyC5wl6NvgWkmG3yBWq9Gy9_GfWn56A3WZM"
+GEMINI_API_KEY="AIzaSyC1wJfcDuSl201ncYi30DPGyDVHoA7onZw"
 
 
 # Frontend URL (for CORS)
 FRONTEND_URL=http://localhost:3000
+

@@ -1,8 +1,8 @@
 # app/routers/chat.py
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from app import schemas, models
-from app.skills import rag_agent
+from fastapi import APIRouter, HTTPException, status
+from app import schemas
+from app.skills.rag_agent import process_query
 
 router = APIRouter(
     prefix="/chat",
@@ -32,14 +32,13 @@ async def handle_chat_request(
     5. Returning the answer and the sources used.
     """
 
-
     try:
         # Delegate the entire logic to the RAG agent skill
-        answer, sources = await rag_agent.process_query(
+        answer, sources = await process_query(
             query=request.query,
             selected_text=request.selected_text
         )
-        
+
         return schemas.ChatResponse(answer=answer, sources=sources)
 
     except Exception as e:

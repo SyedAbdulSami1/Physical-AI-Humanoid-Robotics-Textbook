@@ -98,6 +98,7 @@ source venv/bin/activate
 
 # Install the required Python packages
 pip install -r requirements.txt
+uvicorn main:app --reload
 ```
 
 ## 4. Frontend Setup
