@@ -105,4 +105,3 @@ GEMINI_API_KEY="AIzaSyC1wJfcDuSl201ncYi30DPGyDVHoA7onZw"
 
 # Frontend URL (for CORS)
 FRONTEND_URL=http://localhost:3000
-
