@@ -14,13 +14,41 @@ logger = logging.getLogger(__name__)
 class RAGAgent:
     def __init__(self):
         # --- Client and Model Setup ---
-        self.QDRANT_URL = os.getenv("QDRANT_URL")
+        # --- [FORENSIC DEBUG] ---
+        # Enhanced debugging to find corrupted environment variables.
+        import os
+        from dotenv import load_dotenv
+        print("--- [RAG AGENT FORENSIC DEBUG] ---")
+        # Ensure the .env is loaded. In our lazy-load setup, this is a good safeguard.
+        load_dotenv()
+        
+        key = os.getenv("GEMINI_API_KEY")
+        qdrant_url = os.getenv("QDRANT_URL") # FIX: Define qdrant_url
+        
+        if key:
+            print(f"  - Gemini Key Loaded: Yes")
+            # repr() will show hidden characters like '\\n', '\\r', quotes, etc.
+            print(f"  - repr(key): {repr(key)}")
+            print(f"  - Exact length: {len(key)}")
+            print(f"  - First 10 chars: {key[:10]}")
+            print(f"  - Last 5 chars: {key[-5:]}")
+        else:
+            print(f"  - Gemini Key Loaded: No (is None)")
+        
+        if qdrant_url:
+            print(f"  - Qdrant URL Loaded: Yes")
+        else:
+            print(f"  - Qdrant URL Loaded: No (is None)")
+            
+        print("--- [END FORENSIC DEBUG] ---")
+
+        self.GEMINI_API_KEY = key
+        self.QDRANT_URL = qdrant_url
         self.QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-        self.GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
         self.QDRANT_COLLECTION_NAME = "textbook_content"
 
         if not all([self.QDRANT_URL, self.QDRANT_API_KEY, self.GEMINI_API_KEY]):
-            raise ValueError("Missing required environment variables for RAG agent")
+            raise ValueError("Missing required environment variables for RAG agent. Check .env file and server start location.")
 
         # Initialize clients and models
         try:
@@ -109,8 +137,20 @@ ANSWER:
             logger.error(f"Error generating response: {e}")
             raise
 
-# Create a singleton instance of the RAGAgent
-rag_agent_instance = RAGAgent()
+# --- Singleton Management ---
+rag_agent_instance = None
+
+def get_rag_agent():
+    """
+    Initializes and returns a singleton instance of the RAGAgent.
+    This lazy initialization ensures that environment variables are loaded
+    before the agent is created.
+    """
+    global rag_agent_instance
+    if rag_agent_instance is None:
+        logger.info("Initializing RAGAgent singleton...")
+        rag_agent_instance = RAGAgent()
+    return rag_agent_instance
 
 async def process_query(query: str, selected_text: str = None) -> Tuple[str, List[str]]:
     """
@@ -118,7 +158,8 @@ async def process_query(query: str, selected_text: str = None) -> Tuple[str, Lis
     This maintains compatibility with the existing router setup.
     """
     try:
-        return await rag_agent_instance.generate_response(query=query, selected_text=selected_text)
+        agent = get_rag_agent()
+        return await agent.generate_response(query=query, selected_text=selected_text)
     except Exception as e:
         logger.error(f"Error in process_query: {e}")
         raise
