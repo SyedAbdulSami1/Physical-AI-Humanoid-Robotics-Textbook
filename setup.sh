@@ -63,9 +63,6 @@ fi
 if [ ! -f "app/.env" ]; then
     echo "Creating .env file with default values in app/ directory..."
     cat > app/.env << EOF
-# Security
-AUTH_SECRET_KEY="your_auth_secret_key"
-
 # Database Configuration
 NEON_DATABASE_URL="your_neon_database_url"
 

@@ -5,12 +5,13 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from pathlib import Path
+from typing import AsyncGenerator
 
 # --- .env Loading ---
 # This ensures that the DATABASE_URL is loaded before it's used.
 # It's good practice to have this in the module where the connection is defined.
 dotenv_path = Path(__file__).resolve().parent / '.env'
-load_dotenv(dotenv_path=dotenv_path)
+load_dotenv(dotenv_path=dotenv_path, override=True)
 
 # --- Database URL ---
 # Get the connection string from the environment variables.
@@ -39,7 +40,7 @@ SessionLocal = sessionmaker(
 )
 
 # --- Dependency for FastAPI Routes ---
-async def get_db() -> AsyncSession:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     FastAPI dependency that provides a database session for each request.
     It ensures that the session is always closed after the request is finished.

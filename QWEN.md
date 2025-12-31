@@ -78,9 +78,6 @@ Start by analyzing the project structure, then implement all five requirements f
 
 
 All Important key and api ("plz check in all .env files")
-# Security
-AUTH_SECRET_KEY="plz check in .env"
-
 # Database Configuration
 NEON_DATABASE_URL="plz check in .env"
 

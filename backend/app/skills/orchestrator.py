@@ -1,7 +1,6 @@
 from typing import Dict, Any, List
 import logging
 from .personalization_skill import personalization_skill
-from .translation_skill import translation_skill
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -9,13 +8,12 @@ logger = logging.getLogger(__name__)
 
 class SkillOrchestrator:
     """
-    Orchestrates the execution of various skills like personalization and translation.
+    Orchestrates the execution of various skills like personalization.
     """
     
     def __init__(self):
         self.skills = {
             'personalization': personalization_skill,
-            'translation': translation_skill
         }
     
     async def execute_skill(self, skill_name: str, *args, **kwargs) -> Any:

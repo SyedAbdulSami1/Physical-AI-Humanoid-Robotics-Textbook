@@ -10,9 +10,9 @@ import logging
 # This allows the app to be run from the 'app' directory, making 'app' a discoverable package
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# Load environment variables from .env file
+# Load environment variables from .env file, overriding system variables
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-load_dotenv(dotenv_path=dotenv_path)
+load_dotenv(dotenv_path=dotenv_path, override=True)
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)

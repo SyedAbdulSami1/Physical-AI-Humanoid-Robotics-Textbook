@@ -4,33 +4,48 @@
 
 /* You can override the default Infima variables here. */
 :root {
+  /* --- Color Palette --- */
   --ifm-color-primary: #1e88e5; /* A modern, friendly blue */
   --ifm-color-primary-dark: #1976d2;
   --ifm-color-primary-darker: #1565c0;
   --ifm-color-primary-darkest: #0d47a1;
   --ifm-color-primary-light: #42a5f5;
   --ifm-color-primary-lighter: #64b5f6;
-  --ifm-color-primary-lightest: #90caf9;
+  --ifm-color-primary-lightest: #e3f2fd; /* A very light blue for backgrounds */
 
-  --ifm-background-color: #f7f9fc;
+  /* --- UI Colors --- */
+  --ifm-background-color: #ffffff; /* Clean white background */
+  --ifm-navbar-background-color: rgba(255, 255, 255, 0.8);
+  --ifm-footer-background-color: #242526;
+  --ifm-card-background-color: #ffffff;
+  --ifm-border-color: #e5e7eb;
+
+  /* --- Typography --- */
   --ifm-font-family-base: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
   --ifm-font-family-monospace: 'Fira Code', 'JetBrains Mono', 'Roboto Mono', monospace;
   --ifm-line-height-base: 1.7;
-
   --ifm-h1-font-size: 2.5rem;
   --ifm-h2-font-size: 2rem;
   --ifm-h3-font-size: 1.75rem;
+  --ifm-font-color-base: #111827;
+  --ifm-font-color-secondary: #374151;
 
+  /* --- Sizing & Spacing --- */
+  --ifm-global-radius: 8px; /* Consistent border radius */
+
+  /* --- Code Blocks --- */
   --ifm-code-font-size: 90%;
   --ifm-code-padding-horizontal: 0.7rem;
   --ifm-code-padding-vertical: 0.3rem;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.05);
 
-  --ifm-navbar-background-color: rgba(255, 255, 255, 0.8);
-  --ifm-navbar-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-
-  --ifm-footer-background-color: #242526;
+  /* --- Shadows --- */
+  --ifm-global-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --ifm-global-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --ifm-global-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
+/* --- Dark Mode Overrides --- */
 [data-theme='dark'] {
   --ifm-color-primary: #66b2ff; /* A lighter blue for dark mode */
   --ifm-color-primary-dark: #4da1ff;
@@ -38,14 +53,22 @@
   --ifm-color-primary-darkest: #006eff;
   --ifm-color-primary-light: #85c2ff;
   --ifm-color-primary-lighter: #a3d2ff;
-  --ifm-color-primary-lightest: #d1e9ff;
+  --ifm-color-primary-lightest: #1e293b;
 
-  --ifm-background-color: #121212;
-  --ifm-navbar-background-color: rgba(18, 18, 18, 0.8);
+  --ifm-background-color: #0f172a; /* A deep, modern dark blue */
+  --ifm-navbar-background-color: rgba(15, 23, 42, 0.8);
+  --ifm-footer-background-color: #020617;
+  --ifm-card-background-color: #1e293b;
+  --ifm-border-color: #334155;
+
+  --ifm-font-color-base: #e2e8f0;
+  --ifm-font-color-secondary: #94a3b8;
+  
   --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.1);
 }
 
 
+/* --- Global Styles & Resets --- */
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -54,6 +77,7 @@ html {
 /* Make navbar sticky and add a backdrop filter for a modern effect */
 .navbar {
   backdrop-filter: saturate(180%) blur(5px);
+  box-shadow: var(--ifm-global-shadow-sm);
 }
 
 /* Wider content for better readability on large screens */
@@ -62,7 +86,7 @@ html {
   margin: 0 auto;
 }
 
-/* Improved typography */
+/* --- Typography Improvements --- */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   letter-spacing: -0.5px;
@@ -73,12 +97,53 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--ifm-font-color-secondary);
 }
 
-/* Sidebar styling */
+/* --- Component Modernization --- */
+
+/* Sidebar */
 .menu__link--active:not(.menu__link--sublist) {
   background-color: var(--ifm-color-primary-lightest);
 }
-[data-theme='dark'] .menu__link--active:not(.menu__link--sublist) {
-    background-color: var(--ifm-color-primary-darkest);
+
+/* Buttons */
+.button {
+  border-radius: var(--ifm-global-radius);
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: var(--ifm-global-shadow-sm);
+}
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ifm-global-shadow-md);
+}
+
+/* Cards (used for homepage features, etc.) */
+.card {
+  border-radius: var(--ifm-global-radius);
+  border: 1px solid var(--ifm-border-color);
+  background-color: var(--ifm-card-background-color);
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--ifm-global-shadow-lg);
+  border-color: var(--ifm-color-primary);
+}
+
+/* Admonitions (notes, warnings, etc.) */
+.admonition {
+  border-radius: var(--ifm-global-radius);
+  border: 1px solid var(--ifm-border-color);
+  border-left-width: 4px;
+  box-shadow: var(--ifm-global-shadow-sm);
+}
+.admonition-heading {
+  border-bottom: 1px solid var(--ifm-border-color);
+}
+.admonition-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Code block styling */
@@ -92,29 +157,30 @@ h1, h2, h3, h4, h5, h6 {
 /* Table styling */
 table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--ifm-border-color);
+    border-radius: var(--ifm-global-radius);
+    overflow: hidden;
     margin-bottom: 2rem;
 }
 th, td {
-    border: 1px solid var(--ifm-color-emphasis-300);
-    padding: 0.75rem;
+    border-bottom: 1px solid var(--ifm-border-color);
+    padding: 0.75rem 1rem;
     text-align: left;
 }
-thead {
-    background-color: var(--ifm-color-emphasis-100);
-    font-weight: bold;
+th {
+    background-color: var(--ifm-color-primary-lightest);
+    font-weight: 600;
 }
-tbody tr:nth-child(even) {
-    background-color: var(--ifm-color-emphasis-0);
-}
-[data-theme='dark'] thead {
-    background-color: var(--ifm-color-emphasis-200);
-}
-[data-theme='dark'] tbody tr:nth-child(even) {
-    background-color: var(--ifm-color-emphasis-100);
+tbody tr:last-child td {
+    border-bottom: none;
 }
 
-/* Import Inter font */
+[data-theme='dark'] th {
+    background-color: var(--ifm-color-primary-lightest);
+}
+
+/* --- Font Imports --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-/* Import Fira Code for code blocks */
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');

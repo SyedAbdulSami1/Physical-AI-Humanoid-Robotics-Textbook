@@ -11,7 +11,7 @@ load_dotenv()
 # Initialize FastAPI app
 app = FastAPI(
     title="Physical AI & Humanoid Robotics Textbook API",
-    description="Backend API for the textbook with personalization, and translation features",
+    description="Backend API for the textbook with personalization features",
     version="1.0.0"
 )
 
@@ -25,13 +25,6 @@ app.add_middleware(
 )
 
 # Pydantic models
-class TranslationRequest(BaseModel):
-    text: str
-    targetLanguage: str = "ur"
-
-class TranslationResponse(BaseModel):
-    translatedText: str
-
 class PersonalizeRequest(BaseModel):
     content: str
     profile: dict
@@ -44,17 +37,6 @@ class PersonalizeResponse(BaseModel):
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
-
-# Translation endpoint
-@app.post("/api/translate", response_model=TranslationResponse)
-async def translate_text(request: TranslationRequest):
-    from app.services.translation_service import translate_text_to_urdu
-
-    try:
-        translated_text = await translate_text_to_urdu(request.text, request.targetLanguage)
-        return TranslationResponse(translatedText=translated_text)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Translation failed: {str(e)}")
 
 # Include API routes
 from app.api import rag_router

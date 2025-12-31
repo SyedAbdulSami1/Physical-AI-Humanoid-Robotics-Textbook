@@ -39,7 +39,6 @@ The RAG (Retrieval-Augmented Generation) chatbot is integrated into the Docusaur
 ## Technical Details
 
 - **Backend Integration**: Connects to the FastAPI backend at `/chat/` endpoint
-- **Authentication**: Requires JWT token stored in localStorage
 - **Markdown Support**: Renders responses with full markdown support including code blocks
 - **Context Awareness**: Automatically detects and includes selected text in API requests
 
@@ -56,6 +55,5 @@ The RAG (Retrieval-Augmented Generation) chatbot is integrated into the Docusaur
 ## Troubleshooting
 
 - If the chat doesn't work, ensure the backend server is running
-- Check that you're logged in (tokens stored in localStorage)
 - Verify the API URL is correctly set in environment variables
 - Make sure the ingestion pipeline has run successfully

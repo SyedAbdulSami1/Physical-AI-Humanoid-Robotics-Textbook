@@ -18,13 +18,20 @@ class RAGAgent:
         # Enhanced debugging to find corrupted environment variables.
         import os
         from dotenv import load_dotenv
+        from pathlib import Path
+
         print("--- [RAG AGENT FORENSIC DEBUG] ---")
-        # Ensure the .env is loaded. In our lazy-load setup, this is a good safeguard.
-        load_dotenv()
-        
+        # Ensure the .env is loaded from the correct location
+        dotenv_path = Path(__file__).resolve().parent.parent / '.env'
+        print(f"  - Loading .env from: {dotenv_path}")
+        print(f"  - .env file exists: {dotenv_path.exists()}")
+
+        # Load the .env file explicitly
+        load_dotenv(dotenv_path=dotenv_path, override=True)  # Override system variables
+
         key = os.getenv("GEMINI_API_KEY")
         qdrant_url = os.getenv("QDRANT_URL") # FIX: Define qdrant_url
-        
+
         if key:
             print(f"  - Gemini Key Loaded: Yes")
             # repr() will show hidden characters like '\\n', '\\r', quotes, etc.
@@ -32,14 +39,15 @@ class RAGAgent:
             print(f"  - Exact length: {len(key)}")
             print(f"  - First 10 chars: {key[:10]}")
             print(f"  - Last 5 chars: {key[-5:]}")
+            print(f"  - Starts with 'AIzaSy': {key.startswith('AIzaSy') if key else False}")
         else:
             print(f"  - Gemini Key Loaded: No (is None)")
-        
+
         if qdrant_url:
             print(f"  - Qdrant URL Loaded: Yes")
         else:
             print(f"  - Qdrant URL Loaded: No (is None)")
-            
+
         print("--- [END FORENSIC DEBUG] ---")
 
         self.GEMINI_API_KEY = key
@@ -88,6 +96,16 @@ ANSWER:
         Searches the Qdrant collection for the most relevant document chunks.
         """
         try:
+            # First, check if the collection exists.
+            try:
+                self.qdrant_client.get_collection(collection_name=self.QDRANT_COLLECTION_NAME)
+            except Exception:
+                logger.warning(
+                    f"Qdrant collection '{self.QDRANT_COLLECTION_NAME}' not found. "
+                    "Returning empty search results. Please run the ingestion process."
+                )
+                return []
+
             vector = self.embeddings.embed_query(query)
             search_results = self.qdrant_client.search(
                 collection_name=self.QDRANT_COLLECTION_NAME,
@@ -98,6 +116,8 @@ ANSWER:
             return [result.model_dump() for result in search_results]
         except Exception as e:
             logger.error(f"Error searching Qdrant: {e}")
+            # Re-raise the exception to be handled by the endpoint, which will return a 500 error.
+            # This is important for visibility into API key errors, connection issues, etc.
             raise
 
     async def generate_response(self, query: str, selected_text: str = None, search_results: List[dict] = None) -> Tuple[str, List[str]]:

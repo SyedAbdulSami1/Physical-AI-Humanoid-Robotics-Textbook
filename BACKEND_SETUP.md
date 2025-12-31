@@ -1,6 +1,6 @@
 # Backend Setup Instructions
 
-This document provides instructions for setting up the backend services for the Physical AI & Humanoid Robotics Textbook, including Better-Auth, Neon Postgres, and translation services.
+This document provides instructions for setting up the backend services for the Physical AI & Humanoid Robotics Textbook, including Better-Auth and Neon Postgres. Note that translation services have been removed to maintain 100% free operation of the project.
 
 ## Prerequisites
 
@@ -54,13 +54,6 @@ DATABASE_URL="postgresql://username:password@localhost:5432/textbook"
 
 # Better-Auth Configuration
 AUTH_SECRET="your-super-secret-key-change-this-in-production"
-
-# Translation Configuration (if using external API)
-# For Google Translate API:
-GOOGLE_TRANSLATE_API_KEY="your-api-key"
-
-# For LibreTranslate (if using self-hosted instance):
-LIBRETRANSLATE_URL="http://localhost:5000"
 ```
 
 > **Important**: For production use, always use strong, randomly generated secrets and store them securely using environment variables or a secrets management system.
@@ -86,119 +79,134 @@ DATABASE_URL="postgresql://username:password@ep-xxx.us-east-1.aws.neon.tech/text
 
 The backend will create necessary tables automatically on startup. Just start the server as described below.
 
-### 4. Better-Auth Configuration
+# Authentication Removed
 
-Better-Auth is configured in `backend/main.py`. The configuration uses the `DATABASE_URL` from your environment. The authentication endpoints are:
+Authentication has been removed from the project to maintain 100% free operation. The RAG chatbot is now fully public with no authentication required.
 
-- `POST /api/auth/signin` - User login
-- `POST /api/auth/signup` - User registration
-- `GET /api/auth/session` - Get current user session (requires authentication)
 
-### 5. Translation Service Setup
-
-We support multiple translation options:
-
-#### 5.1. Option A: Using NLLB (Recommended for Free Tier)
-
-This implementation uses the NLLB model from Facebook for local translation. It doesn't require an external API key but requires more computational resources.
-
-To use this option, uncomment the transformer-based translation code in `backend/app/services/translation_service.py` and install the required dependencies:
-
-```bash
-pip install torch transformers sentence-transformers
-```
-
-You'll also need to download the NLLB model. The first request will be slow as the model downloads.
-
-#### 5.2. Option B: Using Google Translate API
-
-1. Enable the Google Translation API in your Google Cloud Console
-2. Create an API key
-3. Set the `GOOGLE_TRANSLATE_API_KEY` in your `.env` file
-
-#### 5.3. Option C: Using LibreTranslate
-
-1. You can self-host LibreTranslate or use a public instance
-2. Set the `LIBRETRANSLATE_URL` in your `.env` file
 
 ### 6. Running the Backend Server
 
+
+
 #### 6.1. Start the Backend Server
 
+
+
 ```bash
+
 cd backend
+
 # Make sure your virtual environment is activated
+
 python main.py
+
 ```
+
+
 
 Alternatively, use uvicorn directly:
 
+
+
 ```bash
+
 cd backend
+
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
 ```
+
+
 
 The backend will be available at `http://localhost:8000`.
 
+
+
 ### 7. Frontend Setup
+
+
 
 #### 7.1. Install Node.js Dependencies
 
+
+
 ```bash
+
 # From the project root
+
 npm install
+
 ```
+
+
 
 #### 7.2. Run the Docusaurus Frontend
 
+
+
 ```bash
+
 # From the project root
+
 npm start
+
 ```
+
+
 
 The frontend will be available at `http://localhost:3000`.
 
+
+
 ## API Endpoints
 
-### Authentication Endpoints
 
-- `POST /api/auth/signin` - User login
-- `POST /api/auth/signup` - User registration
-- `GET /api/auth/session` - Get current user session
 
-### User Profile Endpoints
+### RAG Chatbot Endpoints
 
-- `GET /api/user/profile/{user_id}` - Get user profile
-- `POST /api/user/profile` - Update user profile
-- `GET /api/user/me` - Get current user info
 
-### Personalization Endpoints
 
-- `POST /api/personalize` - Personalize content based on user profile
+- `POST /chat/` - Chat with the RAG bot using textbook content
 
-### Translation Endpoints
+- `POST /chat/` with selected text - Chat with the RAG bot focusing on selected text only
 
-- `POST /api/translate` - Translate content to specified language
+- `GET /health` - Health check endpoint
+
+- `POST /ingest/run` - Ingest textbook content into vector database
+
+
 
 ## Troubleshooting
 
+
+
 ### Common Issues
 
+
+
 1. **Database Connection Issues**: 
+
    - Ensure your Neon Postgres connection string is correct
+
    - Check that your IP address is allowed in Neon settings
+
    - Verify SSL settings
 
+
+
 2. **Better-Auth Issues**:
+
    - Ensure `AUTH_SECRET` has sufficient entropy (at least 32 characters)
+
    - Check that the database is correctly configured
 
-3. **Translation Issues**:
-   - If using NLLB, the first request will be slow as the model downloads
-   - Check your translation API keys if using external services
 
-4. **Frontend-Backend Connection**:
+
+3. **Frontend-Backend Connection**:
+
    - By default, the frontend expects the backend at `http://localhost:8000`
+
    - If running on a different port, update the API calls accordingly
 
 ### Development Tips

@@ -70,8 +70,9 @@ This document outlines the core principles, standards, and quality gates for the
 -   **Backend:** FastAPI (Python) hosted on a serverless platform (e.g., Render.com).
 
 -   **Vector Database:** Qdrant Cloud Free Tier for vector embeddings of textbook content.
--   **LLM Integration:** Google Gemini API for text generation and embeddings.
+-   **LLM Integration:** Google Gemini API for text generation and embeddings using only the free tier.
 -   **Public Access**: The chatbot is fully public and requires no user authentication.
+-   **No Translation Features**: Translation features (e.g., Urdu translation) have been removed to maintain 100% free operation.
 -   **Functionality**:
     -   Normal query mode (answer from full textbook context).
     -   Selected-text-only mode (answer restricted to user-selected text chunks).
@@ -93,7 +94,24 @@ This document outlines the core principles, standards, and quality gates for the
 **4.2. Documentation:** API endpoints, database schemas, and complex logic must be documented.
 **4.3. Environment Management:** Strict separation of development, staging, and production environments using environment variables.
 
-## 5. Non-Negotiable Quality Gates Summary
+## 5. Free and Open Access Principles
+
+**5.1. Free API Usage (Non-Negotiable):**
+-   The project must exclusively use the free Google Gemini API with no paid features or services.
+-   All functionality must be achievable within the constraints of free-tier services.
+-   **Rationale:** Ensures universal accessibility and removes financial barriers to education.
+
+**5.2. Public Access (Non-Negotiable):**
+-   The RAG chatbot must be fully public with no authentication, login, signup, or user account requirements.
+-   All content and features must be accessible without registration.
+-   **Rationale:** Promotes open education and knowledge sharing without barriers.
+
+**5.3. No Translation Features (Non-Negotiable):**
+-   Translation features (e.g., Urdu translation) must be excluded to maintain 100% free operation.
+-   All content must remain in the original language to avoid costs associated with translation APIs.
+-   **Rationale:** Maintains the project's commitment to free and open access.
+
+## 6. Non-Negotiable Quality Gates Summary
 
 Every artifact (spec, plan, task, implementation) must demonstrate adherence to:
 -   University-level technical depth.
@@ -109,5 +127,8 @@ Every artifact (spec, plan, task, implementation) must demonstrate adherence to:
 -   Modular and reusable components.
 -   Consistent high-quality formatting.
 -   Efficient performance and fast loading.
+-   Use of only free-tier services.
+-   Public access with no authentication required.
+-   Exclusion of translation features to maintain free operation.
 
 

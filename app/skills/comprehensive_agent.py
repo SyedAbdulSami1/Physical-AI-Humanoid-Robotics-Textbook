@@ -2,6 +2,8 @@
 Comprehensive RAG Agent that integrates all subagents for enhanced functionality
 """
 import os
+from dotenv import load_dotenv
+from pathlib import Path
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 import google.genai as genai
@@ -10,7 +12,6 @@ from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
 import logging
 import asyncio
-from app.models import User, UserPreference
 from app.skills.advanced_agents import (
     ContentSummarizationAgent,
     ContextualQuestionRouter,
@@ -19,6 +20,10 @@ from app.skills.advanced_agents import (
     MultiTurnConversationManager,
     PersonalizationAdapter
 )
+
+# Load environment variables from .env file, overriding system variables
+dotenv_path = Path(__file__).resolve().parent.parent / '.env'
+load_dotenv(dotenv_path=dotenv_path, override=True)
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +83,7 @@ class ComprehensiveRAGAgent:
             logger.error(f"Error during content search: {str(e)}")
             return []
     
-    async def generate_response(self, query: str, search_results: List[Any], user: Optional[User] = None, session_id: Optional[str] = None) -> str:
+    async def generate_response(self, query: str, search_results: List[Any], session_id: Optional[str] = None) -> str:
         """
         Generate a response using retrieved content and LLM with all subagent enhancements
         """
@@ -87,46 +92,30 @@ class ComprehensiveRAGAgent:
             conversation_context = ""
             if session_id:
                 conversation_context = self.conversation_manager.get_context(session_id)
-            
-            # Get user preferences for personalization
-            user_context = ""
-            user_level = "intermediate"  # Default level
-            if user:
-                user_prefs = self.db.query(UserPreference).filter(
-                    UserPreference.user_id == user.id
-                ).first()
-                
-                if user_prefs:
-                    user_context = f"\n\nUser Background: {user_prefs.background_level} level in robotics/AI. "
-                    if user_prefs.programming_language:
-                        user_context += f"Prefers {user_prefs.programming_language}. "
-                    if user_prefs.hardware_interest:
-                        user_context += f"Interested in {user_prefs.hardware_interest}. "
-                    user_level = user_prefs.background_level
-            
+
             # Refine the query for better results
             refined_query = await self.query_refiner.refine_query(query)
-            
+
             # Route the question to appropriate domain
             domain = self.question_router.route_question(refined_query)
-            
+
             # Format context from search results
             context_texts = []
             for result in search_results:
                 payload = result.payload
                 text = payload.get("text", "")
-                
+
                 # Summarize long content chunks
                 summarized_text = await self.summarization_agent.summarize_content(text)
                 context_texts.append(summarized_text)
-            
+
             # Combine context
             context = "\n\n".join(context_texts[:3])  # Use top 3 results
-            full_context = f"{context}\n\n{user_context}"
-            
+            full_context = context
+
             if conversation_context:
                 full_context = f"Previous conversation:\n{conversation_context}\n\nCurrent context:\n{full_context}"
-            
+
             # Prepare the prompt for Gemini
             system_prompt = (
                 f"You are an expert assistant for the Physical AI & Humanoid Robotics textbook. "
@@ -136,38 +125,38 @@ class ComprehensiveRAGAgent:
                 f"If a question requires content not in the context, politely explain that you can only answer "
                 f"based on the textbook content provided."
             )
-            
+
             user_prompt = f"Context:\n{full_context}\n\nQuestion: {refined_query}\n\nAnswer:"
-            
+
             full_prompt = f"{system_prompt}\n\n{user_prompt}"
 
             # Call Gemini API asynchronously
             response = await self.gemini_model.generate_content_async(full_prompt)
-            
+
             generated_response = response.text
-            
+
             # Verify the response against source content
             verification = await self.response_verifier.verify_response(generated_response, context)
             if not verification.get('is_consistent', True):
                 logger.warning(f"Response may be inconsistent with source: {verification.get('feedback', 'No feedback')}")
-            
-            # Adapt response to user level
+
+            # Use default response adaptation (intermediate level)
             adapted_response = self.personalization_adapter.adapt_response_to_user_level(
-                generated_response, 
-                user_level
+                generated_response,
+                "intermediate"
             )
-            
+
             # Add to conversation history if session is provided
             if session_id:
                 self.conversation_manager.add_message(session_id, "user", query)
                 self.conversation_manager.add_message(session_id, "assistant", adapted_response)
-            
+
             return adapted_response
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}")
             return "I apologize, but I encountered an error while processing your request. Please try again."
     
-    async def get_selected_text_response(self, query: str, selected_text: str, user: Optional[User] = None, session_id: Optional[str] = None) -> str:
+    async def get_selected_text_response(self, query: str, selected_text: str, session_id: Optional[str] = None) -> str:
         """
         Generate a response using only the selected text with subagent enhancements
         """
@@ -176,25 +165,13 @@ class ComprehensiveRAGAgent:
             conversation_context = ""
             if session_id:
                 conversation_context = self.conversation_manager.get_context(session_id)
-            
-            # Get user preferences for personalization
-            user_context = ""
-            user_level = "intermediate"  # Default level
-            if user:
-                user_prefs = self.db.query(UserPreference).filter(
-                    UserPreference.user_id == user.id
-                ).first()
-                
-                if user_prefs:
-                    user_context = f"\n\nUser Background: {user_prefs.background_level} level in robotics/AI. "
-                    user_level = user_prefs.background_level
-            
+
             # Refine the query for better results
             refined_query = await self.query_refiner.refine_query(query)
-            
+
             # Summarize selected text if it's long
             summarized_text = await self.summarization_agent.summarize_content(selected_text)
-            
+
             # Prepare the prompt for Gemini
             system_prompt = (
                 "You are an expert assistant for the Physical AI & Humanoid Robotics textbook. "
@@ -203,36 +180,36 @@ class ComprehensiveRAGAgent:
                 "Provide accurate, helpful, and technically sound explanations based only on the information provided. "
                 "If the selected text does not contain information to answer the question, state that clearly."
             )
-            
-            full_context = f"{summarized_text}\n\n{user_context}"
+
+            full_context = summarized_text
             if conversation_context:
                 full_context = f"Previous conversation:\n{conversation_context}\n\nCurrent selected text:\n{full_context}"
-                
+
             user_prompt = f"Selected Text:\n{full_context}\n\nQuestion: {refined_query}\n\nAnswer:"
-            
+
             full_prompt = f"{system_prompt}\n\n{user_prompt}"
 
             # Call Gemini API asynchronously
             response = await self.gemini_model.generate_content_async(full_prompt)
-            
+
             generated_response = response.text
-            
+
             # Verify the response against source content
             verification = await self.response_verifier.verify_response(generated_response, summarized_text)
             if not verification.get('is_consistent', True):
                 logger.warning(f"Response may be inconsistent with source: {verification.get('feedback', 'No feedback')}")
-            
-            # Adapt response to user level
+
+            # Use default response adaptation (intermediate level)
             adapted_response = self.personalization_adapter.adapt_response_to_user_level(
-                generated_response, 
-                user_level
+                generated_response,
+                "intermediate"
             )
-            
+
             # Add to conversation history if session is provided
             if session_id:
                 self.conversation_manager.add_message(session_id, "user", query)
                 self.conversation_manager.add_message(session_id, "assistant", adapted_response)
-            
+
             return adapted_response
         except Exception as e:
             logger.error(f"Error generating selected text response: {str(e)}")

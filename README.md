@@ -1,6 +1,6 @@
 # Physical AI & Humanoid Robotics Textbook
 
-🤖 **An AI-Native Textbook for Embodied Intelligence** — A comprehensive educational resource combining robotics, AI, and physical systems through interactive learning and RAG-powered assistance.
+🤖 **An AI-Native Textbook for Embodied Intelligence** — A comprehensive educational resource combining robotics, AI, and physical systems through interactive learning and RAG-powered assistance. **100% Free to Use** — No paid features or services required.
 
 ## 📘 About the Course
 
@@ -11,7 +11,7 @@ This project hosts an AI-native textbook for **Physical AI & Humanoid Robotics**
 The textbook is structured around four core modules:
 
 - **Module 1: The Robotic Nervous System (ROS 2)** — Master ROS 2 fundamentals for robotic control
-- **Module 2: The Digital Twin (Gazebo & Unity)** — Learn physics simulation and environment building  
+- **Module 2: The Digital Twin (Gazebo & Unity)** — Learn physics simulation and environment building
 - **Module 3: The AI-Robot Brain (NVIDIA Isaac™)** — Explore advanced perception and training with NVIDIA Isaac
 - **Module 4: Vision-Language-Action (VLA)** — Convergence of LLMs and robotics for natural human-robot interaction
 
@@ -19,38 +19,34 @@ The textbook is structured around four core modules:
 
 This textbook includes several AI-powered features that enhance the learning experience:
 
-- **🔍 RAG Chatbot**: An AI assistant that answers questions based on the textbook content using Retrieval-Augmented Generation
+- **🔍 RAG Chatbot**: A fully public AI assistant that answers questions based on the textbook content using Retrieval-Augmented Generation (no account required)
   - Full-book mode: Answers using the entire textbook as context
   - Selected-text mode: Answers using only the text you've selected on the page
-- **👤 Personalization**: Content adapts based on your background and experience level
-- **🌐 Urdu Translation**: On-demand translation to Urdu for broader accessibility
-- **🔐 Authentication System**: Secure access with user profiles and background questionnaire
+- **100% Free Operation**: Uses only free-tier services (Google Gemini API, Qdrant Cloud Free Tier)
 
 ## 🛠️ Technologies Used
 
 ### Frontend
 - [Docusaurus v3.9.2](https://docusaurus.io/) - Modern static site generator
 - React.js - Component-based UI development
-- Better-Auth - Authentication system
 - TypeScript - Type safety
 
 ### Backend
 - [FastAPI](https://fastapi.tiangolo.com/) - High-performance Python web framework
-- [Qdrant](https://qdrant.tech/) - Vector database for RAG system
-- [Google Gemini](https://deepmind.google/technologies/gemini/) - AI model for responses
+- [Qdrant](https://qdrant.tech/) - Vector database for RAG system (Free Tier)
+- [Google Gemini](https://deepmind.google/technologies/gemini/) - AI model for responses (Free Tier)
 - [LangChain](https://www.langchain.com/) - LLM application framework
 
 ### Infrastructure
 - GitHub Pages / Vercel - Frontend deployment
 - Docker - Containerization for backend services
-- Neon Serverless Postgres - Database backend
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (v18 or higher)
-- [Yarn](https://yarnpkg.com/) 
+- [Yarn](https://yarnpkg.com/)
 - [Python](https://www.python.org/) (v3.9 or higher)
 
 ### Setup Instructions
@@ -79,18 +75,15 @@ This textbook includes several AI-powered features that enhance the learning exp
    # Create .env file in the project root
    touch .env
    ```
-   
+
    Add the following to your `.env` file:
    ```env
-   # Backend - Qdrant Cloud
+   # Backend - Qdrant Cloud (Free Tier)
    QDRANT_URL="your-qdrant-url"
    QDRANT_API_KEY="your-qdrant-api-key"
-   
-   # Backend - Google Gemini
+
+   # Backend - Google Gemini (Free Tier)
    GEMINI_API_KEY="your-gemini-api-key"
-   
-   # Backend - Authentication
-   AUTH_SECRET_KEY="a_very_secret_key_that_should_be_long_and_random"
    ```
 
 5. **Run the application**
@@ -107,16 +100,11 @@ This textbook includes several AI-powered features that enhance the learning exp
    ```
 
 6. **Populate the knowledge base**
-   
-   After starting the backend, you need to ingest the textbook content into the vector database:
-   
-   1. Visit the website at `http://localhost:3000`
-   2. Create an account and log in
-   3. Send a POST request to `http://localhost:8000/ingest/run` with your authentication token in the header:
-   
+
+   After starting the backend, you need to ingest the textbook content into the vector database by sending a POST request to `http://localhost:8000/ingest/run`:
+
    ```bash
-   curl -X POST "http://localhost:8000/ingest/run" \
-        -H "Authorization: Bearer YOUR_AUTH_TOKEN"
+   curl -X POST "http://localhost:8000/ingest/run"
    ```
 
 ### Development Scripts
@@ -181,7 +169,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Credits
 
-This project was created to advance education in physical AI and humanoid robotics, combining cutting-edge AI techniques with robotics education to prepare students for the future of embodied intelligence.
+This project was created to advance education in physical AI and humanoid robotics, combining cutting-edge AI techniques with robotics education to prepare students for the future of embodied intelligence. The project operates 100% free with no paid features or services required.
 
 ---
 

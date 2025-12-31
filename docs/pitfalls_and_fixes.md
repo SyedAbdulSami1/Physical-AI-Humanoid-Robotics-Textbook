@@ -87,13 +87,10 @@ app.add_middleware(
 
 ## Translation Issues
 
-### 12. Urdu Translation Failures
-**Problem:** Translation API calls fail or return incorrect results
-**Solutions:**
-- Verify Google Cloud Translation API or DeepL API credentials
-- Check if the target language code is correct ('ur' for Urdu)
-- Implement fallback translation mechanisms
-- Add proper error handling for translation timeouts
+### 12. Translation Feature Removed
+**Note:** The Urdu translation feature has been removed to maintain 100% free operation of the project.
+- The project now operates exclusively using free-tier services with no translation functionality.
+- All references to translation APIs and features have been removed from the codebase.
 
 ## Personalization Issues
 

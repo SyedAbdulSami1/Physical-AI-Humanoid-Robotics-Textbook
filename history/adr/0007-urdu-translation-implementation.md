@@ -1,35 +1,35 @@
-# ADR-0007: Urdu Translation Implementation
+# ADR-0007: Urdu Translation Feature Removal
 
-- **Status:** Proposed
-- **Date:** 2025-12-10
+- **Status:** Superseded
+- **Date:** 2025-12-30
 - **Feature:** textbook-physical-ai
-- **Context:** To enhance accessibility, the project includes a feature for on-demand Urdu translation of textbook chapters. The decision lies between using a third-party cloud-based translation service or a self-hosted open-source model. Key factors are cost, translation quality, and implementation complexity, especially within a hackathon's constraints.
+- **Context:** To maintain 100% free operation of the project, the Urdu translation feature has been removed. This decision was made to ensure the project exclusively uses free-tier services and remains accessible without any paid features or services.
 
 ## Decision
 
-We will use a **local, open-source Hugging Face model** for translation. Specifically, we will start with a model from the NLLB (No Language Left Behind) family or a similar high-quality model optimized for English-to-Urdu translation. This model will be run on-demand within our FastAPI backend. This approach avoids external API costs and keeps the entire translation pipeline within our control.
+The **Urdu translation feature has been removed** from the project. The project will no longer include on-demand translation of textbook chapters. This ensures that the project remains 100% free to use and operates exclusively within free-tier service constraints.
 
 ## Consequences
 
 ### Positive
 
-- **No Direct Cost:** There are no per-character or per-request costs associated with a self-hosted model, which is ideal for a free-to-use educational tool.
-- **Data Privacy:** The content being translated never leaves our own backend server, which is a good practice even if the content is public.
-- **Control & Customization:** We have full control over the model and could potentially fine-tune it on our specific domain if needed (though this is out of scope for the hackathon).
+- **100% Free Operation:** The project now operates exclusively using free-tier services with no paid features.
+- **Reduced Complexity:** Removing the translation feature simplifies the architecture and reduces potential points of failure.
+- **Lower Resource Usage:** No additional computational resources are required for translation tasks.
+- **Faster Development:** Development effort can be focused on core RAG chatbot functionality rather than translation features.
 
 ### Negative
 
-- **Infrastructure Overhead:** We are responsible for downloading, managing, and running the model. This will increase the resource requirements (RAM and potentially GPU) of our backend server.
-- **Potentially Lower Quality:** While modern open-source models are very good, they may not match the quality of large-scale commercial services like Google Translate or DeepL for all types of content.
-- **Performance Impact:** Running the translation model on the same server as the API can impact the performance and responsiveness of other endpoints. The first translation request might be slow as the model is loaded into memory.
+- **Reduced Accessibility:** Non-English speakers may have reduced access to the content.
+- **Limited Localization:** The project does not support multilingual access.
 
 ## Alternatives Considered
 
-- **Paid Cloud Translation API (e.g., Google Translate, DeepL):** Using a managed API for translation.
-    - **Why Rejected:** These services are excellent but incur costs based on usage. For a hackathon project aiming for a free or low-cost stack, integrating a paid API for a core feature is not ideal. It would also introduce another external dependency and API key to manage.
+- **Keep Translation Feature:** Continue with the original plan to implement translation.
+    - **Why Rejected:** This would require paid services or introduce complexity that conflicts with the project's goal of 100% free operation.
 
-- **Batch Pre-translation:** Translating all content beforehand and serving the Urdu version as static files.
-    - **Why Rejected:** This would double the amount of content to manage and store. It also loses the "on-demand" nature of the feature, making it less dynamic. Any update to the English content would require a full re-translation of everything. The on-demand approach is more flexible.
+- **Community Translation:** Allow community contributions for translations.
+    - **Why Rejected:** This would still require infrastructure and management overhead that conflicts with the free operation goal.
 
 ## References
 

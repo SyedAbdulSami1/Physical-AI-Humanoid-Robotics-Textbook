@@ -1,12 +1,11 @@
 # Specification: Physical AI & Humanoid Robotics Textbook
 
 ## Intent
-The intent is to deliver an AI-Native Textbook on Physical AI and Humanoid Robotics, integrated into a publicly deployed Docusaurus site. This project, a deliverable for the Panaversity Hackathon I, will include core features such as a public RAG chatbot with a modernized UI and will be developed using Spec-Kit Plus. All user authentication has been removed to make the chatbot publicly accessible.
+The intent is to deliver an AI-Native Textbook on Physical AI and Humanoid Robotics, integrated into a publicly deployed Docusaurus site. This project, a deliverable for the Panaversity Hackathon I, will include core features such as a public RAG chatbot with a modernized UI and will be developed using Spec-Kit Plus. All user authentication has been removed to make the chatbot publicly accessible. The project exclusively uses the free Google Gemini API and does not include any translation features to maintain 100% free operation.
 
 ## User Personas
 *   **Students/Learners**: Individuals seeking to learn about Physical AI and Humanoid Robotics, who are assumed to have basic Python knowledge (syntax, data structures, functions). This persona ranges from beginners in robotics to advanced practitioners, all benefiting from structured content, code examples, diagrams, exercises, and further reading.
 *   **Researchers/Developers**: Professionals and enthusiasts looking for in-depth information, practical code implementations, and a reliable reference for Physical AI concepts; their experience will include access to code-centric views and advanced examples.
-*   **Global Audiences**: Users who require content in languages other than English, specifically Urdu, to facilitate their learning and research.
 
 
 ## Success Evals
@@ -18,6 +17,8 @@ The intent is to deliver an AI-Native Textbook on Physical AI and Humanoid Robot
 *   The RAG chatbot must clearly inform the user if it cannot find relevant information within the textbook's content for a given query, instead of attempting to answer from external knowledge.
 *   The Docusaurus UI has been modernized to be clean, modern, readable, and professional. This includes improvements to typography, layout, spacing, and navigation. The chatbot UI has also been improved with better message bubbles, responsiveness, and dark/light mode support.
 *   The RAG chatbot is fully public and requires no authentication.
+*   The project exclusively uses the free Google Gemini API with no paid features or services.
+*   Translation features have been removed to maintain 100% free operation.
 *   Full Spec-Kit Plus artifacts, including Architecture Decision Records (ADRs), Product Health Reports (PHRs), and historical records, are fully preserved within the project.
 *   The completed project is submitted before the deadline of Sunday, November 30, 2025, 06:00 PM PKT.
 
@@ -40,7 +41,8 @@ The intent is to deliver an AI-Native Textbook on Physical AI and Humanoid Robot
 *   Development of an offline Progressive Web Application (PWA) is not a project goal.
 *   The capability to export textbook content to PDF format is not included.
 *   Implementation of a discussion forum or community interaction features is outside the project scope.
-
+*   Translation features (e.g., Urdu translation) are explicitly excluded to maintain 100% free operation.
+*   User authentication or account systems are excluded from the RAG chatbot functionality.
 
 
 ## Constitution Alignment Check
@@ -49,6 +51,7 @@ The project strongly aligns with the constitution's principles of:
 *   **Open Source Contribution**: Adherence to the MIT license promotes collaboration and accessibility of the codebase.
 *   **AI-Driven Innovation**: Leveraging AI for RAG chatbot functionality exemplifies innovative application of AI for enhanced learning experiences.
 *   **Structured Development**: The mandated use of Spec-Kit Plus ensures a systematic, transparent, and robust development process, aligning with best practices for project governance and maintainability.
+*   **Free and Open Access**: The project exclusively uses free services and removes all paid features to ensure universal accessibility.
 
 
 ---
@@ -59,31 +62,27 @@ The project strongly aligns with the constitution's principles of:
 
 #### Backend Requirements
 *   **Framework**: The RAG chatbot backend MUST utilize FastAPI as the primary web framework, with all endpoints implemented as asynchronous functions (`async def`) to ensure optimal performance and scalability.
-
+*   **No Authentication**: The RAG chatbot MUST be fully public with no authentication, login, signup, sessions, JWT, middleware, guards, or protected routes.
 *   **Vector Storage**: Qdrant Cloud Free Tier MUST be used for vector embeddings storage and retrieval, containing embeddings of all textbook content for accurate semantic search and retrieval.
-*   **Generative AI**: Google Gemini API MUST be leveraged for content generation and response formulation, properly integrating retrieved context from the vector store with the LLM's generative capabilities.
+*   **Generative AI**: Google Gemini API MUST be leveraged for content generation and response formulation, properly integrating retrieved context from the vector store with the LLM's generative capabilities. The project MUST use only the free tier of Google Gemini API.
 
 #### RAG Functionality
 *   **Full Book Querying**: The chatbot MUST be able to answer questions based on the entire content of the textbook with high accuracy.
 *   **Selected-Text-Only Mode**: The chatbot MUST support a selected-text-only RAG mode where user queries are contextualized based only on highlighted text sections rather than the entire textbook corpus. This functionality restricts answers strictly to user-selected chunks.
 *   **Ingestion Pipeline**: An automated ingestion pipeline MUST be created to read all book Markdown content, chunk content appropriately, generate embeddings, and persist them to the vector store during build/deploy with error handling and validation.
 
-
-
-
-
 ### User Interface and Experience
 
 #### Frontend Components
 *   **Docusaurus Integration**: All interactive features (chatbot) MUST be implemented as modular Docusaurus/React components and seamlessly integrated into the site.
+*   **Modern UI**: The chatbot UI MUST be modern, clean, and professional with improved message bubbles, responsiveness, and dark/light mode support.
 *   **Loading States**: All interactive features MUST include appropriate loading states to indicate processing to the user.
-*   **Fallback Mechanisms**: The system MUST include fallback mechanisms for when external services fail (e.g., translation service unavailable).
+*   **Fallback Mechanisms**: The system MUST include fallback mechanisms for when external services fail.
 
 ### Quality and Performance Requirements
 
 #### Performance Standards
 *   **Async Endpoints**: All backend endpoints MUST be implemented asynchronously using `async def` functions for all chat queries and content retrieval.
-
 *   **Error Handling**: Comprehensive error handling MUST be implemented throughout the application with graceful degradation in response to service failures (e.g., LLM unavailability, vector store downtime).
 
 #### Quality Gates
@@ -96,7 +95,8 @@ The project strongly aligns with the constitution's principles of:
 *   Selected-text-only mode functions with >85% accuracy when users highlight specific content sections
 *   Ingestion pipeline processes all book content within 10 minutes during deployment
 *   System maintains sub-2 second response times for 95% of requests under normal load
-
 *   All backend endpoints respond asynchronously with appropriate error handling
 *   The system gracefully handles service outages without crashing
 *   Reusable skills/subagents demonstrate clear separation of concerns and testability
+*   The chatbot is fully public with no authentication requirements
+*   The project uses only the free Google Gemini API with no paid features

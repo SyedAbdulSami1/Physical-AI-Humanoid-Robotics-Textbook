@@ -71,10 +71,6 @@ QDRANT_API_KEY=""
 # Backend - Gemini
 # Get this from your Google Cloud Console
 
-# Backend - Authentication
-# Use a long, random string for security
-AUTH_SECRET_KEY="a_very_secret_key_that_should_be_long_and_random"
-
 # Frontend (Optional - if your deployed API is not at localhost:8000)
 # REACT_APP_API_URL="http://your-backend-api-url.com"
 ```

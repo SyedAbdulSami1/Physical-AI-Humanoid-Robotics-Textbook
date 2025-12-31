@@ -78,9 +78,6 @@ Start by analyzing the project structure, then implement all five requirements f
 
 
 All Important key and api ("plz check in all .env files")
-# Security
-AUTH_SECRET_KEY="plz check in .env"
-
 # Database Configuration
 NEON_DATABASE_URL="plz check in .env"
 
@@ -120,3 +117,5 @@ GEMINI_API_KEY=""plz check in .env""
 
 # Frontend URL (for CORS)
 FRONTEND_URL=http://localhost:3000
+ Kal dobara koshish karen. Kal jab aap curl -X POST http://localhost:8000/ingest/run command chalayenge, to aapki
+      API limit reset ho chuki hogi aur yeh command poori tarah chal jayegi.
