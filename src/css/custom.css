@@ -1,186 +1,181 @@
 /**
- * @layer reset, base, components, utilities;
+ * =============================================================================
+ * ## Dual-Mode Black & Light Sea Green Theme for Docusaurus ##
+ * =============================================================================
+ * This theme supports two modes:
+ * 1. Dark Mode: Black background with light text and sea green accents.
+ * 2. Light Mode: White background with dark text and sea green accents.
+ * =============================================================================
  */
 
-/* You can override the default Infima variables here. */
-:root {
-  /* --- Color Palette --- */
-  --ifm-color-primary: #1e88e5; /* A modern, friendly blue */
-  --ifm-color-primary-dark: #1976d2;
-  --ifm-color-primary-darker: #1565c0;
-  --ifm-color-primary-darkest: #0d47a1;
-  --ifm-color-primary-light: #42a5f5;
-  --ifm-color-primary-lighter: #64b5f6;
-  --ifm-color-primary-lightest: #e3f2fd; /* A very light blue for backgrounds */
+/* --- Font Imports --- */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
 
-  /* --- UI Colors --- */
-  --ifm-background-color: #ffffff; /* Clean white background */
+
+/* --- Root Variables: Light Mode (Default) --- */
+:root {
+  /* --- Primary Color Palette (Light Sea Green) --- */
+  --ifm-color-primary: #20B2AA; /* LightSeaGreen */
+  --ifm-color-primary-dark: #1ca099;
+  --ifm-color-primary-darker: #198e88;
+  --ifm-color-primary-darkest: #136c66;
+  --ifm-color-primary-light: #23c4bb;
+  --ifm-color-primary-lighter: #28d7cd;
+  --ifm-color-primary-lightest: #e9f7f7; /* Very light green for subtle backgrounds */
+
+  /* --- Base & UI Colors --- */
+  --ifm-background-color: #ffffff;
   --ifm-navbar-background-color: rgba(255, 255, 255, 0.8);
-  --ifm-footer-background-color: #242526;
+  --ifm-footer-background-color: #f8f9fa;
   --ifm-card-background-color: #ffffff;
-  --ifm-border-color: #e5e7eb;
+  --ifm-border-color: #dee2e6;
 
   /* --- Typography --- */
-  --ifm-font-family-base: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
-  --ifm-font-family-monospace: 'Fira Code', 'JetBrains Mono', 'Roboto Mono', monospace;
-  --ifm-line-height-base: 1.7;
-  --ifm-h1-font-size: 2.5rem;
-  --ifm-h2-font-size: 2rem;
-  --ifm-h3-font-size: 1.75rem;
-  --ifm-font-color-base: #111827;
-  --ifm-font-color-secondary: #374151;
+  --ifm-font-family-base: 'Lato', system-ui, sans-serif;
+  --ifm-font-family-monospace: 'Source Code Pro', monospace;
+  --ifm-heading-font-family: 'Montserrat', sans-serif;
+  --ifm-font-color-base: #000000;
+  --ifm-font-color-secondary: #525252;
+  --ifm-heading-color: #000000;
+  --ifm-link-color: var(--ifm-color-primary);
 
-  /* --- Sizing & Spacing --- */
-  --ifm-global-radius: 8px; /* Consistent border radius */
+  /* --- Sizing, Shadows & Effects --- */
+  --ifm-global-radius: 4px;
+  --ifm-global-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --ifm-global-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --ifm-global-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 
   /* --- Code Blocks --- */
-  --ifm-code-font-size: 90%;
-  --ifm-code-padding-horizontal: 0.7rem;
-  --ifm-code-padding-vertical: 0.3rem;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.05);
-
-  /* --- Shadows --- */
-  --ifm-global-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --ifm-global-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --ifm-global-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --ifm-code-background: #f6f8fa;
+  --docusaurus-highlighted-code-line-bg: rgba(32, 178, 170, 0.1);
 }
 
 /* --- Dark Mode Overrides --- */
 [data-theme='dark'] {
-  --ifm-color-primary: #66b2ff; /* A lighter blue for dark mode */
-  --ifm-color-primary-dark: #4da1ff;
-  --ifm-color-primary-darker: #3391ff;
-  --ifm-color-primary-darkest: #006eff;
-  --ifm-color-primary-light: #85c2ff;
-  --ifm-color-primary-lighter: #a3d2ff;
-  --ifm-color-primary-lightest: #1e293b;
+  --ifm-color-primary-lightest: #172a29; /* Dark green for subtle backgrounds */
 
-  --ifm-background-color: #0f172a; /* A deep, modern dark blue */
-  --ifm-navbar-background-color: rgba(15, 23, 42, 0.8);
-  --ifm-footer-background-color: #020617;
-  --ifm-card-background-color: #1e293b;
-  --ifm-border-color: #334155;
+  --ifm-background-color: #000000;
+  --ifm-navbar-background-color: rgba(0, 0, 0, 0.8);
+  --ifm-footer-background-color: #0a0a0a;
+  --ifm-card-background-color: #0d0d0d;
+  --ifm-border-color: #2a2a2a;
 
-  --ifm-font-color-base: #e2e8f0;
-  --ifm-font-color-secondary: #94a3b8;
+  --ifm-font-color-base: #e0e0e0;
+  --ifm-font-color-secondary: #a0a0a0;
+  --ifm-heading-color: #ffffff;
+
+  --ifm-global-shadow-sm: 0 1px 3px 0 rgba(32, 178, 170, 0.05);
+  --ifm-global-shadow-md: 0 4px 6px -1px rgba(32, 178, 170, 0.08);
+  --ifm-global-shadow-lg: 0 10px 15px -3px rgba(32, 178, 170, 0.1);
   
-  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.1);
+  --ifm-code-background: #1a1a1a;
+  --docusaurus-highlighted-code-line-bg: rgba(32, 178, 170, 0.2);
 }
 
 
-/* --- Global Styles & Resets --- */
-html {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+/*
+ * =============================================================================
+ * ### GLOBAL LAYOUT & TYPOGRAPHY ###
+ * =============================================================================
+ */
 
-/* Make navbar sticky and add a backdrop filter for a modern effect */
-.navbar {
-  backdrop-filter: saturate(180%) blur(5px);
-  box-shadow: var(--ifm-global-shadow-sm);
-}
-
-/* Wider content for better readability on large screens */
-.main-wrapper .container {
-  max-width: 1280px;
-  margin: 0 auto;
-}
-
-/* --- Typography Improvements --- */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  letter-spacing: -0.5px;
+  font-family: var(--ifm-heading-font-family);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ifm-heading-color);
 }
 
-.markdown > p {
-  font-size: 1.1rem;
+/*
+ * =============================================================================
+ * ### COMPONENT STYLES (Work in both modes) ###
+ * =============================================================================
+ */
+
+/* --- Navbar --- */
+.navbar {
+  background-color: var(--ifm-navbar-background-color);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--ifm-border-color);
+  box-shadow: none;
+}
+.navbar__link--active {
+    color: var(--ifm-color-primary);
+}
+
+/* --- Sidebar --- */
+.menu {
+  background-color: var(--ifm-card-background-color);
+}
+.menu__link {
   color: var(--ifm-font-color-secondary);
+  transition: all 150ms ease;
+  border-radius: 0;
+  border-left: 2px solid transparent;
 }
-
-/* --- Component Modernization --- */
-
-/* Sidebar */
-.menu__link--active:not(.menu__link--sublist) {
+.menu__link:hover {
   background-color: var(--ifm-color-primary-lightest);
+  color: var(--ifm-color-primary);
+  border-left-color: var(--ifm-color-primary);
+}
+.menu__link--active {
+  background-color: var(--ifm-color-primary-lightest);
+  color: var(--ifm-color-primary) !important;
+  border-left-color: var(--ifm-color-primary);
 }
 
-/* Buttons */
+/* --- Buttons --- */
 .button {
-  border-radius: var(--ifm-global-radius);
-  font-weight: 600;
-  transition: all 0.2s ease;
-  box-shadow: var(--ifm-global-shadow-sm);
+  font-family: var(--ifm-heading-font-family);
+  text-transform: uppercase;
+  transition: all 200ms ease;
+  box-shadow: none;
+  border: 1px solid var(--ifm-color-primary);
+  background-color: transparent;
+  color: var(--ifm-color-primary);
 }
 .button:hover {
-  transform: translateY(-2px);
+  background-color: var(--ifm-color-primary);
+  color: #fff;
   box-shadow: var(--ifm-global-shadow-md);
 }
+[data-theme='dark'] .button:hover {
+  color: #000;
+}
+.button--primary {
+    background-color: var(--ifm-color-primary);
+    color: #fff;
+}
+[data-theme='dark'] .button--primary {
+    color: #000;
+}
 
-/* Cards (used for homepage features, etc.) */
-.card {
-  border-radius: var(--ifm-global-radius);
+/* --- Content Area --- */
+.markdown a {
+    color: var(--ifm-color-primary);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--ifm-color-primary-dark);
+}
+.markdown a:hover {
+    color: var(--ifm-color-primary-light);
+    border-bottom-style: solid;
+}
+
+/* --- Code Blocks --- */
+div[class*='codeBlockContainer'] {
   border: 1px solid var(--ifm-border-color);
-  background-color: var(--ifm-card-background-color);
-  box-shadow: none;
-  transition: all 0.2s ease;
-}
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--ifm-global-shadow-lg);
-  border-color: var(--ifm-color-primary);
-}
-
-/* Admonitions (notes, warnings, etc.) */
-.admonition {
   border-radius: var(--ifm-global-radius);
-  border: 1px solid var(--ifm-border-color);
-  border-left-width: 4px;
-  box-shadow: var(--ifm-global-shadow-sm);
+  background-color: var(--ifm-code-background);
 }
-.admonition-heading {
-  border-bottom: 1px solid var(--ifm-border-color);
-}
-.admonition-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.token.comment {
+  font-style: italic;
+  color: #777 !important;
 }
 
-/* Code block styling */
-.docusaurus-highlight-code-line {
-  background-color: var(--docusaurus-highlighted-code-line-bg);
-  display: block;
-  margin: 0 calc(-1 * var(--ifm-pre-padding));
-  padding: 0 var(--ifm-pre-padding);
+/* --- Footer --- */
+.footer {
+    background-color: var(--ifm-footer-background-color);
+    border-top: 1px solid var(--ifm-border-color);
 }
-
-/* Table styling */
-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    border: 1px solid var(--ifm-border-color);
-    border-radius: var(--ifm-global-radius);
-    overflow: hidden;
-    margin-bottom: 2rem;
-}
-th, td {
-    border-bottom: 1px solid var(--ifm-border-color);
-    padding: 0.75rem 1rem;
-    text-align: left;
-}
-th {
-    background-color: var(--ifm-color-primary-lightest);
-    font-weight: 600;
-}
-tbody tr:last-child td {
-    border-bottom: none;
-}
-
-[data-theme='dark'] th {
-    background-color: var(--ifm-color-primary-lightest);
-}
-
-/* --- Font Imports --- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');

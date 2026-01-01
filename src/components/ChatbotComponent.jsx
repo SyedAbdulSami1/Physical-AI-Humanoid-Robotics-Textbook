@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import styles from './styles.css'; // We'll create this CSS file
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_URL = process.env.VITE_API_URL || 'https://physical-ai-backend.onrender.com';
 
 const ChatbotComponent = () => {
     const [isOpen, setIsOpen] = useState(false);

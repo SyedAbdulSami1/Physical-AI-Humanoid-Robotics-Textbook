@@ -136,17 +136,91 @@ Physical-AI-Humanoid-Robotics-Textbook/
 └── static/                 # Static assets
 ```
 
-## 🌐 Deployment
+## 🌐 Production Deployment
 
-### Frontend (Vercel/GitHub Pages)
-The Docusaurus frontend can be deployed to:
-- Vercel: Connect your GitHub repository
-- GitHub Pages: Use the built-in deployment workflow
+Deploying the textbook requires setting up the backend on Render and the frontend on Vercel. Follow these steps carefully to ensure a successful launch.
 
-### Backend (Render/Docker)
-The FastAPI backend is designed for deployment on:
-- Render: Use the provided `render.yaml`
-- Other platforms: Containerized with the provided `Dockerfile`
+### 1. Deploying the Backend to Render
+
+The FastAPI backend must be deployed as a web service on a platform that supports persistent server processes. Render is a suitable choice.
+
+**⚠️ Important Note:** Do NOT deploy the FastAPI backend to Vercel. Vercel's serverless function architecture is not designed for stateful, long-running Python servers like FastAPI and will lead to issues.
+
+**Render Deployment Steps:**
+
+1.  **Create a New Web Service:**
+    *   In your Render dashboard, click "New" -> "Web Service".
+    *   Connect your GitHub account and select the project repository.
+
+2.  **Configure the Service:**
+    *   **Name:** Choose a name for your service (e.g., `physical-ai-backend`).
+    *   **Region:** Select a region close to your users.
+    *   **Branch:** Select the `main` branch.
+    *   **Root Directory:** Set this to `app`. This is critical, as it tells Render to run commands from within the `/app` folder.
+    *   **Runtime:** Select `Python 3`.
+    *   **Build Command:** `pip install -r requirements.txt`
+    *   **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+    *   **Instance Type:** The "Free" tier is sufficient for this project.
+
+3.  **Add Environment Variables:**
+    *   Go to the "Environment" tab for your new service.
+    *   Add the following environment variables. These are the same keys from your local `.env` file.
+        *   `GEMINI_API_KEY`: Your Google Gemini API key.
+        *   `QDRANT_URL`: The URL for your Qdrant Cloud instance.
+        *   `QDRANT_API_KEY`: The API key for your Qdrant instance.
+        *   `PYTHON_VERSION`: Set this to a specific Python version like `3.10` to ensure consistency.
+
+4.  **Deploy and Verify:**
+    *   Click "Create Web Service" to start the deployment.
+    *   Once deployed, Render will provide you with a public URL (e.g., `https://physical-ai-backend.onrender.com`).
+    *   You can check the health of the backend by visiting `https://<your-backend-url>/health`. It should return `{"status":"healthy", ...}`.
+
+5.  **Initial Content Ingestion:**
+    *   After the first successful deployment, you must populate the vector database by making a `POST` request to the `/ingest/force` endpoint on your new live backend.
+    *   You can do this from your local machine using `curl`:
+        ```bash
+        curl -X POST "https://<your-backend-url>/ingest/force"
+        ```
+    *   This process may take a few minutes. Check the backend logs in Render to monitor progress.
+
+### 2. Deploying the Frontend to Vercel
+
+The Docusaurus frontend is a static site and is a perfect fit for Vercel's deployment platform.
+
+**Vercel Deployment Steps:**
+
+1.  **Create a New Project:**
+    *   In your Vercel dashboard, click "Add New..." -> "Project".
+    *   Import the project from your GitHub repository.
+
+2.  **Configure the Project:**
+    *   **Framework Preset:** Vercel should automatically detect "Docusaurus".
+    *   **Root Directory:** Leave this as the default (repository root).
+    *   **Build and Output Settings:** Vercel's defaults for Docusaurus are typically correct.
+
+3.  **Add Environment Variable:**
+    *   Navigate to the "Settings" -> "Environment Variables" section of your Vercel project.
+    *   Add the following variable:
+        *   **Name:** `VITE_API_URL`
+        *   **Value:** Enter the full URL of your deployed Render backend (e.g., `https://physical-ai-backend.onrender.com`).
+
+4.  **Deploy:**
+    *   Click "Deploy". Vercel will build and deploy your Docusaurus site.
+    *   Once finished, Vercel will give you the public URL for your live textbook.
+
+### 3. Final Testing
+
+*   Open your Vercel frontend URL in a browser.
+*   Navigate to a page with the chatbot.
+*   Open the chatbot and ask a question related to the textbook content.
+*   If the chatbot responds with a relevant answer and sources, your deployment is successful!
+
+### Common Deployment Pitfalls
+
+*   **Backend Root Directory:** Forgetting to set the **Root Directory** to `/app` on Render is the most common mistake. If you miss this, the build will fail because it won't find `requirements.txt`.
+*   **Environment Variables:** Double-check that all environment variables are copied correctly to Render and Vercel. A missing or incorrect API key is a frequent source of errors.
+*   **CORS Issues:** The backend is configured to allow requests from `localhost:3000`. If you use a different local port or a custom domain, you may need to add it to the `origins` list in `app/main.py`. The production Vercel URL is not needed in the CORS origins list because browsers typically don't block server-to-server requests initiated via Vercel's infrastructure.
+*   **Forgetting Ingestion:** If the chatbot only says "Sorry, I can't answer that," you likely forgot to run the one-time ingestion `POST` request to your live backend's `/ingest/force` endpoint.
 
 ## 🤝 Contributing
 

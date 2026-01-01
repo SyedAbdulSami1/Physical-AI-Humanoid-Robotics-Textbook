@@ -1,23 +1,173 @@
 /**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
+ * CSS for the new Black & Light Sea Green homepage.
  */
 
 .heroBanner {
-  padding: 4rem 0;
+  background-color: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  padding: 8rem 0;
   text-align: center;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
 }
 
-@media screen and (max-width: 996px) {
-  .heroBanner {
-    padding: 2rem;
-  }
+[data-theme='dark'] .heroBanner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(ellipse at center, rgba(32, 178, 170, 0.1), transparent 70%);
+  pointer-events: none;
+}
+
+.heroTitle {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  color: var(--ifm-heading-color);
+}
+
+[data-theme='dark'] .heroTitle {
+  text-shadow: 0 0 15px rgba(32, 178, 170, 0.5);
+}
+
+.highlight {
+  color: var(--ifm-color-primary);
+}
+
+.heroSubtitle {
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto 2rem auto;
+  color: var(--ifm-font-color-secondary);
 }
 
 .buttons {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 1rem;
+}
+
+/*
+ * =============================================================================
+ * ## New Homepage Sections ##
+ * =============================================================================
+ */
+
+.contentSection {
+  padding: 6rem 1rem;
+  border-bottom: 1px solid var(--ifm-border-color);
+}
+
+.sectionTitle {
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  text-transform: uppercase;
+}
+
+/* --- Features Section --- */
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+.featureCard {
+  border: 1px solid var(--ifm-border-color);
+  padding: 2rem;
+  border-radius: var(--ifm-global-radius);
+  background-color: var(--ifm-card-background-color);
+  transition: all 200ms ease;
+}
+.featureCard:hover {
+  border-color: var(--ifm-color-primary);
+  transform: translateY(-5px);
+  box-shadow: var(--ifm-global-shadow-md);
+}
+.featureTitle {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--ifm-color-primary);
+  text-transform: none;
+}
+
+/* --- Testimonials Section --- */
+.testimonialsSection {
+  background-color: var(--ifm-color-primary-lightest);
+}
+.testimonialsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.testimonialCard {
+  background-color: var(--ifm-card-background-color);
+  padding: 2rem;
+  border-radius: var(--ifm-global-radius);
+  border: 1px solid var(--ifm-border-color);
+  display: flex;
+  flex-direction: column;
+}
+.testimonialCard blockquote {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--ifm-font-color-secondary);
+  border: none;
+  padding: 0;
+  flex-grow: 1;
+}
+.testimonialCard cite {
+  font-weight: 700;
+  color: var(--ifm-heading-color);
+}
+
+/* --- CTA Section --- */
+.ctaSection {
+  padding: 8rem 1rem;
+  background-color: var(--ifm-card-background-color);
+  border-bottom: none;
+}
+.ctaSubtitle {
+  font-size: 1.25rem;
+  color: var(--ifm-font-color-secondary);
+  max-width: 600px;
+  margin: 0 auto 2rem auto;
+}
+
+/*
+ * =============================================================================
+ * ### Responsiveness ###
+ * =============================================================================
+ */
+
+@media screen and (max-width: 996px) {
+  .heroBanner { padding: 6rem 0; }
+  .heroTitle { font-size: 3.5rem; }
+  .heroSubtitle { font-size: 1.25rem; }
+  .testimonialsGrid { grid-template-columns: 1fr; }
+}
+
+@media screen and (max-width: 768px) {
+  .heroBanner { padding: 4rem 2rem; min-height: 70vh; }
+  .heroTitle { font-size: 2.5rem; }
+  .heroSubtitle { font-size: 1.1rem; }
+  .sectionTitle { font-size: 2rem; }
+  .contentSection { padding: 4rem 1rem; }
+  .ctaSection { padding: 5rem 1rem; }
 }
