@@ -7,7 +7,8 @@ import re
 from fastapi import APIRouter, Depends, HTTPException, status
 from qdrant_client import QdrantClient, models as qdrant_models
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+# Switched to local embeddings due to Google Gemini free tier embedding quota restrictions in 2026
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 import markdown
 from bs4 import BeautifulSoup
@@ -27,12 +28,12 @@ router = APIRouter(
 
 QDRANT_URL = os.getenv("QDRANT_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 QDRANT_COLLECTION_NAME = "textbook_content"
 
 # Initialize clients
 qdrant_client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
-embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=GEMINI_API_KEY)
+# Switched to local embeddings due to Google Gemini free tier embedding quota restrictions in 2026
+embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
 
 # Text splitter configuration
 text_splitter = RecursiveCharacterTextSplitter(
@@ -82,7 +83,7 @@ async def _run_ingestion_logic():
         qdrant_client.recreate_collection(
             collection_name=QDRANT_COLLECTION_NAME,
             vectors_config=qdrant_models.VectorParams(
-                size=768,  # Google Gemini embeddings dimension
+                size=384,  # bge-small-en-v1.5 dimension
                 distance=qdrant_models.Distance.COSINE,
             ),
         )
@@ -113,15 +114,21 @@ async def _run_ingestion_logic():
     # 4. Generate embeddings and prepare for upsert
     points_to_upsert = []
     # Use a set to avoid duplicating work for identical content
-    unique_contents = {doc.page_content for doc in chunked_docs}
+    unique_contents = list({doc.page_content for doc in chunked_docs})
     
     try:
-        # Generate embeddings for unique content only
-        embeddings_dict = {content: embeddings.embed_query(content) for content in unique_contents}
+        # Generate embeddings for unique content only using the more efficient batch method
+        embeddings_list = embeddings.embed_documents(unique_contents)
+        embeddings_dict = dict(zip(unique_contents, embeddings_list))
 
         for i, doc in enumerate(chunked_docs):
             # Retrieve the pre-generated embedding
-            embedding = embeddings_dict[doc.page_content]
+            embedding = embeddings_dict.get(doc.page_content)
+            if embedding is None:
+                # This should not happen if logic is correct, but as a fallback
+                print(f"Warning: Could not find pre-generated embedding for content chunk {i}. Re-embedding individually.")
+                embedding = embeddings.embed_query(doc.page_content)
+
             points_to_upsert.append(
                 qdrant_models.PointStruct(
                     id=i, # Use a simple integer ID
@@ -136,9 +143,8 @@ async def _run_ingestion_logic():
         # This will catch API rate limit errors, etc.
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail=f"Failed to generate embeddings. This is likely due to API rate limits. Please wait and try again. Error: {e}"
+            detail=f"Failed to generate embeddings. This is likely due to local model issues or resource constraints. Error: {e}"
         )
-
 
     # 5. Upsert to Qdrant in batches
     try:

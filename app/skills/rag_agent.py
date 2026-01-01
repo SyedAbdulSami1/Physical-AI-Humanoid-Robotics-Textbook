@@ -3,7 +3,9 @@
 import os
 from typing import List, Tuple
 from qdrant_client import QdrantClient
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+# Switched to local embeddings due to Google Gemini free tier embedding quota restrictions in 2026
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 import logging
 
@@ -61,12 +63,10 @@ class RAGAgent:
         # Initialize clients and models
         try:
             self.qdrant_client = QdrantClient(url=self.QDRANT_URL, api_key=self.QDRANT_API_KEY)
-            self.embeddings = GoogleGenerativeAIEmbeddings(
-                model="models/embedding-001",
-                google_api_key=self.GEMINI_API_KEY
-            )
+            # Switched to local embeddings due to Google Gemini free tier embedding quota restrictions in 2026
+            self.embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
             self.llm = ChatGoogleGenerativeAI(
-                model="gemini-1.5-flash",
+                model="gemini-flash-latest",
                 temperature=0.1,
                 google_api_key=self.GEMINI_API_KEY
             )

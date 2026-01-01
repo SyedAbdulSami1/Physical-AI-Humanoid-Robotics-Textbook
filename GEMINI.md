@@ -1,121 +1,70 @@
-You are a senior full-stack engineer and technical documentation agent working on a large open-source project called 
-"Physical AI & Humanoid Robotics Textbook".
+You are a senior Python/RAG expert fixing the final critical issue in the "Physical AI & Humanoid Robotics Textbook" project.
 
-The project stack includes:
-- Docusaurus (React) for the book and UI
-- FastAPI (Python) backend
-- A RAG chatbot
-- Qdrant for vector search
-- NeonDB (Postgres) for metadata
+CURRENT STATUS:
+- Project runs perfectly (UI, server, no 500 errors)
+- Gemini API key loads fine
+- But ingestion fails with 429 quota exceeded on embeddings (even with new accounts in 2026)
+- Result: No data in Qdrant → chatbot always says "Sorry"
 
-This project follows spec-driven development. You must read and respect the specification files before changing anything.
+ROOT CAUSE:
+Google has heavily restricted or zeroed out free tier embedding quota for embedding-001 model.
 
-Your task is to implement the following five requirements strictly and completely:
+PERMANENT SOLUTION:
+Switch embeddings from Gemini API to fully free, unlimited, local open-source embeddings.
 
-────────────────────────────
-1. USE ONLY FREE GOOGLE GEMINI API
-────────────────────────────
-- The entire project must use only the free Google Gemini API.
-- No paid APIs, services, or features are allowed.
-- Remove any references to paid or restricted services.
+YOUR TASK (NO INSTALLATION COMMANDS – USER WILL INSTALL MANUALLY):
 
-────────────────────────────
-2. REMOVE ALL AUTHENTICATION FROM THE RAG CHATBOT
-────────────────────────────
-- The chatbot must be fully public.
-- Remove login, signup, sessions, JWT, middleware, guards, or protected routes related to the chatbot.
-- Users must be able to ask questions immediately without any authentication.
-- Update both backend and frontend accordingly.
+1. DO NOT add any pip install commands – user will run them separately in the app/.venv
 
-────────────────────────────
-3. IMPROVE AND MODERNIZE THE UI
-────────────────────────────
-- Improve the Docusaurus UI to be clean, modern, readable, and professional.
-- Improve typography, layout, spacing, and navigation.
-- Improve the chatbot UI (message bubbles, responsiveness, dark/light support if applicable).
-- The UI should feel like a high-quality technical textbook platform.
+2. Modify ONLY the code in app/skills/rag_agent.py (and any related embedding files)
 
-────────────────────────────
-4. UPDATE ALL SPEC AND PLANNING FILES
-────────────────────────────
-Update and reflect all changes in:
-- spec.md
-- tasks.md
-- plan.md
-- constitution.md
+   - Completely remove Gemini embedding code:
+     * Delete or comment out genai.configure(api_key=...)
+     * Remove all calls to genai.embed_content() or similar
 
-Each of these files must clearly state:
-- The project uses only the free Google Gemini API.
-- The chatbot has no authentication and is public.
-- The UI has been modernized.
-- No paid features are included.
+   - Replace with local HuggingFace embeddings using:
+     model_name = "BAAI/bge-small-en-v1.5"  (384 dimensions, best balance)
 
-Mark relevant tasks as completed where appropriate.
+   - Add import:
+     from langchain_huggingface import HuggingFaceEmbeddings
 
-────────────────────────────
-5. DOCUMENT REMOVAL OF TRANSLATION FEATURE
-────────────────────────────
-- Previously, the project had a translation feature (e.g., Urdu/English translation for content and chatbot).
-- This feature was removed because it relied on paid APIs or services.
-- Ensure no trace of translation functionality remains in code, UI, or documentation.
-- Clearly document in all spec and planning files that translation was removed to keep the project 100% free.
+   - In RAGAgent __init__:
+     self.embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
 
-────────────────────────────
-RULES
-────────────────────────────
-- Follow spec-driven development: read specs first, then implement.
-- Do not invent new requirements.
-- Do not introduce paid services, user accounts, authentication, or paid features.
-- Do not hallucinate APIs.
-- Make minimal, clean, production-ready changes.
-- Prefer deterministic, maintainable code.
+   - Replace embedding functions:
+     def embed_texts(self, texts: list[str]):
+         return self.embeddings.embed_documents(texts)
 
-OUTPUT REQUIREMENTS
-- Show modified files or diffs clearly.
-- Output updated versions of spec.md, tasks.md, plan.md, and constitution.md.
+     def embed_query(self, query: str):
+         return self.embeddings.embed_query(query)
 
-Start by analyzing the project structure, then implement all five requirements fully.
+3. Handle vector dimension change:
+   - bge-small-en-v1.5 uses 384 dimensions (Gemini used 768)
+   - Update Qdrant collection creation to use size=384
+   - If old collection exists with wrong size, either:
+     - Delete it manually (user can do via Qdrant dashboard)
+     - Or add code to recreate collection with correct size
 
+4. Clean up:
+   - GEMINI_API_KEY can stay (if used for text generation), but no longer needed for embeddings
+   - Add clear comment:
+     "# Switched to local embeddings due to Google Gemini free tier embedding quota restrictions in 2026"
 
-All Important key and api ("plz check in all .env files")
-# Database Configuration
-NEON_DATABASE_URL="plz check in .env"
+5. Update documentation (if any spec files mention embeddings):
+   - Add note: "Embeddings now use local open-source model (bge-small-en-v1.5) for unlimited free usage"
 
-# Qdrant Configuration
-QDRANT_URL=""plz check in .env""
-QDRANT_API_KEY=""plz check in .env""
+6. Final outcome after user installs packages and runs ingest:
+   - curl -X POST http://localhost:8000/ingest/run → completes successfully
+   - Qdrant gets real data
+   - Chatbot gives detailed answers from textbook, no more "Sorry"
 
-# Gemini Configuration
-GEMINI_API_KEY=""plz check in .env""
+USER WILL MANUALLY RUN (do not include in your changes):
+pip install sentence-transformers langchain-huggingface
 
-# Docusaurus & Backend Configuration
-# Replace the placeholder values with your actual credentials.
+Start now:
+- First read app/skills/rag_agent.py carefully
+- Then implement all code changes with clear diffs
+- Do NOT output any installation commands
+- Keep Gemini for text generation if it's used (only remove embedding part)
 
-# --- Qdrant Vector Database ---
-# The URL of your Qdrant instance.
-QDRANT_URL=""plz check in .env""
-# Your Qdrant API key (if required).
-QDRANT_API_KEY=""plz check in .env""
-
-
-
-
-# --- PostgreSQL Database (Neon) ---
-# The connection string for your Neon serverless Postgres database.
-NEON_DATABASE_URL=""plz check in .env""
-
-
-
-# Backend Configuration
-PORT=8000
-NEON_DATABASE_URL=""plz check in .env""
-
-
-# API Keys
-GEMINI_API_KEY=""plz check in .env""
-
-
-# Frontend URL (for CORS)
-FRONTEND_URL=http://localhost:3000
- Kal dobara koshish karen. Kal jab aap curl -X POST http://localhost:8000/ingest/run command chalayenge, to aapki
-      API limit reset ho chuki hogi aur yeh command poori tarah chal jayegi.
+This makes the project truly 100% free forever.
